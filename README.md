@@ -37,6 +37,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Mô phỏng cuộc sống: nhà, gia đình, nghề nghiệp, du lịch tự do](docs/UE5_LIFE_SIMULATION_DESIGN.md)
 - [API tạo cuộc sống mới và lưu nghề nghiệp](docs/UE5_NEW_LIFE_AND_CAREER_API.md)
 - [Hồ sơ ngoại hình nhân vật và gia đình](docs/UE5_CHARACTER_AND_FAMILY_PROFILES.md)
+- [API quan hệ gia đình và lưu ngoại hình](docs/UE5_FAMILY_RELATIONSHIP_AND_APPEARANCE_API.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Lưu vị trí hành trình](docs/UE5_CHECKPOINT_SAVE.md)
