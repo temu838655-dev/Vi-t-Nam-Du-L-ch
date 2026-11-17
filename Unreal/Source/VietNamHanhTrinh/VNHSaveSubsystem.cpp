@@ -176,6 +176,40 @@ bool UVNHSaveSubsystem::ClearCareerSelection()
     return SaveProgress(SaveData);
 }
 
+bool UVNHSaveSubsystem::UpdateFamilyRelationship(FName CharacterId, int32 Delta)
+{
+    if (CharacterId.IsNone() || Delta == 0) return false;
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+
+    for (FVNHFamilyMemberSave& Member : SaveData->FamilyMembers)
+    {
+        if (Member.CharacterId == CharacterId)
+        {
+            Member.Relationship = FMath::Clamp(Member.Relationship + Delta, 0, 100);
+            return SaveProgress(SaveData);
+        }
+    }
+    return false;
+}
+
+bool UVNHSaveSubsystem::SetPlayerAppearance(const FVNHSavedAppearance& Appearance)
+{
+    if (Appearance.BodyTypeId.IsNone() || Appearance.FacePresetId.IsNone() ||
+        Appearance.SkinToneId.IsNone() || Appearance.HairStyleId.IsNone() ||
+        Appearance.HairColorId.IsNone() || Appearance.OutfitId.IsNone() ||
+        !FMath::IsFinite(Appearance.HeightCm) || Appearance.HeightCm < 120.0f ||
+        Appearance.HeightCm > 220.0f)
+    {
+        return false;
+    }
+
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+    SaveData->PlayerAppearance = Appearance;
+    return SaveProgress(SaveData);
+}
+
 bool UVNHSaveSubsystem::SaveCheckpoint(FName RegionId, FName CheckpointId)
 {
     if (RegionId.IsNone() || CheckpointId.IsNone()) return false;
