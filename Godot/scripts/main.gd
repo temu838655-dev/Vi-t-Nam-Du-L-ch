@@ -112,6 +112,7 @@ func _save_current_game() -> void:
 		GameState.save_game(player.global_position, player.rotation.y)
 
 func _spawn_family_and_career_board() -> void:
+	_spawn_daily_residents()
 	_add_npc("Mẹ", "mother", Vector3(-2.0, 0, -3.1), Color(0.72, 0.18, 0.22))
 	_add_npc("Bố", "father", Vector3(2.0, 0, -3.1), Color(0.16, 0.28, 0.48))
 	# Each career has its own recruiter so players can choose or change jobs directly.
@@ -123,6 +124,23 @@ func _spawn_family_and_career_board() -> void:
 	_add_shop("vehicle", "ĐẠI LÝ XE MÁY", Vector3(-10.0, 0, 3.0), Color(0.78, 0.12, 0.08), PI)
 	_add_shop("clothing", "THỜI TRANG VIỆT", Vector3(10.0, 0, 3.0), Color(0.12, 0.32, 0.62), PI)
 	_add_shop("food", "QUÁN ĂN & ĐẶC SẢN", Vector3(0.0, 0, 17.0), Color(0.72, 0.34, 0.08), 0.0)
+
+
+func _spawn_daily_residents() -> void:
+	_add_daily_resident("Chú Minh", Vector3(-5.15, 0, -18), Vector3(-5.15, 0, 5), Vector3(-5.15, 0, 23), Color(0.18, 0.38, 0.68), 0.0)
+	_add_daily_resident("Cô Lan", Vector3(5.15, 0, 27), Vector3(5.15, 0, 8), Vector3(5.15, 0, -12), Color(0.68, 0.24, 0.32), 80.0)
+
+func _add_daily_resident(display_name: String, home: Vector3, workplace: Vector3, shop: Vector3, tint: Color, offset: float) -> void:
+	var resident := Node3D.new()
+	resident.name = "Resident_" + display_name.replace(" ", "")
+	resident.set_script(load("res://scripts/civilian_routine.gd"))
+	resident.set("resident_name", display_name)
+	resident.set("home_position", home)
+	resident.set("work_position", workplace)
+	resident.set("shop_position", shop)
+	resident.set("shirt_color", tint)
+	resident.set("schedule_offset", offset)
+	add_child(resident)
 
 func _add_shop(shop_type: String, display_name: String, at: Vector3, tint: Color, facing: float) -> void:
 	var shop := Node3D.new()
