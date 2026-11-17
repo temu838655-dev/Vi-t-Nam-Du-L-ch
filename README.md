@@ -10,7 +10,8 @@ Game mô phỏng du lịch và đời sống Việt Nam theo hướng thế gi�
 - Mã nguồn engine cũ và workflow build của engine cũ đã được loại khỏi nhánh main. Không duy trì song song một prototype engine khác.
 
 ## Những hệ thống UE5 đã có trong mã nguồn
-- GameMode, PlayerController, nhân vật góc nhìn thứ ba, camera và API điều khiển cảm ứng.
+- GameMode tự dựng blockout Hồ Hoàn Kiếm và PlayerStart dự phòng trên map trống; PlayerController hỗ trợ tạo HUD UMG cấu hình từ Blueprint.
+- Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
 - SaveGame và subsystem lưu tiến trình cục bộ.
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
@@ -33,6 +34,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 
 ## Tài liệu
 - [Kiến trúc UE5 mobile](docs/UE5_MOBILE_ARCHITECTURE.md)
+- [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md)
 - [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md)
 - [POI tương tác](docs/UE5_POI_INTERACTION.md)
