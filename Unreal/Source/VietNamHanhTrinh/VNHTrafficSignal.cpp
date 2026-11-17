@@ -126,6 +126,7 @@ void AVNHTrafficSignal::RefreshVehicleStops()
             VehiclesInZone.RemoveAt(Index);
             continue;
         }
-        Vehicle->SetTrafficSignalStop(CurrentState != EVNHTrafficSignalState::Green);
+        if (CurrentState == EVNHTrafficSignalState::Green) Vehicle->RemoveTrafficSignalStopSource(this);
+        else Vehicle->AddTrafficSignalStopSource(this);
     }
 }
