@@ -55,7 +55,7 @@ jobs:
             exit 1
           fi
           yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses || true
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmdline-tools;latest" "cmake;3.10.2.4988404" "ndk;23.2.8568313"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
           test -s "$SDK_ROOT/platform-tools/adb"
@@ -90,7 +90,10 @@ jobs:
           export/android/debug_keystore_pass = "android"
           EOF
           test -s "$ANDROID_HOME/platform-tools/adb"
-          test -s "$ANDROID_HOME/build-tools/33.0.2/aapt"
+          test -s "$ANDROID_HOME/build-tools/34.0.0/aapt"
+          test -d "$ANDROID_HOME/ndk/23.2.8568313"
+          test -d "$ANDROID_HOME/cmake/3.10.2.4988404"
+          test -d "$ANDROID_HOME/platforms/android-34"
           cat "$HOME/.config/godot/editor_settings-4.4.tres"
       - name: Import and validate Godot project
         run: |
