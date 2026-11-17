@@ -55,9 +55,10 @@ func interact_nearby() -> void:
 			closest_distance = distance
 	if closest:
 		var message := str(closest.call("interact"))
+		GameState.save_game(global_position, rotation.y)
 		interaction_message.emit(message)
 	else:
-		interaction_message.emit("Hãy đến gần bố mẹ hoặc bảng việc làm để tương tác.")
+		interaction_message.emit("Hãy đến gần bố mẹ hoặc một điểm tuyển dụng để tương tác.")
 
 func _physics_process(delta: float) -> void:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
