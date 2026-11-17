@@ -101,15 +101,17 @@ jobs:
           godot --headless --path Godot --quit-after 3 --verbose
       - name: Export Android ARM64 APK
         run: |
-          mkdir -p Godot/build
+          # export_presets.cfg points to ../build from the Godot project directory.
+          # Create the repository-root folder that Godot resolves that path to.
+          mkdir -p build
           godot --headless --path Godot --export-debug "Android" build/VietNamHanhTrinh-Android-ARM64.apk --verbose
       - name: Verify APK
         run: |
-          test -s Godot/build/VietNamHanhTrinh-Android-ARM64.apk
-          file Godot/build/VietNamHanhTrinh-Android-ARM64.apk
+          test -s build/VietNamHanhTrinh-Android-ARM64.apk
+          file build/VietNamHanhTrinh-Android-ARM64.apk
       - uses: actions/upload-artifact@v4
         with:
           name: VietNamHanhTrinh-Godot-Android-ARM64
-          path: Godot/build/VietNamHanhTrinh-Android-ARM64.apk
+          path: build/VietNamHanhTrinh-Android-ARM64.apk
           if-no-files-found: error
           retention-days: 14
