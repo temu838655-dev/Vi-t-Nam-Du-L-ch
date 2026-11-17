@@ -2,18 +2,40 @@ extends Node3D
 
 const PLAYER_SCRIPT := preload("res://scripts/player.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
+const DEFAULT_START := Vector3(0, 1.1, 7)
+
+var player: CharacterBody3D
+var autosave_elapsed := 0.0
 
 func _ready() -> void:
 	_build_prototype_world()
-	var player := CharacterBody3D.new()
+	player = CharacterBody3D.new()
 	player.name = "Player"
 	player.set_script(PLAYER_SCRIPT)
 	add_child(player)
-	player.position = Vector3(0, 1.1, 7)
+	if GameState.has_save:
+		player.position = GameState.last_position
+		player.rotation.y = GameState.last_rotation_y
+	else:
+		player.position = DEFAULT_START
 	var hud := CanvasLayer.new()
 	hud.name = "MobileHUD"
 	hud.set_script(HUD_SCRIPT)
 	add_child(hud)
+
+func _process(delta: float) -> void:
+	autosave_elapsed += delta
+	if autosave_elapsed >= 15.0:
+		autosave_elapsed = 0.0
+		_save_current_game()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
+		_save_current_game()
+
+func _save_current_game() -> void:
+	if is_instance_valid(player):
+		GameState.save_game(player.global_position, player.rotation.y)
 
 func _build_prototype_world() -> void:
 	_add_box("Ground", Vector3(0, -0.25, 0), Vector3(100, 0.5, 100), Color(0.22, 0.42, 0.25))
