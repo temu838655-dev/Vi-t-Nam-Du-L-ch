@@ -153,6 +153,12 @@ func _add_npc(display_name: String, role: String, at: Vector3, tint: Color) -> v
 	npc.position = at
 	add_child(npc)
 
+func _add_traffic_system() -> void:
+	var traffic := Node3D.new()
+	traffic.name = "StreetTraffic"
+	traffic.set_script(load("res://scripts/traffic_system.gd"))
+	add_child(traffic)
+
 func _build_prototype_world() -> void:
 	_add_traffic_system()
 	_add_box("Ground", Vector3(0, -0.25, 0), Vector3(100, 0.5, 100), Color(0.22, 0.42, 0.25))
