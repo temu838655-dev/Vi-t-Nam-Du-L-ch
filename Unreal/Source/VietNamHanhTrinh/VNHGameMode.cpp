@@ -2,10 +2,12 @@
 
 #include "VNHPlayerController.h"
 #include "VNHPlayerCharacter.h"
+#include "VNHSaveSubsystem.h"
 #include "VNHHanoiPrototypeArea.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
+#include "TimerManager.h"
 
 AVNHGameMode::AVNHGameMode()
 {
@@ -42,8 +44,41 @@ void AVNHGameMode::InitGame(const FString& MapName, const FString& Options, FStr
 
     if (!bHasPlayerStart)
     {
-        // South shore of the greybox lake, above the ground plane.
         World->SpawnActor<APlayerStart>(APlayerStart::StaticClass(),
             FVector(0.0f, -5800.0f, 100.0f), FRotator(0.0f, 90.0f, 0.0f));
     }
+}
+
+void AVNHGameMode::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (WorldTimeUpdateIntervalSeconds <= 0.0f || GameMinutesPerUpdate <= 0)
+    {
+        return;
+    }
+
+    GetWorldTimerManager().SetTimer(
+        WorldTimeTimerHandle,
+        this,
+        &AVNHGameMode::AdvanceWorldClock,
+        WorldTimeUpdateIntervalSeconds,
+        true);
+}
+
+void AVNHGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    GetWorldTimerManager().ClearTimer(WorldTimeTimerHandle);
+    Super::EndPlay(EndPlayReason);
+}
+
+void AVNHGameMode::AdvanceWorldClock()
+{
+    UGameInstance* GameInstance = GetGameInstance();
+    if (!GameInstance) return;
+
+    UVNHSaveSubsystem* SaveSubsystem = GameInstance->GetSubsystem<UVNHSaveSubsystem>();
+    if (!SaveSubsystem || !SaveSubsystem->HasLocalSave()) return;
+
+    SaveSubsystem->AdvanceGameMinutes(static_cast<int64>(GameMinutesPerUpdate));
 }
