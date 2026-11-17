@@ -42,6 +42,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Lịch sinh hoạt gia đình](docs/UE5_FAMILY_DAILY_ROUTINE.md)
 - [Đồng hồ và lịch trong game](docs/UE5_WORLD_CLOCK.md)
 - [Vertical slice – hướng dẫn chạy thử UE5.8](docs/UE5_VERTICAL_SLICE_PLAYTEST.md)
+- [Đóng gói APK Android bằng UE5.8](docs/BUILD_ANDROID_APK_UE58.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Lưu vị trí hành trình](docs/UE5_CHECKPOINT_SAVE.md)
