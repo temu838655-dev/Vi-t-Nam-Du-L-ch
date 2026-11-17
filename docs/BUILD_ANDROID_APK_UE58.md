@@ -2,7 +2,7 @@
 
 ## Quy trình GitHub Actions
 
-Workflow `UE5 Android APK Playtest` chạy theo hai chặng:
+Workflow `UE5 Android APK Playtest` tự chạy chặng preflight mỗi khi có commit mới lên nhánh `main`; chặng đóng gói APK chỉ chạy khi bạn chủ động chọn Run workflow. Workflow chạy theo hai chặng:
 
 1. **GitHub-hosted preflight (Ubuntu):** kiểm tra file project, EngineAssociation 5.8, runtime module, cấu hình Android ARM64 và định danh package Android/iOS.
 2. **UE5.8 packaging (Windows self-hosted):** biên dịch, cook và đóng gói APK bằng Unreal Automation Tool.
