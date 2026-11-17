@@ -4,6 +4,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "Components/InputComponent.h"
+#include "VNHInteractable.h"
+#include "Engine/World.h"
 
 AVNHPlayerCharacter::AVNHPlayerCharacter()
 {
@@ -56,6 +58,23 @@ void AVNHPlayerCharacter::SetSprinting(bool bNewSprinting)
 void AVNHPlayerCharacter::TriggerJump() { Jump(); }
 void AVNHPlayerCharacter::StopJump() { StopJumping(); }
 
+void AVNHPlayerCharacter::TryInteract()
+{
+    if (!PlayerCamera || !GetWorld()) return;
+    const FVector Start = PlayerCamera->GetComponentLocation();
+    const FVector End = Start + PlayerCamera->GetForwardVector() * InteractionDistance;
+    FHitResult Hit;
+    FCollisionQueryParams Params(FName(TEXT("VNHInteraction")), false, this);
+    if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+    {
+        AActor* Target = Hit.GetActor();
+        if (Target && Target->GetClass()->ImplementsInterface(UVNHInteractable::StaticClass()))
+        {
+            IVNHInteractable::Execute_Interact(Target, this);
+        }
+    }
+}
+
 void AVNHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -66,6 +85,7 @@ void AVNHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AVNHPlayerCharacter::LookUpKeyboard);
     PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AVNHPlayerCharacter::StartKeyboardJump);
     PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AVNHPlayerCharacter::StopKeyboardJump);
+    PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &AVNHPlayerCharacter::TryInteract);
 }
 
 void AVNHPlayerCharacter::MoveForwardKeyboard(float Value) { SetMoveInput(Value, 0.0f); }
