@@ -12,7 +12,7 @@ Game mô phỏng du lịch và đời sống Việt Nam theo hướng thế gi�
 Repository hiện có prototype Godot và bộ khung Unreal Engine 5 gồm project descriptor, C++ module, GameMode, PlayerController, cấu hình mobile và cấu trúc save data ban đầu. Khung Unreal chưa được compile bằng Unreal Editor và chưa có bản game chơi được, map, nhân vật 3D, phương tiện, NPC hoặc asset địa phương.
 
 ## Mở dự án Unreal
-1. Cài Unreal Engine 5.6 hoặc phiên bản tương thích.
+1. Cài Unreal Engine 5.8 (baseline của scaffold) hoặc phiên bản tương thích.
 2. Mở `Unreal/VietNamHanhTrinh.uproject` trong Unreal Editor.
 3. Generate project files và build C++ module.
 4. Tạo map đầu tiên trong Content Browser, đặt map đó làm startup map.
