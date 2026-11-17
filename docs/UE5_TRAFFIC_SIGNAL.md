@@ -11,7 +11,7 @@ Thời lượng từng pha có thể chỉnh trong Details:
 - Yellow Duration: mặc định 3 giây.
 - Red Duration: mặc định 12 giây.
 
-Actor có vùng dừng (StopZone). Khi Pawn xe thuộc `AVNHVehiclePawn` đi vào vùng này, xe nhận trạng thái dừng; khi đèn chuyển xanh, xe được phép chạy tiếp. Xe máy thử nghiệm kế thừa lớp này nên cũng nhận được lệnh dừng.
+Actor có vùng dừng (StopZone). Mỗi đèn đăng ký chính nó như một nguồn dừng riêng trên xe bằng `AddTrafficSignalStopSource(this)`; khi đèn xanh hoặc xe rời vùng, chỉ nguồn của đèn đó được gỡ. Vì vậy hai đèn giao nhau không thể vô tình xóa lệnh dừng của nhau. Khi actor đèn bị hủy, `EndPlay` gỡ đăng ký và xóa timer. Xe máy kế thừa `AVNHVehiclePawn` nên dùng chung cơ chế.
 
 ## Thiết lập
 1. Compile C++ module.
@@ -26,4 +26,5 @@ Actor có vùng dừng (StopZone). Khi Pawn xe thuộc `AVNHVehiclePawn` đi và
 - Mỗi Actor hoạt động như một tín hiệu độc lập; chưa đồng bộ pha giữa các hướng của giao lộ.
 - Chưa phân biệt làn rẽ trái/rẽ phải, vạch dừng theo làn, ưu tiên xe cứu thương, đèn cho người đi bộ hoặc quy tắc giao thông Việt Nam.
 - Vùng overlap đơn giản không phải hệ thống điều phối giao lộ; cần đặt đúng vị trí và kiểm thử tránh dừng nhầm.
+- Việc theo dõi nhiều nguồn dừng đã được xử lý ở cấp Pawn; chưa có kiểm thử runtime trong Unreal Editor.
 - Chưa compile hoặc test trong Unreal Editor/thiết bị.
