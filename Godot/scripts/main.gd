@@ -7,25 +7,16 @@ const DEFAULT_START := Vector3(0, 1.1, 7)
 
 var player: CharacterBody3D
 var autosave_elapsed := 0.0
+var menu_layer: CanvasLayer
 
 func _ready() -> void:
 	_build_prototype_world()
 	_spawn_family_and_career_board()
-	player = CharacterBody3D.new()
-	player.name = "Player"
-	player.set_script(PLAYER_SCRIPT)
-	add_child(player)
-	if GameState.has_save:
-		player.position = GameState.last_position
-		player.rotation.y = GameState.last_rotation_y
-	else:
-		player.position = DEFAULT_START
-	var hud := CanvasLayer.new()
-	hud.name = "MobileHUD"
-	hud.set_script(HUD_SCRIPT)
-	add_child(hud)
+	_show_main_menu()
 
 func _process(delta: float) -> void:
+	if not is_instance_valid(player):
+		return
 	autosave_elapsed += delta
 	if autosave_elapsed >= 15.0:
 		autosave_elapsed = 0.0
@@ -34,6 +25,85 @@ func _process(delta: float) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
 		_save_current_game()
+
+func _show_main_menu() -> void:
+	menu_layer = CanvasLayer.new()
+	menu_layer.name = "MainMenu"
+	add_child(menu_layer)
+	var root := Control.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	menu_layer.add_child(root)
+
+	var background := ColorRect.new()
+	background.color = Color(0.035, 0.055, 0.075, 0.94)
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(background)
+
+	var panel := VBoxContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.position = Vector2(-260, -205)
+	panel.size = Vector2(520, 410)
+	panel.add_theme_constant_override("separation", 18)
+	root.add_child(panel)
+
+	var title := Label.new()
+	title.text = "VIỆT NAM\nHÀNH TRÌNH BẤT TẬN"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 34)
+	panel.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = "Sống cuộc đời của bạn • Khám phá Việt Nam"
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.add_theme_font_size_override("font_size", 18)
+	panel.add_child(subtitle)
+
+	var start_button := Button.new()
+	start_button.text = "BẮT ĐẦU HÀNH TRÌNH MỚI"
+	start_button.custom_minimum_size = Vector2(480, 64)
+	start_button.pressed.connect(_start_new_game)
+	panel.add_child(start_button)
+
+	var continue_button := Button.new()
+	continue_button.text = "TIẾP TỤC HÀNH TRÌNH"
+	continue_button.custom_minimum_size = Vector2(480, 64)
+	continue_button.disabled = not GameState.has_save
+	continue_button.pressed.connect(_continue_game)
+	panel.add_child(continue_button)
+
+	var note := Label.new()
+	note.text = "Bản thử nghiệm phát triển • Tiến trình được lưu trên thiết bị"
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 14)
+	panel.add_child(note)
+
+func _start_new_game() -> void:
+	GameState.start_new_game()
+	_enter_world(DEFAULT_START, 0.0)
+
+func _continue_game() -> void:
+	if not GameState.has_save:
+		_enter_world(DEFAULT_START, 0.0)
+		return
+	_enter_world(GameState.last_position, GameState.last_rotation_y)
+
+func _enter_world(start_position: Vector3, start_rotation: float) -> void:
+	if is_instance_valid(menu_layer):
+		menu_layer.queue_free()
+	player = CharacterBody3D.new()
+	player.name = "Player"
+	player.set_script(PLAYER_SCRIPT)
+	player.position = start_position
+	player.rotation.y = start_rotation
+	add_child(player)
+
+	var hud := CanvasLayer.new()
+	hud.name = "MobileHUD"
+	hud.set_script(HUD_SCRIPT)
+	add_child(hud)
+	GameState.save_game(player.global_position, player.rotation.y)
 
 func _save_current_game() -> void:
 	if is_instance_valid(player):
