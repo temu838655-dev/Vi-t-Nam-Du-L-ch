@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "VNHPlayerController.generated.h"
 
+class UUserWidget;
+
 UCLASS()
 class VIETNAMHANHTRINH_API AVNHPlayerController : public APlayerController
 {
