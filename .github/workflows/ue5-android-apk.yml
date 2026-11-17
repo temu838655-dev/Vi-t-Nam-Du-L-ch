@@ -1,6 +1,9 @@
 name: UE5 Android APK Playtest
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       build_config:
@@ -71,6 +74,7 @@ jobs:
           PY
 
   android-apk:
+    if: github.event_name == 'workflow_dispatch'
     name: Package Android ARM64 APK with UE 5.8
     needs: github-preflight
     runs-on: [self-hosted, Windows, X64]
