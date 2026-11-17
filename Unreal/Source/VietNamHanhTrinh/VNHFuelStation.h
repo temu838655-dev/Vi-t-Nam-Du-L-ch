@@ -29,6 +29,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="VNH|Fuel")
     float FuelPerInteraction = 15.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="VNH|Fuel|Economy")
+    int64 PricePerFuelUnit = 25000;
+
     UFUNCTION(BlueprintImplementableEvent, Category="VNH|Fuel")
-    void OnFuelDispensed(AActor* Vehicle, float FuelAdded);
+    void OnFuelDispensed(AActor* Vehicle, float FuelAdded, int64 CostPaid);
+
+    UFUNCTION(BlueprintImplementableEvent, Category="VNH|Fuel")
+    void OnFuelPurchaseFailed();
 };
