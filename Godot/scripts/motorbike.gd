@@ -47,29 +47,74 @@ func clear_rider() -> void:
 		label.text = display_name + "\nNHẤN TƯƠNG TÁC"
 
 func _build_motorbike() -> void:
-	var red := _material(body_color)
-	var black := _material(Color(0.045, 0.05, 0.06))
+	var lower_name := display_name.to_lower()
+	var is_scooter := "vision" in lower_name or "air blade" in lower_name or "sh" in lower_name or "lead" in lower_name or "janus" in lower_name
+	var is_sport := "exciter" in lower_name
+	var paint := _material(body_color)
+	var black := _material(Color(0.035, 0.04, 0.045))
+	var rubber := _material(Color(0.018, 0.02, 0.022))
 	var metal := _material(Color(0.48, 0.52, 0.56))
-	var seat_material := _material(Color(0.12, 0.09, 0.08))
-	var light_material := _material(Color(1.0, 0.88, 0.52), true)
+	var seat_material := _material(Color(0.075, 0.06, 0.055))
+	var headlight := _material(Color(1.0, 0.9, 0.62), true)
+	var tail_light := _material(Color(0.9, 0.035, 0.025), true)
+	var signal_light := _material(Color(1.0, 0.48, 0.04), true)
 
-	_add_box("Khung xe", Vector3(0, 0.78, 0), Vector3(0.48, 0.34, 1.25), black)
-	_add_box("Bình xăng", Vector3(0, 1.12, -0.18), Vector3(0.58, 0.42, 0.62), red)
-	_add_box("Yên xe", Vector3(0, 1.18, 0.42), Vector3(0.52, 0.18, 0.72), seat_material)
-	_add_box("Đuôi xe", Vector3(0, 1.03, 0.82), Vector3(0.48, 0.2, 0.38), red)
-	_add_box("Đèn trước", Vector3(0, 1.35, -0.83), Vector3(0.32, 0.22, 0.12), light_material)
-	_add_box("Tay lái", Vector3(0, 1.42, -0.9), Vector3(0.92, 0.07, 0.08), metal)
-	_add_box("Phuộc trước", Vector3(0, 0.88, -0.95), Vector3(0.12, 0.76, 0.12), metal)
-	_add_box("Ống xả", Vector3(0.32, 0.58, 0.55), Vector3(0.16, 0.16, 0.78), metal)
-	_add_wheel("Bánh trước", Vector3(0, 0.43, -1.02), black, metal)
-	_add_wheel("Bánh sau", Vector3(0, 0.43, 0.95), black, metal)
+	_add_box("Khung sườn", Vector3(0, 0.78, 0), Vector3(0.34, 0.22, 1.42), black)
+	_add_box("Động cơ", Vector3(0, 0.61, 0.05), Vector3(0.48, 0.42, 0.52), metal)
+	_add_box("Yên xe", Vector3(0, 1.18, 0.42), Vector3(0.5, 0.17, 0.78), seat_material)
+	_add_box("Đuôi xe", Vector3(0, 1.05, 0.86), Vector3(0.46, 0.22, 0.38), paint)
+	_add_box("Đèn hậu", Vector3(0, 1.12, 1.06), Vector3(0.3, 0.12, 0.08), tail_light)
+	_add_box("Tay lái", Vector3(0, 1.43, -0.86), Vector3(0.88, 0.065, 0.08), metal)
+	_add_box("Cụm đồng hồ", Vector3(0, 1.43, -0.7), Vector3(0.32, 0.18, 0.24), black)
+	_add_box("Đèn pha", Vector3(0, 1.34, -0.98), Vector3(0.32, 0.22, 0.12), headlight)
+	_add_box("Phuộc trước trái", Vector3(-0.1, 0.88, -0.92), Vector3(0.07, 0.76, 0.1), metal)
+	_add_box("Phuộc trước phải", Vector3(0.1, 0.88, -0.92), Vector3(0.07, 0.76, 0.1), metal)
+	_add_box("Ống xả", Vector3(0.31, 0.58, 0.53), Vector3(0.14, 0.15, 0.74), metal)
 
-func _add_wheel(wheel_name: String, at: Vector3, tire_material: StandardMaterial3D, rim_material: StandardMaterial3D) -> void:
+	if is_scooter:
+		_add_box("Yếm trước xe tay ga", Vector3(0, 1.08, -0.56), Vector3(0.62, 0.78, 0.28), paint)
+		_add_box("Mặt nạ đầu xe", Vector3(0, 1.42, -0.82), Vector3(0.56, 0.42, 0.22), paint)
+		_add_box("Sàn để chân", Vector3(0, 0.76, -0.1), Vector3(0.58, 0.12, 0.82), black)
+		_add_box("Ốp hông trái", Vector3(-0.25, 0.91, 0.45), Vector3(0.12, 0.38, 0.72), paint)
+		_add_box("Ốp hông phải", Vector3(0.25, 0.91, 0.45), Vector3(0.12, 0.38, 0.72), paint)
+	elif is_sport:
+		_add_box("Bình xăng thể thao", Vector3(0, 1.25, -0.16), Vector3(0.58, 0.44, 0.66), paint)
+		_add_box("Dàn áo trái", Vector3(-0.29, 1.02, -0.28), Vector3(0.12, 0.52, 0.64), paint)
+		_add_box("Dàn áo phải", Vector3(0.29, 1.02, -0.28), Vector3(0.12, 0.52, 0.64), paint)
+		_add_box("Mỏ cày", Vector3(0, 0.63, -0.28), Vector3(0.52, 0.18, 0.58), black)
+	else:
+		_add_box("Yếm xe số", Vector3(0, 1.02, -0.46), Vector3(0.46, 0.56, 0.22), paint)
+		_add_box("Ốp hông trái", Vector3(-0.24, 0.94, 0.34), Vector3(0.1, 0.3, 0.52), paint)
+		_add_box("Ốp hông phải", Vector3(0.24, 0.94, 0.34), Vector3(0.1, 0.3, 0.52), paint)
+
+	_add_box("Xi nhan trái", Vector3(-0.3, 1.31, -0.88), Vector3(0.12, 0.1, 0.12), signal_light)
+	_add_box("Xi nhan phải", Vector3(0.3, 1.31, -0.88), Vector3(0.12, 0.1, 0.12), signal_light)
+	_add_mirror(Vector3(-0.39, 1.68, -0.83), metal)
+	_add_mirror(Vector3(0.39, 1.68, -0.83), metal)
+	_add_box("Biển số", Vector3(0, 0.88, 1.12), Vector3(0.28, 0.16, 0.035), _material(Color(0.92, 0.92, 0.88)))
+
+	var wheel_radius := 0.36 if is_scooter else 0.39
+	_add_wheel("Bánh trước", Vector3(0, 0.43, -1.02), wheel_radius, rubber, metal)
+	_add_wheel("Bánh sau", Vector3(0, 0.43, 0.95), wheel_radius, rubber, metal)
+
+func _add_mirror(at: Vector3, material: StandardMaterial3D) -> void:
+	_add_box("Cần gương", at + Vector3(0, -0.13, 0.03), Vector3(0.035, 0.28, 0.035), material)
+	var mirror := MeshInstance3D.new()
+	var mirror_mesh := SphereMesh.new()
+	mirror_mesh.radius = 0.11
+	mirror_mesh.height = 0.12
+	mirror.mesh = mirror_mesh
+	mirror.scale = Vector3(1.0, 0.7, 0.45)
+	mirror.position = at
+	mirror.material_override = material
+	add_child(mirror)
+
+func _add_wheel(wheel_name: String, at: Vector3, radius: float, tire_material: StandardMaterial3D, rim_material: StandardMaterial3D) -> void:
 	var wheel := MeshInstance3D.new()
 	wheel.name = wheel_name
 	var tire := CylinderMesh.new()
-	tire.top_radius = 0.4
-	tire.bottom_radius = 0.4
+	tire.top_radius = radius
+	tire.bottom_radius = radius
 	tire.height = 0.18
 	wheel.mesh = tire
 	wheel.material_override = tire_material
@@ -79,8 +124,8 @@ func _add_wheel(wheel_name: String, at: Vector3, tire_material: StandardMaterial
 
 	var hub := MeshInstance3D.new()
 	var hub_mesh := CylinderMesh.new()
-	hub_mesh.top_radius = 0.16
-	hub_mesh.bottom_radius = 0.16
+	hub_mesh.top_radius = radius * 0.42
+	hub_mesh.bottom_radius = radius * 0.42
 	hub_mesh.height = 0.2
 	hub.mesh = hub_mesh
 	hub.material_override = rim_material
@@ -101,6 +146,7 @@ func _add_box(object_name: String, at: Vector3, dimensions: Vector3, material: S
 func _material(color: Color, emission: bool = false) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
+	material.roughness = 0.72
 	if emission:
 		material.emission_enabled = true
 		material.emission = color
