@@ -39,6 +39,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Lưu vị trí hành trình](docs/UE5_CHECKPOINT_SAVE.md)
 - [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md)
+- [Tiêu chuẩn chân thực nhân vật, địa phương và thế giới Việt Nam](docs/UE5_REALISM_AND_VIETNAM_WORLD_STANDARD.md)
 - [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md)
 - [POI tương tác](docs/UE5_POI_INTERACTION.md)
 - [Phương tiện thử nghiệm](docs/UE5_VEHICLE_PROTOTYPE.md)
