@@ -79,6 +79,14 @@ bool UVNHSaveSubsystem::MigrateSaveData(UVNHSaveGame* SaveData) const
         SaveData->SchemaVersion = 4;
     }
 
+    if (SaveData->SchemaVersion < 5)
+    {
+        SaveData->GameDay = FMath::Max<int64>(1, SaveData->GameDay);
+        SaveData->MinuteOfDay = FMath::Clamp(SaveData->MinuteOfDay, 0, 1439);
+        SaveData->WeekdayIndex = ((SaveData->WeekdayIndex % 7) + 7) % 7;
+        SaveData->SchemaVersion = 5;
+    }
+
     return SaveData->SchemaVersion == UVNHSaveGame::CurrentSchemaVersion;
 }
 
@@ -132,6 +140,9 @@ UVNHSaveGame* UVNHSaveSubsystem::CreateNewLife(
     NewSave->Money = StartingMoney;
     NewSave->CurrentRegionId = NewSave->HomeRegionId;
     NewSave->LastCheckpointId = NAME_None;
+    NewSave->GameDay = 1;
+    NewSave->MinuteOfDay = 480;
+    NewSave->WeekdayIndex = 0;
 
     FVNHFamilyMemberSave Mother;
     Mother.CharacterId = NewSave->MotherCharacterId;
@@ -280,6 +291,38 @@ bool UVNHSaveSubsystem::GetFamilyActivityAtTime(
         return false;
     }
     return false;
+}
+
+bool UVNHSaveSubsystem::AdvanceGameMinutes(int64 MinutesToAdvance)
+{
+    if (MinutesToAdvance <= 0) return false;
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+
+    const int64 WholeDays = MinutesToAdvance / 1440;
+    const int64 RemainingMinutes = MinutesToAdvance % 1440;
+    const int64 CombinedMinutes = static_cast<int64>(SaveData->MinuteOfDay) + RemainingMinutes;
+    const int64 ExtraDay = CombinedMinutes / 1440;
+    const int64 DaysToAdd = WholeDays > MAX_int64 - ExtraDay ? MAX_int64 : WholeDays + ExtraDay;
+    SaveData->MinuteOfDay = static_cast<int32>(CombinedMinutes % 1440);
+    SaveData->GameDay = (SaveData->GameDay > MAX_int64 - DaysToAdd)
+        ? MAX_int64 : SaveData->GameDay + DaysToAdd;
+    SaveData->WeekdayIndex = static_cast<int32>((SaveData->WeekdayIndex + (DaysToAdd % 7)) % 7);
+    return SaveProgress(SaveData);
+}
+
+bool UVNHSaveSubsystem::GetGameClock(
+    int64& OutGameDay, int32& OutMinuteOfDay, int32& OutWeekdayIndex)
+{
+    OutGameDay = 1;
+    OutMinuteOfDay = 480;
+    OutWeekdayIndex = 0;
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+    OutGameDay = SaveData->GameDay;
+    OutMinuteOfDay = SaveData->MinuteOfDay;
+    OutWeekdayIndex = SaveData->WeekdayIndex;
+    return true;
 }
 
 bool UVNHSaveSubsystem::SaveCheckpoint(FName RegionId, FName CheckpointId)
