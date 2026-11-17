@@ -5,6 +5,7 @@
 #include "VNHSaveSubsystem.h"
 #include "VNHHanoiPrototypeArea.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
 #include "TimerManager.h"
