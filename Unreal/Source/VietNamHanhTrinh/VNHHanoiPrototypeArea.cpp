@@ -31,8 +31,8 @@ AVNHHanoiPrototypeArea::AVNHHanoiPrototypeArea()
     AddMesh(TEXT("HoanKiemLake_Blockout"), CylinderMesh.Object, FVector(0, 0, -8), FVector(80, 50, 0.035f), false);
 
     // Roads around the lake, with long blocks to make the scale readable.
-    AddMesh(TEXT("NorthRoad"), CubeMesh.Object, FVector(0, 5900, 0), FVector(150, 8, 0.04f), true);
-    AddMesh(TEXT("SouthRoad"), CubeMesh.Object, FVector(0, -5900, 0), FVector(150, 8, 0.04f), true);
+    AddMesh(TEXT("NorthRoad"), CubeMesh.Object, FVector(0, 7200, 0), FVector(150, 8, 0.04f), true);
+    AddMesh(TEXT("SouthRoad"), CubeMesh.Object, FVector(0, -7200, 0), FVector(150, 8, 0.04f), true);
     AddMesh(TEXT("EastRoad"), CubeMesh.Object, FVector(8900, 0, 0), FVector(8, 120, 0.04f), true);
     AddMesh(TEXT("WestRoad"), CubeMesh.Object, FVector(-8900, 0, 0), FVector(8, 120, 0.04f), true);
 
