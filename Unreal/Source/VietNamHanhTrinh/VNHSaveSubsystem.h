@@ -31,6 +31,14 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Life")
     bool ClearCareerSelection();
 
+    // Relationship changes are persisted and clamped to the 0-100 range.
+    UFUNCTION(BlueprintCallable, Category="VNH|Life|Family")
+    bool UpdateFamilyRelationship(FName CharacterId, int32 Delta);
+
+    // Stores stable appearance preset IDs; visual assets are resolved separately by the character system.
+    UFUNCTION(BlueprintCallable, Category="VNH|Life|Appearance")
+    bool SetPlayerAppearance(const FVNHSavedAppearance& Appearance);
+
     UFUNCTION(BlueprintCallable, Category="VNH|Save")
     bool SaveCheckpoint(FName RegionId, FName CheckpointId);
 
