@@ -8,6 +8,9 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
     Acceleration = 720.0f;
     BrakeDeceleration = 1900.0f;
     SteeringRate = 105.0f;
+    FuelCapacity = 8.0f;
+    CurrentFuel = 8.0f;
+    FuelConsumptionPerSecond = 0.0012f;
 
     if (VehicleBody)
     {
