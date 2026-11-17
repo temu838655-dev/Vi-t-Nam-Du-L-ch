@@ -6,6 +6,7 @@
 
 class UBoxComponent;
 class UPointLightComponent;
+class UPrimitiveComponent;
 class AVNHVehiclePawn;
 
 UENUM(BlueprintType)
