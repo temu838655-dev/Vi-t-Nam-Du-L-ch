@@ -25,8 +25,8 @@ AVNHHanoiPrototypeArea::AVNHHanoiPrototypeArea()
         Component->SetCollisionProfileName(bCollision ? TEXT("BlockAll") : TEXT("NoCollision"));
     };
 
-    // Base terrain: 400 m x 320 m. Top surface is approximately Z=-2 cm.
-    AddMesh(TEXT("PrototypeGround"), CubeMesh.Object, FVector(0, 0, -52), FVector(200, 160, 0.5f), true);
+    // Basic Cube is 100 cm wide: scale 400 x 320 gives 400 m x 320 m. Top surface is Z=0.
+    AddMesh(TEXT("PrototypeGround"), CubeMesh.Object, FVector(0, 0, -25), FVector(400, 320, 0.5f), true);
 
     // Lake footprint: approximately 160 m x 100 m. Water is only a visual placeholder.
     AddMesh(TEXT("HoanKiemLake_Blockout"), CylinderMesh.Object, FVector(0, 0, -8), FVector(80, 50, 0.035f), false);
