@@ -18,7 +18,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if is_instance_valid(rider):
-		global_position = rider.global_position
+		global_position = rider.global_position - Vector3(0, 1.1, 0)
 		global_rotation.y = rider.global_rotation.y
 		if label:
 			label.text = display_name + "\nĐANG SỬ DỤNG"
