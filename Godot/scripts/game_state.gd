@@ -47,17 +47,17 @@ const FOOD_CATALOG := [
 	{"id":"bun_cha","name":"Bún chả Hà Nội","price":55000,"description":"Bún ăn với chả nướng và nước chấm.","region":"Hà Nội","satiety":28},
 	{"id":"ca_phe_sua_da","name":"Cà phê sữa đá","price":25000,"description":"Cà phê phin cùng sữa đặc và đá.","region":"Khắp Việt Nam","satiety":8},
 	{"id":"che_ba_mau","name":"Chè ba màu","price":30000,"description":"Món chè mát với đậu và thạch.","region":"Nam Bộ","satiety":12},
-	{"id":"banh_pia","name":"Bánh pía Sóc Trăng","price":60000,"description":"Đặc sản bánh pía nhân đậu xanh, sầu riêng.","region":"Sóc Trăng","satiety":16},
-	{"id":"nem_chua","name":"Nem chua Thanh Hóa","price":50000,"description":"Đặc sản lên men truyền thống.","region":"Thanh Hóa","satiety":15},
+	{"id":"banh_pia","name":"Bánh pía Sóc Trăng","price":60000,"description":"Đặc sản bánh pía nhân đậu xanh, sầu riêng.","region":"Sóc Trăng","satiety":0,"packaged":true},
+	{"id":"nem_chua","name":"Nem chua Thanh Hóa","price":50000,"description":"Đặc sản lên men truyền thống.","region":"Thanh Hóa","satiety":0,"packaged":true},
 	{"id":"cha_muc","name":"Chả mực Hạ Long","price":85000,"description":"Đặc sản chả mực giã tay vùng biển.","region":"Quảng Ninh","satiety":24},
-	{"id":"banh_dau_xanh","name":"Bánh đậu xanh","price":40000,"description":"Bánh ngọt truyền thống dùng cùng trà.","region":"Hải Dương","satiety":14},
-	{"id":"me_xung","name":"Mè xửng","price":45000,"description":"Kẹo mè xửng dẻo thơm.","region":"Huế","satiety":13},
-	{"id":"keo_cu_do","name":"Kẹo cu đơ","price":35000,"description":"Kẹo lạc mạch nha giòn thơm.","region":"Hà Tĩnh","satiety":14},
-	{"id":"nuoc_mam_phu_quoc","name":"Nước mắm Phú Quốc","price":95000,"description":"Đặc sản nước mắm truyền thống đóng chai.","region":"Phú Quốc, Kiên Giang","satiety":0},
-	{"id":"banh_trang_tay_ninh","name":"Bánh tráng phơi sương","price":45000,"description":"Đặc sản bánh tráng dùng cuốn rau và thịt.","region":"Tây Ninh","satiety":16},
-	{"id":"ca_phe_buon_ma_thuot","name":"Cà phê Buôn Ma Thuột","price":65000,"description":"Cà phê rang xay đặc trưng Tây Nguyên.","region":"Đắk Lắk","satiety":8},
+	{"id":"banh_dau_xanh","name":"Bánh đậu xanh","price":40000,"description":"Bánh ngọt truyền thống dùng cùng trà.","region":"Hải Dương","satiety":0,"packaged":true},
+	{"id":"me_xung","name":"Mè xửng","price":45000,"description":"Kẹo mè xửng dẻo thơm.","region":"Huế","satiety":0,"packaged":true},
+	{"id":"keo_cu_do","name":"Kẹo cu đơ","price":35000,"description":"Kẹo lạc mạch nha giòn thơm.","region":"Hà Tĩnh","satiety":0,"packaged":true},
+	{"id":"nuoc_mam_phu_quoc","name":"Nước mắm Phú Quốc","price":95000,"description":"Đặc sản nước mắm truyền thống đóng chai.","region":"Phú Quốc, Kiên Giang","satiety":0,"packaged":true},
+	{"id":"banh_trang_tay_ninh","name":"Bánh tráng phơi sương","price":45000,"description":"Đặc sản bánh tráng dùng cuốn rau và thịt.","region":"Tây Ninh","satiety":0,"packaged":true},
+	{"id":"ca_phe_buon_ma_thuot","name":"Cà phê Buôn Ma Thuột","price":65000,"description":"Cà phê rang xay đặc trưng Tây Nguyên.","region":"Đắk Lắk","satiety":0,"packaged":true},
 	{"id":"dua_sap_tra_vinh","name":"Dừa sáp","price":75000,"description":"Trái cây đặc sản có cơm dừa dẻo.","region":"Trà Vinh","satiety":18},
-	{"id":"hat_dieu_binh_phuoc","name":"Hạt điều rang","price":60000,"description":"Hạt điều rang giòn, đóng gói mang đi.","region":"Bình Phước","satiety":17},
+	{"id":"hat_dieu_binh_phuoc","name":"Hạt điều rang","price":60000,"description":"Hạt điều rang giòn, đóng gói mang đi.","region":"Bình Phước","satiety":0,"packaged":true},
 	{"id":"sau_rieng_cai_mon","name":"Sầu riêng Cái Mơn","price":90000,"description":"Trái cây đặc sản miền sông nước.","region":"Bến Tre","satiety":22}
 ]
 
@@ -77,6 +77,7 @@ var owned_clothes: Array = ["ao_thun_basic", "quan_jeans"]
 var equipped_clothes: Dictionary = {"top":"ao_thun_basic","bottom":"quan_jeans","shoes":"","headwear":"","fullbody":""}
 var satiety: int = 100
 var food_history: Array = []
+var owned_specialties: Array = []
 
 func _ready() -> void:
 	load_game()
@@ -97,6 +98,7 @@ func start_new_game() -> void:
 	equipped_clothes = {"top":"ao_thun_basic","bottom":"quan_jeans","shoes":"","headwear":"","fullbody":""}
 	satiety = 100
 	food_history = []
+	owned_specialties = []
 	has_save = false
 
 func load_game() -> bool:
@@ -145,6 +147,9 @@ func load_game() -> bool:
 	var history_value: Variant = data.get("food_history", [])
 	if history_value is Array:
 		food_history = history_value.duplicate()
+	var specialties_value: Variant = data.get("owned_specialties", [])
+	if specialties_value is Array:
+		owned_specialties = specialties_value.duplicate()
 	has_save = true
 	return true
 
@@ -166,6 +171,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 		"equipped_clothes": equipped_clothes,
 		"satiety": satiety,
 		"food_history": food_history,
+		"owned_specialties": owned_specialties,
 		"position": [last_position.x, last_position.y, last_position.z],
 		"rotation_y": last_rotation_y,
 		"saved_at_unix": int(Time.get_unix_time_from_system())
@@ -212,6 +218,8 @@ func purchase_item(shop_type: String, item_id: String) -> Dictionary:
 	if shop_type == "clothing" and owned_clothes.has(item_id):
 		_equip_clothing(item)
 		return {"ok":true,"message":"Đã mặc %s." % item.name,"item":item,"already_owned":true}
+	if shop_type == "food" and bool(item.get("packaged", false)) and owned_specialties.has(item_id):
+		return {"ok":true,"message":"Bạn đã có đặc sản %s trong hành trang." % item.name,"item":item,"already_owned":true}
 	var price := int(item.get("price", 0))
 	if wallet_vnd < price:
 		return {"ok":false,"message":"Bạn chưa đủ tiền. Cần %s VNĐ, hiện có %s VNĐ." % [_format_money(price), _format_money(wallet_vnd)],"item":item}
@@ -226,6 +234,9 @@ func purchase_item(shop_type: String, item_id: String) -> Dictionary:
 			_equip_clothing(item)
 			return {"ok":true,"message":"Đã mua và mặc %s." % item.name,"item":item}
 		"food":
+			if bool(item.get("packaged", false)):
+				owned_specialties.append(item_id)
+				return {"ok":true,"message":"Đã mua đặc sản %s (%s) và cất vào hành trang." % [item.name, item.get("region", "Việt Nam")],"item":item}
 			satiety = mini(100, satiety + int(item.get("satiety", 15)))
 			food_history.append(item_id)
 			return {"ok":true,"message":"Bạn đã thưởng thức %s (%s). Độ no: %d/100." % [item.name, item.get("region", "Việt Nam"), satiety],"item":item}
