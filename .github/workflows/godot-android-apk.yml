@@ -74,7 +74,7 @@ jobs:
           unzip -q /tmp/godot-templates/templates.tpz -d /tmp/godot-templates/unpacked
           cp -a /tmp/godot-templates/unpacked/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
           test -s "$HOME/.local/share/godot/export_templates/4.4.1.stable/android_debug.apk"
-          godot --version
+          "$GODOT_BIN" --version
       - name: Configure Godot Android signing
         run: |
           set -eux
@@ -95,6 +95,7 @@ jobs:
       - name: Import and validate Godot project
         run: |
           godot --headless --path Godot --editor --quit --verbose
+          godot --headless --path Godot --quit-after 3 --verbose
       - name: Export Android ARM64 APK
         run: |
           mkdir -p build
