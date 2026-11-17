@@ -13,6 +13,7 @@ class VIETNAMHANHTRINH_API AVNHPlayerCharacter : public ACharacter
     GENERATED_BODY()
 public:
     AVNHPlayerCharacter();
+    virtual void Tick(float DeltaSeconds) override;
 
     UFUNCTION(BlueprintCallable, Category="VNH|Mobile Controls")
     void SetMoveInput(float Forward, float Right);
@@ -43,6 +44,8 @@ private:
     float TouchLookSensitivity = 0.12f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction", meta=(AllowPrivateAccess="true"))
     float InteractionDistance = 350.0f;
+    float MoveForwardInput = 0.0f;
+    float MoveRightInput = 0.0f;
 
     void MoveForwardKeyboard(float Value);
     void MoveRightKeyboard(float Value);
