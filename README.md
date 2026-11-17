@@ -14,6 +14,7 @@ Game **mô phỏng cuộc sống tự do kết hợp du lịch thế giới mở
 - Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
 - SaveGame schema v5: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint. Save Subsystem có API cập nhật quan hệ gia đình (0–100), lưu ngoại hình (chiều cao 120–220 cm), lưu lịch sinh hoạt theo phút trong ngày, truy vấn hoạt động/địa điểm hiện tại và lưu đồng hồ game (ngày, giờ, phút, thứ trong tuần).
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
+- Starter-home gia đình dạng greybox được dựng khi chạy; PlayerStart mặc định đặt trước nhà để bắt đầu tại nhà ở. Đây chưa phải căn nhà hoàn chỉnh và chưa có bố mẹ dạng NPC tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
 - NPC dân cư với AI tuần tra cơ bản.
 - AI xe chạy theo spline và actor đèn giao thông prototype.
