@@ -9,7 +9,7 @@
 
 AVNHPlayerCharacter::AVNHPlayerCharacter()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
     bUseControllerRotationPitch = false;
     bUseControllerRotationRoll = false;
     bUseControllerRotationYaw = false;
@@ -34,14 +34,19 @@ AVNHPlayerCharacter::AVNHPlayerCharacter()
     PlayerCamera->bUsePawnControlRotation = false;
 }
 
+void AVNHPlayerCharacter::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    if (!Controller) return;
+    const FRotator YawOnly(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+    AddMovementInput(FRotationMatrix(YawOnly).GetUnitAxis(EAxis::X), MoveForwardInput);
+    AddMovementInput(FRotationMatrix(YawOnly).GetUnitAxis(EAxis::Y), MoveRightInput);
+}
+
 void AVNHPlayerCharacter::SetMoveInput(float Forward, float Right)
 {
-    if (!Controller) return;
-    const float F = FMath::Clamp(Forward, -1.0f, 1.0f);
-    const float R = FMath::Clamp(Right, -1.0f, 1.0f);
-    const FRotator YawOnly(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
-    AddMovementInput(FRotationMatrix(YawOnly).GetUnitAxis(EAxis::X), F);
-    AddMovementInput(FRotationMatrix(YawOnly).GetUnitAxis(EAxis::Y), R);
+    MoveForwardInput = FMath::Clamp(Forward, -1.0f, 1.0f);
+    MoveRightInput = FMath::Clamp(Right, -1.0f, 1.0f);
 }
 
 void AVNHPlayerCharacter::AddLookInput(float DeltaX, float DeltaY)
@@ -88,8 +93,8 @@ void AVNHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAction(TEXT("Interact"), IE_Pressed, this, &AVNHPlayerCharacter::TryInteract);
 }
 
-void AVNHPlayerCharacter::MoveForwardKeyboard(float Value) { SetMoveInput(Value, 0.0f); }
-void AVNHPlayerCharacter::MoveRightKeyboard(float Value) { SetMoveInput(0.0f, Value); }
+void AVNHPlayerCharacter::MoveForwardKeyboard(float Value) { MoveForwardInput = FMath::Clamp(Value, -1.0f, 1.0f); }
+void AVNHPlayerCharacter::MoveRightKeyboard(float Value) { MoveRightInput = FMath::Clamp(Value, -1.0f, 1.0f); }
 void AVNHPlayerCharacter::TurnKeyboard(float Value) { AddLookInput(Value * 8.0f, 0.0f); }
 void AVNHPlayerCharacter::LookUpKeyboard(float Value) { AddLookInput(0.0f, -Value * 8.0f); }
 void AVNHPlayerCharacter::StartKeyboardJump() { TriggerJump(); }
