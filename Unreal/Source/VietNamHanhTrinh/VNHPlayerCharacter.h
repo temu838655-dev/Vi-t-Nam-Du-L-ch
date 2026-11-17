@@ -36,4 +36,11 @@ private:
     float SprintSpeed = 560.0f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
     float TouchLookSensitivity = 0.12f;
+
+    void MoveForwardKeyboard(float Value);
+    void MoveRightKeyboard(float Value);
+    void TurnKeyboard(float Value);
+    void LookUpKeyboard(float Value);
+    void StartKeyboardJump();
+    void StopKeyboardJump();
 };
