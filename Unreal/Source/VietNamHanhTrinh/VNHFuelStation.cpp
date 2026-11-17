@@ -66,7 +66,7 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
 
     if (!NearestVehicle) return;
 
-    UGameInstance* GameInstance = GetGameInstance();
+    UGameInstance* GameInstance = GetWorld() ? GetWorld()->GetGameInstance() : nullptr;
     UVNHSaveSubsystem* SaveSubsystem = GameInstance
         ? GameInstance->GetSubsystem<UVNHSaveSubsystem>()
         : nullptr;
@@ -85,7 +85,7 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
         return;
     }
 
-    const int64 QuotedCost = static_cast<int64>(FMath::CeilToDouble(RequestedFuel * static_cast<double>(PricePerFuelUnit)));
+    const int64 QuotedCost = FMath::CeilToInt64(RequestedFuel * static_cast<double>(PricePerFuelUnit));
     if (!SaveSubsystem->TrySpendMoney(QuotedCost))
     {
         OnFuelPurchaseFailed();
@@ -93,7 +93,7 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
     }
 
     const float FuelAdded = NearestVehicle->Refuel(RequestedFuel);
-    const int64 ActualCost = static_cast<int64>(FMath::CeilToDouble(FuelAdded * static_cast<double>(PricePerFuelUnit)));
+    const int64 ActualCost = FMath::CeilToInt64(FuelAdded * static_cast<double>(PricePerFuelUnit));
     if (QuotedCost > ActualCost)
     {
         SaveSubsystem->AddMoney(QuotedCost - ActualCost);
