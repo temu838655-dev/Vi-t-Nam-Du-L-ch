@@ -8,7 +8,6 @@ bool UVNHSaveSubsystem::SaveProgress(UVNHSaveGame* SaveData)
     {
         return false;
     }
-
     SaveData->SchemaVersion = UVNHSaveGame::CurrentSchemaVersion;
     SaveData->LocalRevision = FMath::Max<int64>(0, SaveData->LocalRevision) + 1;
     SaveData->LastLocalSaveUtc = FDateTime::UtcNow().ToIso8601();
@@ -23,28 +22,55 @@ bool UVNHSaveSubsystem::MigrateSaveData(UVNHSaveGame* SaveData) const
         return false;
     }
 
-    // Version 1 had travel/economy/progression data only. Add safe life-simulation
-    // defaults without changing the player's saved travel location or balance.
     if (SaveData->SchemaVersion < 2)
     {
-        if (SaveData->HomeRegionId.IsNone())
-        {
-            SaveData->HomeRegionId = TEXT("HANOI_HOAN_KIEM");
-        }
-        if (SaveData->HomeLocationId.IsNone())
-        {
-            SaveData->HomeLocationId = TEXT("FAMILY_HOME_STARTER");
-        }
-        if (SaveData->MotherCharacterId.IsNone())
-        {
-            SaveData->MotherCharacterId = TEXT("FAMILY_MOTHER");
-        }
-        if (SaveData->FatherCharacterId.IsNone())
-        {
-            SaveData->FatherCharacterId = TEXT("FAMILY_FATHER");
-        }
-        // NAME_None for SelectedJobId is intentional: never assign a career for the player.
+        if (SaveData->HomeRegionId.IsNone()) SaveData->HomeRegionId = TEXT("HANOI_HOAN_KIEM");
+        if (SaveData->HomeLocationId.IsNone()) SaveData->HomeLocationId = TEXT("FAMILY_HOME_STARTER");
+        if (SaveData->MotherCharacterId.IsNone()) SaveData->MotherCharacterId = TEXT("FAMILY_MOTHER");
+        if (SaveData->FatherCharacterId.IsNone()) SaveData->FatherCharacterId = TEXT("FAMILY_FATHER");
         SaveData->SchemaVersion = 2;
+    }
+
+    if (SaveData->SchemaVersion < 3)
+    {
+        // Existing saves receive a safe appearance preset and family records.
+        // No career is selected automatically and the saved balance/location remain untouched.
+        if (SaveData->PlayerAppearance.BodyTypeId.IsNone())
+            SaveData->PlayerAppearance.BodyTypeId = TEXT("BODY_AVERAGE");
+        if (SaveData->PlayerAppearance.FacePresetId.IsNone())
+            SaveData->PlayerAppearance.FacePresetId = TEXT("FACE_VN_01");
+        if (SaveData->PlayerAppearance.SkinToneId.IsNone())
+            SaveData->PlayerAppearance.SkinToneId = TEXT("SKIN_TONE_03");
+        if (SaveData->PlayerAppearance.HairStyleId.IsNone())
+            SaveData->PlayerAppearance.HairStyleId = TEXT("HAIR_SHORT_01");
+        if (SaveData->PlayerAppearance.HairColorId.IsNone())
+            SaveData->PlayerAppearance.HairColorId = TEXT("HAIR_BLACK");
+        if (SaveData->PlayerAppearance.OutfitId.IsNone())
+            SaveData->PlayerAppearance.OutfitId = TEXT("OUTFIT_CASUAL_01");
+
+        if (SaveData->FamilyMembers.Num() == 0)
+        {
+            FVNHFamilyMemberSave Mother;
+            Mother.CharacterId = SaveData->MotherCharacterId;
+            Mother.FamilyRoleId = TEXT("MOTHER");
+            Mother.DisplayNameKey = TEXT("FAMILY_MOTHER_NAME");
+            Mother.AgeYears = 48;
+            Mother.Relationship = 60;
+            Mother.DailyRoutineId = TEXT("ROUTINE_PARENT_HOME");
+            Mother.AppearancePresetId = TEXT("PARENT_MOTHER_01");
+            SaveData->FamilyMembers.Add(Mother);
+
+            FVNHFamilyMemberSave Father;
+            Father.CharacterId = SaveData->FatherCharacterId;
+            Father.FamilyRoleId = TEXT("FATHER");
+            Father.DisplayNameKey = TEXT("FAMILY_FATHER_NAME");
+            Father.AgeYears = 52;
+            Father.Relationship = 60;
+            Father.DailyRoutineId = TEXT("ROUTINE_PARENT_HOME");
+            Father.AppearancePresetId = TEXT("PARENT_FATHER_01");
+            SaveData->FamilyMembers.Add(Father);
+        }
+        SaveData->SchemaVersion = 3;
     }
 
     return SaveData->SchemaVersion == UVNHSaveGame::CurrentSchemaVersion;
@@ -52,32 +78,17 @@ bool UVNHSaveSubsystem::MigrateSaveData(UVNHSaveGame* SaveData) const
 
 UVNHSaveGame* UVNHSaveSubsystem::LoadProgress()
 {
-    if (!HasLocalSave())
-    {
-        return nullptr;
-    }
-
+    if (!HasLocalSave()) return nullptr;
     UVNHSaveGame* LoadedSave = Cast<UVNHSaveGame>(
         UGameplayStatics::LoadGameFromSlot(SaveSlotName, UserIndex));
-
-    if (!IsValid(LoadedSave))
-    {
-        return nullptr;
-    }
+    if (!IsValid(LoadedSave)) return nullptr;
 
     const int32 LoadedSchemaVersion = LoadedSave->SchemaVersion;
-    if (!MigrateSaveData(LoadedSave))
-    {
-        return nullptr;
-    }
-
-    // Persist only when a migration actually changed the schema. A normal load
-    // must not increment LocalRevision or rewrite the save slot.
+    if (!MigrateSaveData(LoadedSave)) return nullptr;
     if (LoadedSchemaVersion != LoadedSave->SchemaVersion && !SaveProgress(LoadedSave))
     {
         return nullptr;
     }
-
     return LoadedSave;
 }
 
@@ -94,23 +105,12 @@ bool UVNHSaveSubsystem::DeleteLocalSave()
 UVNHSaveGame* UVNHSaveSubsystem::CreateNewLife(
     FString NewPlayerId, int64 StartingMoney, bool bReplaceExistingSave)
 {
-    if (HasLocalSave() && !bReplaceExistingSave)
-    {
-        return nullptr;
-    }
-
-    if (NewPlayerId.IsEmpty() || StartingMoney < 0)
-    {
-        return nullptr;
-    }
+    if (HasLocalSave() && !bReplaceExistingSave) return nullptr;
+    if (NewPlayerId.IsEmpty() || StartingMoney < 0) return nullptr;
 
     UVNHSaveGame* NewSave = Cast<UVNHSaveGame>(
         UGameplayStatics::CreateSaveGameObject(UVNHSaveGame::StaticClass()));
-
-    if (!IsValid(NewSave))
-    {
-        return nullptr;
-    }
+    if (!IsValid(NewSave)) return nullptr;
 
     NewSave->SchemaVersion = UVNHSaveGame::CurrentSchemaVersion;
     NewSave->PlayerId = MoveTemp(NewPlayerId);
@@ -127,33 +127,39 @@ UVNHSaveGame* UVNHSaveSubsystem::CreateNewLife(
     NewSave->CurrentRegionId = NewSave->HomeRegionId;
     NewSave->LastCheckpointId = NAME_None;
 
+    FVNHFamilyMemberSave Mother;
+    Mother.CharacterId = NewSave->MotherCharacterId;
+    Mother.FamilyRoleId = TEXT("MOTHER");
+    Mother.DisplayNameKey = TEXT("FAMILY_MOTHER_NAME");
+    Mother.AgeYears = 48;
+    Mother.Relationship = 60;
+    Mother.DailyRoutineId = TEXT("ROUTINE_PARENT_HOME");
+    Mother.AppearancePresetId = TEXT("PARENT_MOTHER_01");
+    NewSave->FamilyMembers.Add(Mother);
+
+    FVNHFamilyMemberSave Father;
+    Father.CharacterId = NewSave->FatherCharacterId;
+    Father.FamilyRoleId = TEXT("FATHER");
+    Father.DisplayNameKey = TEXT("FAMILY_FATHER_NAME");
+    Father.AgeYears = 52;
+    Father.Relationship = 60;
+    Father.DailyRoutineId = TEXT("ROUTINE_PARENT_HOME");
+    Father.AppearancePresetId = TEXT("PARENT_FATHER_01");
+    NewSave->FamilyMembers.Add(Father);
+
     return SaveProgress(NewSave) ? NewSave : nullptr;
 }
 
 UVNHSaveGame* UVNHSaveSubsystem::LoadOrCreateProgress()
 {
-    if (HasLocalSave())
-    {
-        return LoadProgress();
-    }
-
-    // Do not silently create a profile with invented money or career settings.
-    return nullptr;
+    return HasLocalSave() ? LoadProgress() : nullptr;
 }
 
 bool UVNHSaveSubsystem::SelectCareer(FName JobId, FName WorkplaceId, int64 InMonthlySalary)
 {
-    if (JobId.IsNone() || WorkplaceId.IsNone() || InMonthlySalary < 0)
-    {
-        return false;
-    }
-
+    if (JobId.IsNone() || WorkplaceId.IsNone() || InMonthlySalary < 0) return false;
     UVNHSaveGame* SaveData = LoadOrCreateProgress();
-    if (!IsValid(SaveData))
-    {
-        return false;
-    }
-
+    if (!IsValid(SaveData)) return false;
     SaveData->SelectedJobId = JobId;
     SaveData->WorkplaceId = WorkplaceId;
     SaveData->MonthlySalary = InMonthlySalary;
@@ -163,11 +169,7 @@ bool UVNHSaveSubsystem::SelectCareer(FName JobId, FName WorkplaceId, int64 InMon
 bool UVNHSaveSubsystem::ClearCareerSelection()
 {
     UVNHSaveGame* SaveData = LoadOrCreateProgress();
-    if (!IsValid(SaveData))
-    {
-        return false;
-    }
-
+    if (!IsValid(SaveData)) return false;
     SaveData->SelectedJobId = NAME_None;
     SaveData->WorkplaceId = NAME_None;
     SaveData->MonthlySalary = 0;
@@ -176,17 +178,9 @@ bool UVNHSaveSubsystem::ClearCareerSelection()
 
 bool UVNHSaveSubsystem::SaveCheckpoint(FName RegionId, FName CheckpointId)
 {
-    if (RegionId.IsNone() || CheckpointId.IsNone())
-    {
-        return false;
-    }
-
+    if (RegionId.IsNone() || CheckpointId.IsNone()) return false;
     UVNHSaveGame* SaveData = LoadOrCreateProgress();
-    if (!IsValid(SaveData))
-    {
-        return false;
-    }
-
+    if (!IsValid(SaveData)) return false;
     SaveData->CurrentRegionId = RegionId;
     SaveData->LastCheckpointId = CheckpointId;
     return SaveProgress(SaveData);
@@ -200,36 +194,19 @@ int64 UVNHSaveSubsystem::GetMoney()
 
 bool UVNHSaveSubsystem::TrySpendMoney(int64 Amount)
 {
-    if (Amount <= 0)
-    {
-        return false;
-    }
-
+    if (Amount <= 0) return false;
     UVNHSaveGame* SaveData = LoadOrCreateProgress();
-    if (!IsValid(SaveData) || SaveData->Money < Amount)
-    {
-        return false;
-    }
-
+    if (!IsValid(SaveData) || SaveData->Money < Amount) return false;
     SaveData->Money -= Amount;
     return SaveProgress(SaveData);
 }
 
 bool UVNHSaveSubsystem::AddMoney(int64 Amount)
 {
-    if (Amount <= 0)
-    {
-        return false;
-    }
-
+    if (Amount <= 0) return false;
     UVNHSaveGame* SaveData = LoadOrCreateProgress();
-    if (!IsValid(SaveData))
-    {
-        return false;
-    }
-
+    if (!IsValid(SaveData)) return false;
     SaveData->Money = (MAX_int64 - SaveData->Money < Amount)
-        ? MAX_int64
-        : SaveData->Money + Amount;
+        ? MAX_int64 : SaveData->Money + Amount;
     return SaveProgress(SaveData);
 }
