@@ -281,18 +281,28 @@ func _build_ho_guom_landmark() -> void:
 	water.material_override = water_mat
 	add_child(water)
 
-	var island := MeshInstance3D.new()
+	var island := StaticBody3D.new()
 	island.name = "TurtleTower_Island"
+	island.position = Vector3(27, 0.28, -1)
+	var island_visual := MeshInstance3D.new()
+	island_visual.name = "Visual"
 	var island_mesh := CylinderMesh.new()
 	island_mesh.top_radius = 2.3
 	island_mesh.bottom_radius = 2.7
 	island_mesh.height = 0.55
-	island.mesh = island_mesh
-	island.position = Vector3(27, 0.28, -1)
+	island_visual.mesh = island_mesh
 	var stone := StandardMaterial3D.new()
 	stone.albedo_color = Color(0.55, 0.52, 0.42)
 	stone.roughness = 0.92
-	island.material_override = stone
+	island_visual.material_override = stone
+	island.add_child(island_visual)
+	var island_collision := CollisionShape3D.new()
+	island_collision.name = "Collision"
+	var island_shape := CylinderShape3D.new()
+	island_shape.radius = 2.7
+	island_shape.height = 0.55
+	island_collision.shape = island_shape
+	island.add_child(island_collision)
 	add_child(island)
 
 	_add_landmark_cylinder("TurtleTower_LowerFloor", Vector3(27, 1.0, -1), 1.05, 1.35, 1.0, Color(0.78, 0.72, 0.56))
@@ -380,19 +390,30 @@ func _add_landmark_box(object_name: String, at: Vector3, dimensions: Vector3, ti
 
 
 func _add_landmark_cylinder(object_name: String, at: Vector3, top_radius: float, bottom_radius: float, height: float, tint: Color) -> void:
+	# Use a static body so trunks, columns and tower tiers have real collision.
+	var body := StaticBody3D.new()
+	body.name = object_name
+	body.position = at
 	var node := MeshInstance3D.new()
-	node.name = object_name
+	node.name = "Visual"
 	var mesh := CylinderMesh.new()
 	mesh.top_radius = top_radius
 	mesh.bottom_radius = bottom_radius
 	mesh.height = height
 	node.mesh = mesh
-	node.position = at
 	var material := StandardMaterial3D.new()
 	material.albedo_color = tint
 	material.roughness = 0.86
 	node.material_override = material
-	add_child(node)
+	body.add_child(node)
+	var collision := CollisionShape3D.new()
+	collision.name = "Collision"
+	var shape := CylinderShape3D.new()
+	shape.radius = maxf(top_radius, bottom_radius)
+	shape.height = height
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
 
 
 func _add_landmark_cone(object_name: String, at: Vector3, radius: float, height: float, tint: Color) -> void:
