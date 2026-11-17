@@ -16,7 +16,63 @@ permissions:
   contents: read
 
 jobs:
+  github-preflight:
+    name: Validate UE5 project on GitHub runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate Unreal project descriptor and Android settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("Unreal")
+          project = root / "VietNamHanhTrinh.uproject"
+          target = root / "Source" / "VietNamHanhTrinh.Target.cs"
+          module = root / "Source" / "VietNamHanhTrinh" / "VietNamHanhTrinh.Build.cs"
+          engine = root / "Config" / "DefaultEngine.ini"
+
+          required = [project, target, module, engine]
+          missing = [str(path) for path in required if not path.is_file()]
+          if missing:
+              raise SystemExit("Missing required UE project files: " + ", ".join(missing))
+
+          data = json.loads(project.read_text(encoding="utf-8"))
+          if data.get("EngineAssociation") != "5.8":
+              raise SystemExit("Project EngineAssociation must be 5.8")
+          modules = data.get("Modules", [])
+          if not any(item.get("Name") == "VietNamHanhTrinh" for item in modules):
+              raise SystemExit("VietNamHanhTrinh runtime module is not declared")
+
+          target_text = target.read_text(encoding="utf-8")
+          module_text = module.read_text(encoding="utf-8")
+          config_text = engine.read_text(encoding="utf-8")
+          checks = {
+              "Game target": "TargetType.Game" in target_text,
+              "UE 5.8 include order": "Unreal5_8" in target_text,
+              "runtime module": "VietNamHanhTrinh" in module_text,
+              "Android ARM64": "bBuildForArm64=True" in config_text,
+              "Android package id": "PackageName=com.bovietnam.hanhtrinh" in config_text,
+              "iOS bundle id": "BundleIdentifier=com.bovietnam.hanhtrinh" in config_text,
+          }
+          failed = [name for name, passed in checks.items() if not passed]
+          for name, passed in checks.items():
+              print(("PASS" if passed else "FAIL") + ": " + name)
+          if failed:
+              raise SystemExit("Project preflight failed: " + ", ".join(failed))
+
+          print("UE5.8 project preflight passed. This is a source/configuration check, not an Unreal compilation.")
+          PY
+
   android-apk:
+    name: Package Android ARM64 APK with UE 5.8
+    needs: github-preflight
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     env:
