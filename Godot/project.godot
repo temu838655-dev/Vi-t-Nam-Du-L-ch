@@ -19,6 +19,9 @@ renderer/rendering_method.mobile="gl_compatibility"
 textures/default_filters/use_nearest_mipmap_filter=false
 environment/defaults/default_clear_color=Color(0.48, 0.68, 0.82, 1)
 
+[autoload]
+GameState="*res://scripts/game_state.gd"
+
 [input]
 move_forward={"deadzone":0.2,"events":[]}
 move_back={"deadzone":0.2,"events":[]}
