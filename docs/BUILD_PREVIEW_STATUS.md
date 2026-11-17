@@ -31,3 +31,11 @@ Dự án chỉ sử dụng Unreal Engine 5.8. Project chính: Unreal/VietNamHanh
 
 ## Nguyên tắc phát hành
 Chỉ gọi là bản build UE5 khi artifact được tạo từ project Unreal/VietNamHanhTrinh.uproject, có log build thành công và đã kiểm tra cài/chạy trên thiết bị. Không dùng APK từ engine khác để đại diện cho game UE5.
+
+## APK Android bằng Unreal Engine 5.8
+
+- Đã thêm workflow `UE5 Android APK Playtest` tại `.github/workflows/ue5-android-apk.yml`; workflow chỉ dùng project UE5.8 và không gọi Godot.
+- Workflow yêu cầu Windows self-hosted runner đã cài Unreal Engine 5.8 + Android SDK/NDK/JDK; cần đặt repository variable `UE_ROOT`.
+- Khi runner sẵn sàng, chạy thủ công từ tab Actions; APK được upload dưới dạng artifact nếu BuildCookRun thành công.
+- Hiện chưa có bằng chứng runner đã đăng ký/online, chưa có log compile UE5.8 và chưa có APK. Không tuyên bố APK đã hoàn thành.
+- Hướng dẫn chi tiết: [BUILD_ANDROID_APK_UE58.md](BUILD_ANDROID_APK_UE58.md).
