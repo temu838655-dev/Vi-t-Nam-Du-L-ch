@@ -36,7 +36,7 @@ public:
     void ExitVehicle();
 
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle|Fuel")
-    void Refuel(float Amount);
+    float Refuel(float Amount);
 
     UFUNCTION(BlueprintPure, Category="VNH|Vehicle|Fuel")
     float GetFuelPercent() const { return FuelCapacity > 0.0f ? CurrentFuel / FuelCapacity : 0.0f; }
@@ -45,7 +45,7 @@ public:
     float FuelCapacity = 45.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="VNH|Vehicle|Fuel")
-    float FuelConsumptionPerSecond = 0.0018f;
+    float FuelConsumptionPerSecond = 0.018f;
 
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="VNH|Vehicle|Fuel")
     float CurrentFuel = 45.0f;
