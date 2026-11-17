@@ -232,8 +232,16 @@ func _build_prototype_world() -> void:
 	_build_ho_guom_landmark()
 	_add_box("Ground", Vector3(0, -0.25, 0), Vector3(100, 0.5, 100), Color(0.22, 0.42, 0.25))
 	# Starter family home and street are greybox placeholders, not final Vietnam assets.
-	_add_box("FamilyHome", Vector3(0, 1.5, -8), Vector3(9, 3, 7), Color(0.82, 0.72, 0.55))
+	# Build the family home as separate collidable walls, leaving a real doorway to walk through.
+	_add_box("FamilyHome_FrontLeftWall", Vector3(-2.625, 1.5, -4.5), Vector3(3.75, 3, 0.4), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_FrontRightWall", Vector3(2.625, 1.5, -4.5), Vector3(3.75, 3, 0.4), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_DoorLintel", Vector3(0, 2.72, -4.5), Vector3(1.5, 0.56, 0.4), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_LeftWall", Vector3(-4.3, 1.5, -8), Vector3(0.4, 3, 7), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_RightWall", Vector3(4.3, 1.5, -8), Vector3(0.4, 3, 7), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_BackWall", Vector3(0, 1.5, -11.5), Vector3(9, 3, 0.4), Color(0.82, 0.72, 0.55))
+	_add_box("FamilyHome_InteriorFloor", Vector3(0, 0.04, -8), Vector3(8.5, 0.12, 6.5), Color(0.55, 0.43, 0.31))
 	_add_box("HomeRoof", Vector3(0, 3.5, -8), Vector3(10, 1, 8), Color(0.48, 0.18, 0.13))
+	_build_family_home_interior()
 	_add_box("Road", Vector3(0, 0.02, 8), Vector3(7, 0.08, 70), Color(0.12, 0.12, 0.13))
 	_build_street_details()
 	for i in range(5):
@@ -565,3 +573,27 @@ func _add_facade_box(object_name: String, at: Vector3, dimensions: Vector3, tint
 	material.roughness = 0.78
 	node.material_override = material
 	add_child(node)
+
+
+
+func _build_family_home_interior() -> void:
+	# Simple Vietnamese family living space; furniture is solid so it has spatial presence.
+	_add_box("Home_SofaBase", Vector3(-2.55, 0.48, -8.9), Vector3(2.25, 0.42, 0.92), Color(0.34, 0.20, 0.14))
+	_add_box("Home_SofaBack", Vector3(-2.55, 0.92, -9.28), Vector3(2.25, 0.82, 0.18), Color(0.42, 0.26, 0.18))
+	_add_box("Home_CoffeeTable", Vector3(-0.1, 0.42, -8.85), Vector3(1.5, 0.16, 0.82), Color(0.38, 0.24, 0.14))
+	_add_box("Home_TVStand", Vector3(2.85, 0.42, -9.15), Vector3(1.45, 0.78, 0.42), Color(0.24, 0.18, 0.13))
+	_add_box("Home_Television", Vector3(2.85, 1.18, -9.34), Vector3(1.35, 0.82, 0.10), Color(0.025, 0.035, 0.045))
+	_add_box("Home_KitchenCounter", Vector3(-2.65, 0.62, -5.95), Vector3(2.2, 1.05, 0.72), Color(0.52, 0.43, 0.31))
+	_add_box("Home_Fridge", Vector3(2.9, 1.05, -5.95), Vector3(0.82, 2.0, 0.82), Color(0.72, 0.75, 0.74))
+	_add_box("Home_DiningTable", Vector3(0.25, 0.78, -6.65), Vector3(1.65, 0.12, 0.9), Color(0.42, 0.27, 0.15))
+	for leg_x in [-0.48, 0.98]:
+		for leg_z in [-7.02, -6.28]:
+			_add_box("Home_DiningLeg_%s_%s" % [str(leg_x), str(leg_z)], Vector3(leg_x, 0.40, leg_z), Vector3(0.10, 0.72, 0.10), Color(0.30, 0.20, 0.12))
+	_add_box("Home_WallClock", Vector3(0, 2.35, -11.27), Vector3(0.58, 0.58, 0.06), Color(0.22, 0.16, 0.10))
+	var home_note := Label3D.new()
+	home_note.text = "TỔ ẤM GIA ĐÌNH"
+	home_note.position = Vector3(0, 2.05, -11.22)
+	home_note.font_size = 22
+	home_note.modulate = Color(0.96, 0.86, 0.68)
+	home_note.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	add_child(home_note)
