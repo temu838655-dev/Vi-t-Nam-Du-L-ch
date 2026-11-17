@@ -17,6 +17,7 @@ Dự án chỉ sử dụng Unreal Engine 5.8. Project chính: Unreal/VietNamHanh
 - Chưa hoàn thiện asset 3D, animation, đăng nhập Google/Apple và cloud save.
 
 - GameMode đã có bộ điều khiển đồng hồ prototype: khi đã có save, cứ 5 giây thực tế tăng 5 phút trong game; thông số có thể chỉnh trong class defaults. Đây là bước thử lịch game, chưa phải chu kỳ ngày/đêm hay lịch NPC tự động.
+- GameMode dựng starter-home gia đình dạng greybox và đặt điểm xuất phát trước nhà nếu level chưa có PlayerStart. Nhà chỉ là khối kiến trúc thử nghiệm, chưa có cửa mở, nội thất, bố mẹ NPC hoặc tương tác sinh hoạt.
 - Có hướng dẫn và checklist nghiệm thu vertical slice tại [UE5_VERTICAL_SLICE_PLAYTEST.md](UE5_VERTICAL_SLICE_PLAYTEST.md).
 
 ## Điều kiện để tạo bản thử UE5
