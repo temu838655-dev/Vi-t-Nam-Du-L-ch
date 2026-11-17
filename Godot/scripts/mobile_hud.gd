@@ -244,7 +244,8 @@ func _refresh_shop_items() -> void:
 			"clothing":
 				action.text = "MẶC" if owned else "MUA & MẶC"
 			"food":
-				action.text = "MUA & ĂN"
+				action.text = "ĐÃ CÓ" if owned and bool(item.get("packaged", false)) else ("MUA ĐẶC SẢN" if bool(item.get("packaged", false)) else "MUA & ĂN")
+		action.disabled = owned and current_shop_type == "food" and bool(item.get("packaged", false))
 		action.pressed.connect(_purchase_shop_item.bind(current_shop_type, item_id))
 		row.add_child(action)
 
