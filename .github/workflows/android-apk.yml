@@ -20,10 +20,11 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - name: Install Android SDK components
-        run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-          yes | sdkmanager --licenses
+      - name: Set up Android SDK
+        uses: google-github-actions/setup-android@v3
+        with:
+          packages: 'platform-tools, platforms;android-35, build-tools;35.0.0'
+          accept-android-sdk-licenses: true
       - name: Set up Godot
         uses: chickensoft-games/setup-godot@v2
         with:
