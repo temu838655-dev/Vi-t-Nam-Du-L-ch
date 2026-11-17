@@ -1,0 +1,73 @@
+name: UE5 Android APK Playtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_config:
+        description: Build configuration
+        required: true
+        type: choice
+        options:
+          - Development
+          - Shipping
+        default: Development
+
+permissions:
+  contents: read
+
+jobs:
+  android-apk:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    env:
+      UE_ROOT: ${{ vars.UE_ROOT }}
+      BUILD_CONFIG: ${{ inputs.build_config }}
+      PROJECT_FILE: ${{ github.workspace }}\Unreal\VietNamHanhTrinh.uproject
+      ARCHIVE_DIR: ${{ github.workspace }}\dist\UnrealAndroid
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate Unreal toolchain
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:UE_ROOT)) { throw "Set repository variable UE_ROOT to the UE 5.8 install directory." }
+          $uat = Join-Path $env:UE_ROOT "Engine\Build\BatchFiles\RunUAT.bat"
+          if (!(Test-Path $uat)) { throw "RunUAT.bat not found: $uat" }
+          if (!(Test-Path $env:PROJECT_FILE)) { throw "Project file not found: $env:PROJECT_FILE" }
+          Write-Host "Using Unreal Engine at $env:UE_ROOT"
+
+      - name: Package Android ARM64 APK
+        shell: pwsh
+        run: |
+          $uat = Join-Path $env:UE_ROOT "Engine\Build\BatchFiles\RunUAT.bat"
+          New-Item -ItemType Directory -Force -Path $env:ARCHIVE_DIR | Out-Null
+          & $uat BuildCookRun `
+            "-project=$env:PROJECT_FILE" `
+            -noP4 `
+            -platform=Android `
+            -cookflavor=ASTC `
+            "-clientconfig=$env:BUILD_CONFIG" `
+            -build -cook -stage -pak -archive `
+            "-archivedirectory=$env:ARCHIVE_DIR" `
+            -utf8output
+          if ($LASTEXITCODE -ne 0) { throw "BuildCookRun failed: $LASTEXITCODE" }
+
+      - name: Verify and name APK
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem -Path $env:ARCHIVE_DIR -Filter *.apk -Recurse | Select-Object -First 1
+          if ($null -eq $apk) { throw "No APK found in $env:ARCHIVE_DIR" }
+          $destination = Join-Path "${{ github.workspace }}\dist" "VietNamHanhTrinh-Android-ARM64-$env:BUILD_CONFIG.apk"
+          Copy-Item $apk.FullName $destination -Force
+          $size = (Get-Item $destination).Length
+          if ($size -lt 1000000) { throw "APK is unexpectedly small ($size bytes)." }
+          Write-Host "Verified APK: $destination ($size bytes)"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VietNamHanhTrinh-Android-ARM64-${{ inputs.build_config }}
+          path: ${{ github.workspace }}/dist/*.apk
+          if-no-files-found: error
+          retention-days: 14
