@@ -6,9 +6,9 @@
 - `CurrentFuel`: lượng nhiên liệu hiện tại.
 - `FuelConsumptionPerSecond`: mức tiêu thụ cơ bản theo thời gian chạy.
 - `GetFuelPercent()`: giá trị 0–1 để UI hiển thị thanh nhiên liệu.
-- `Refuel(Amount)`: nạp thêm nhiên liệu, không vượt dung tích tối đa.
+- `Refuel(Amount)`: nạp thêm nhiên liệu, không vượt dung tích tối đa và trả về lượng thực tế đã nạp.
 
-Khi hết nhiên liệu, xe không thể tăng tốc và giảm tốc về 0. Xe máy prototype có dung tích mặc định 8 đơn vị nhiên liệu; ô tô nền tảng mặc định 45. Các thông số này là giá trị gameplay thử nghiệm, không đại diện định mức tiêu hao thực tế.
+Khi hết nhiên liệu, xe không thể tăng tốc và giảm tốc về 0. Xe máy prototype có dung tích mặc định 8 đơn vị và mức tiêu thụ 0,025 đơn vị/giây khi chạy; ô tô nền tảng mặc định 45 đơn vị và mức tiêu thụ 0,018 đơn vị/giây. Đây là thông số gameplay thử nghiệm, không đại diện định mức tiêu hao thực tế. Blueprint event chỉ được gọi khi thực sự nạp thêm nhiên liệu; xe đã đầy bình không phát thông báo nạp thành công.
 
 ## Trạm xăng
 `AVNHFuelStation` là Actor tương tác được qua `VNHInteractable`. Khi người chơi tương tác với trạm, hệ thống tìm xe `AVNHVehiclePawn` gần nhất trong bán kính `InteractionRadius` (mặc định 500 cm) và nạp `FuelPerInteraction` (mặc định 15 đơn vị). Blueprint event `OnFuelDispensed` có thể cập nhật thông báo, giao diện thanh toán hoặc âm thanh.
