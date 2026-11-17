@@ -1,8 +1,25 @@
-# Godot generated files
-.godot/
-.import/
-export.cfg
-build/
-*.translation
+# Unreal Engine generated files
+Unreal/Binaries/
+Unreal/DerivedDataCache/
+Unreal/Intermediate/
+Unreal/Saved/
+Unreal/Build/
+Unreal/.vs/
+Unreal/*.sln
+Unreal/*.xcodeproj/
+Unreal/*.xcworkspace/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Signing credentials and generated packages
 *.keystore
 *.jks
+*.p12
+*.mobileprovision
+*.apk
+*.aab
+*.ipa
