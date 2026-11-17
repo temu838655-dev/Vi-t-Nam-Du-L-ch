@@ -1,4 +1,6 @@
 #include "VNHVehiclePawn.h"
+#include "VNHTrafficAIController.h"
+#include "AIController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -56,7 +58,8 @@ AVNHVehiclePawn::AVNHVehiclePawn()
     VehicleCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
     VehicleCamera->bUsePawnControlRotation = false;
 
-    AutoPossessAI = EAutoPossessAI::Disabled;
+    AIControllerClass = AVNHTrafficAIController::StaticClass();
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AVNHVehiclePawn::Tick(float DeltaSeconds)
@@ -108,7 +111,7 @@ void AVNHVehiclePawn::Interact_Implementation(AActor* InteractingActor)
 {
     ACharacter* Character = Cast<ACharacter>(InteractingActor);
     if (!Character || !Character->GetController()) return;
-    if (GetController()) return;
+    if (GetController() && !Cast<AAIController>(GetController())) return;
 
     PreviousCharacter = Character;
     Character->GetController()->Possess(this);
@@ -137,6 +140,7 @@ void AVNHVehiclePawn::ExitVehicle()
     SetVehicleInput(0.0f, 0.0f);
     SetBrake(false);
     CurrentSpeed = 0.0f;
+    SpawnDefaultController();
 }
 
 void AVNHVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
