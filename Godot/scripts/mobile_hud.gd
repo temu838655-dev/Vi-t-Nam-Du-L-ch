@@ -27,85 +27,135 @@ func _ready() -> void:
 	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ui_root)
 
-	var title := Label.new()
-	title.text = "VIỆT NAM – HÀNH TRÌNH BẤT TẬN"
-	title.position = Vector2(24, 16)
-	title.add_theme_font_size_override("font_size", 22)
-	ui_root.add_child(title)
+	# Top-left player profile and primary objective, styled as translucent game HUD.
+	var profile := _make_hud_panel(Vector2(22, 18), Vector2(310, 104))
+	ui_root.add_child(profile)
+	var profile_layout := HBoxContainer.new()
+	profile_layout.add_theme_constant_override("separation", 12)
+	profile.add_child(profile_layout)
+	var avatar := Label.new()
+	avatar.text = "🧑🏻"
+	avatar.add_theme_font_size_override("font_size", 42)
+	profile_layout.add_child(avatar)
+	var profile_text := VBoxContainer.new()
+	profile_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	profile_layout.add_child(profile_text)
+	var player_name := Label.new()
+	player_name.text = "Du Khách"
+	player_name.add_theme_font_size_override("font_size", 21)
+	profile_text.add_child(player_name)
+	var level := Label.new()
+	level.text = "★  Lv.1"
+	level.add_theme_font_size_override("font_size", 17)
+	profile_text.add_child(level)
+	var xp := ProgressBar.new()
+	xp.custom_minimum_size = Vector2(150, 10)
+	xp.max_value = 100
+	xp.value = 28
+	xp.show_percentage = false
+	profile_text.add_child(xp)
 
+	var mission := _make_hud_panel(Vector2(22, 136), Vector2(310, 100))
+	ui_root.add_child(mission)
+	var mission_text := Label.new()
+	mission_text.text = "❗ NHIỆM VỤ\nKhám phá khu phố\nTìm người dân và trò chuyện"
+	mission_text.add_theme_font_size_override("font_size", 17)
+	mission_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mission.add_child(mission_text)
+
+	# Currency counters at the top center.
+	var currency := _make_hud_panel(Vector2(350, 18), Vector2(340, 54))
+	currency.add_theme_stylebox_override("panel", _hud_style(Color(0.015, 0.07, 0.16, 0.72), Color(0.35, 0.72, 1.0, 0.8)))
+	ui_root.add_child(currency)
+	var currency_row := HBoxContainer.new()
+	currency_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	currency_row.add_theme_constant_override("separation", 18)
+	currency.add_child(currency_row)
 	status_label = Label.new()
-	status_label.position = Vector2(24, 48)
-	status_label.add_theme_font_size_override("font_size", 18)
-	ui_root.add_child(status_label)
+	status_label.add_theme_font_size_override("font_size", 19)
+	currency_row.add_child(status_label)
 
-	var help := Label.new()
-	help.text = "Cần trái: đi bộ / lái xe • Vuốt phải: camera • Cửa hàng: xe máy, thời trang, đặc sản"
-	help.position = Vector2(24, 78)
-	help.add_theme_font_size_override("font_size", 15)
-	ui_root.add_child(help)
+	# Top-right quick actions.
+	var top_actions := HBoxContainer.new()
+	top_actions.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	top_actions.position = Vector2(-350, 18)
+	top_actions.add_theme_constant_override("separation", 8)
+	ui_root.add_child(top_actions)
+	for action in ["🎁\\nQuà", "🏆\\nThành tựu", "⚙\\nCài đặt"]:
+		var action_button := Button.new()
+		action_button.text = action
+		action_button.custom_minimum_size = Vector2(100, 58)
+		action_button.add_theme_font_size_override("font_size", 14)
+		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\\n", " ")))
+		top_actions.add_child(action_button)
 
-	var inventory_button := Button.new()
-	inventory_button.text = "TÀI SẢN"
-	inventory_button.size = Vector2(136, 52)
-	inventory_button.position = Vector2(-154, 18)
-	inventory_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	inventory_button.pressed.connect(open_inventory)
-	ui_root.add_child(inventory_button)
+	# Location card / minimap placeholder. Replace with a real map texture when map tiles are integrated.
+	var map_panel := _make_hud_panel(Vector2(-178, 88), Vector2(156, 118))
+	map_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	ui_root.add_child(map_panel)
+	var map_label := Label.new()
+	map_label.text = "🧭\nBẢN ĐỒ\nKhu dân cư"
+	map_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	map_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	map_label.add_theme_font_size_override("font_size", 17)
+	map_panel.add_child(map_label)
 
-	# A visible, movable virtual joystick follows the first touch on the left side.
+	# Bottom-left virtual joystick. It can be repositioned by touching the left half of the screen.
 	joystick_base = Panel.new()
 	joystick_base.name = "JoystickBase"
-	joystick_base.size = Vector2(160, 160)
+	joystick_base.size = Vector2(164, 164)
 	joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var base_style := StyleBoxFlat.new()
-	base_style.bg_color = Color(0.05, 0.08, 0.12, 0.34)
-	base_style.border_color = Color(0.82, 0.9, 1.0, 0.48)
-	base_style.set_border_width_all(2)
-	base_style.set_corner_radius_all(80)
-	joystick_base.add_theme_stylebox_override("panel", base_style)
+	joystick_base.add_theme_stylebox_override("panel", _hud_style(Color(0.04, 0.14, 0.28, 0.34), Color(0.28, 0.78, 1.0, 0.85), 82))
 	ui_root.add_child(joystick_base)
 	var initial_viewport_size := get_viewport().get_visible_rect().size
-	joystick_base.position = Vector2(42.0, maxf(8.0, initial_viewport_size.y - 202.0))
+	joystick_base.position = Vector2(34.0, maxf(8.0, initial_viewport_size.y - 198.0))
 
 	joystick_knob = Panel.new()
 	joystick_knob.name = "JoystickKnob"
-	joystick_knob.size = Vector2(66, 66)
-	joystick_knob.position = Vector2(47, 47)
+	joystick_knob.size = Vector2(68, 68)
+	joystick_knob.position = Vector2(48, 48)
 	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var knob_style := StyleBoxFlat.new()
-	knob_style.bg_color = Color(0.72, 0.84, 1.0, 0.78)
-	knob_style.border_color = Color(1.0, 1.0, 1.0, 0.85)
-	knob_style.set_border_width_all(2)
-	knob_style.set_corner_radius_all(33)
-	joystick_knob.add_theme_stylebox_override("panel", knob_style)
+	joystick_knob.add_theme_stylebox_override("panel", _hud_style(Color(0.18, 0.62, 1.0, 0.86), Color(0.85, 0.96, 1.0, 0.95), 34))
 	joystick_base.add_child(joystick_knob)
 
+	# Bottom-right action cluster.
 	var jump_button := Button.new()
-	jump_button.text = "NHẢY"
-	jump_button.size = Vector2(105, 66)
-	jump_button.position = Vector2(-125, -110)
+	jump_button.text = "🏃\\nNHẢY"
+	jump_button.size = Vector2(104, 78)
+	jump_button.position = Vector2(-128, -196)
 	jump_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	jump_button.add_theme_font_size_override("font_size", 17)
 	jump_button.pressed.connect(_jump)
 	ui_root.add_child(jump_button)
 
 	interact_button = Button.new()
-	interact_button.text = "TƯƠNG TÁC"
-	interact_button.size = Vector2(130, 66)
-	interact_button.position = Vector2(-270, -110)
+	interact_button.text = "💬\\nTƯƠNG TÁC"
+	interact_button.size = Vector2(132, 78)
+	interact_button.position = Vector2(-278, -112)
 	interact_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	interact_button.add_theme_font_size_override("font_size", 16)
 	interact_button.pressed.connect(_interact)
 	ui_root.add_child(interact_button)
 
+	var inventory_button := Button.new()
+	inventory_button.text = "🎒\\nTÚI ĐỒ"
+	inventory_button.size = Vector2(112, 78)
+	inventory_button.position = Vector2(-132, -104)
+	inventory_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	inventory_button.add_theme_font_size_override("font_size", 16)
+	inventory_button.pressed.connect(open_inventory)
+	ui_root.add_child(inventory_button)
+
 	message_label = Label.new()
-	message_label.position = Vector2(-280, -205)
-	message_label.size = Vector2(560, 72)
+	message_label.position = Vector2(-300, -205)
+	message_label.size = Vector2(600, 64)
 	message_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	message_label.add_theme_font_size_override("font_size", 17)
 	message_label.add_theme_color_override("font_color", Color(1, 1, 1))
-	message_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	message_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
 	message_label.add_theme_constant_override("shadow_offset_x", 2)
 	message_label.add_theme_constant_override("shadow_offset_y", 2)
 	ui_root.add_child(message_label)
@@ -114,18 +164,43 @@ func _ready() -> void:
 		player.interaction_message.connect(_show_message)
 	_update_status()
 
+func _hud_style(fill: Color, outline: Color, corner_radius: int = 14) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = outline
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(corner_radius)
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	return style
+
+func _make_hud_panel(at: Vector2, dimensions: Vector2) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.position = at
+	panel.size = dimensions
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", _hud_style(Color(0.015, 0.055, 0.12, 0.78), Color(0.32, 0.68, 0.96, 0.82)))
+	return panel
+
+func _show_hud_notice(action_name: String) -> void:
+	if action_name.contains("Cài đặt"):
+		var dialog := AcceptDialog.new()
+		dialog.title = "Cài đặt"
+		dialog.dialog_text = "Cài đặt đồ họa, âm thanh và điều khiển sẽ được mở rộng ở bản tiếp theo."
+		add_child(dialog)
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.popup_centered(Vector2i(480, 220))
+	else:
+		_show_message(action_name + " sẽ được mở khi hệ thống phần thưởng và thành tựu hoàn thiện.")
+
 func _process(_delta: float) -> void:
 	_update_status()
 
 func _update_status() -> void:
 	if status_label:
-		status_label.text = "Ví: %s VNĐ   |   Nghề: %s   |   Ca làm: %d   |   No: %d/100   |   Gia đình: %d/100" % [
-			_format_money(GameState.wallet_vnd),
-			GameState.selected_career,
-			GameState.completed_work_shifts,
-			GameState.satiety,
-			GameState.family_affection
-		]
+		status_label.text = "🪙 %s VNĐ   💎 0" % _format_money(GameState.wallet_vnd)
 	if interact_button and player and player.has_method("is_riding_vehicle"):
 		interact_button.text = "XUỐNG XE" if player.is_riding_vehicle() else "TƯƠNG TÁC"
 
