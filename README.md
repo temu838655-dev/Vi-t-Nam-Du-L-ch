@@ -12,7 +12,7 @@ Game **mô phỏng cuộc sống tự do kết hợp du lịch thế giới mở
 ## Những hệ thống UE5 đã có trong mã nguồn
 - GameMode tự dựng blockout Hồ Hoàn Kiếm và PlayerStart dự phòng trên map trống; PlayerController hỗ trợ tạo HUD UMG cấu hình từ Blueprint.
 - Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
-- SaveGame schema v3: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint.
+- SaveGame schema v3: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint. Save Subsystem có API cập nhật quan hệ gia đình (0–100) và lưu ngoại hình (chiều cao 120–220 cm).
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
 - NPC dân cư với AI tuần tra cơ bản.
