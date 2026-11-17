@@ -78,6 +78,16 @@ var equipped_clothes: Dictionary = {"top":"ao_thun_basic","bottom":"quan_jeans",
 var satiety: int = 100
 var food_history: Array = []
 var owned_specialties: Array = []
+var world_time_seconds: float = 8.0 * 60.0
+
+func advance_world_clock(delta: float) -> void:
+	world_time_seconds = fposmod(world_time_seconds + delta, 240.0)
+
+func get_world_clock_text() -> String:
+	var game_minutes := int(fposmod(world_time_seconds, 240.0) * 6.0)
+	var hour := int(floor(float(game_minutes) / 60.0))
+	var minute := game_minutes % 60
+	return "%02d:%02d" % [hour, minute]
 
 func _ready() -> void:
 	load_game()
@@ -99,6 +109,7 @@ func start_new_game() -> void:
 	satiety = 100
 	food_history = []
 	owned_specialties = []
+	world_time_seconds = 8.0 * 60.0
 	has_save = false
 
 func load_game() -> bool:
@@ -150,6 +161,7 @@ func load_game() -> bool:
 	var specialties_value: Variant = data.get("owned_specialties", [])
 	if specialties_value is Array:
 		owned_specialties = specialties_value.duplicate()
+	world_time_seconds = fposmod(float(data.get("world_time_seconds", 8.0 * 60.0)), 240.0)
 	has_save = true
 	return true
 
@@ -172,6 +184,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 		"satiety": satiety,
 		"food_history": food_history,
 		"owned_specialties": owned_specialties,
+		"world_time_seconds": world_time_seconds,
 		"position": [last_position.x, last_position.y, last_position.z],
 		"rotation_y": last_rotation_y,
 		"saved_at_unix": int(Time.get_unix_time_from_system())
