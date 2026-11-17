@@ -4,6 +4,7 @@
 #include "VNHPlayerCharacter.h"
 #include "VNHSaveSubsystem.h"
 #include "VNHHanoiPrototypeArea.h"
+#include "VNHFamilyHomePrototype.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "EngineUtils.h"
@@ -36,6 +37,22 @@ void AVNHGameMode::InitGame(const FString& MapName, const FString& Options, FStr
             FVector::ZeroVector, FRotator::ZeroRotator);
     }
 
+    bool bHasFamilyHome = false;
+    for (TActorIterator<AVNHFamilyHomePrototype> It(World); It; ++It)
+    {
+        bHasFamilyHome = true;
+        break;
+    }
+
+    const FVector FamilyHomeLocation(14500.0f, 0.0f, 0.0f);
+    if (!bHasFamilyHome)
+    {
+        World->SpawnActor<AVNHFamilyHomePrototype>(
+            AVNHFamilyHomePrototype::StaticClass(),
+            FamilyHomeLocation,
+            FRotator::ZeroRotator);
+    }
+
     bool bHasPlayerStart = false;
     for (TActorIterator<APlayerStart> It(World); It; ++It)
     {
@@ -45,8 +62,9 @@ void AVNHGameMode::InitGame(const FString& MapName, const FString& Options, FStr
 
     if (!bHasPlayerStart)
     {
+        // New players begin outside the starter family home, not at a respawn checkpoint.
         World->SpawnActor<APlayerStart>(APlayerStart::StaticClass(),
-            FVector(0.0f, -5800.0f, 100.0f), FRotator(0.0f, 90.0f, 0.0f));
+            FVector(14500.0f, -1000.0f, 100.0f), FRotator(0.0f, 90.0f, 0.0f));
     }
 }
 
