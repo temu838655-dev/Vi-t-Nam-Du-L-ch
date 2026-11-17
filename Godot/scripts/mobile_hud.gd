@@ -2,6 +2,7 @@ extends CanvasLayer
 
 var player: CharacterBody3D
 var status_label: Label
+var clock_label: Label
 var message_label: Label
 var joystick_origin := Vector2.ZERO
 var joystick_touch := -1
@@ -74,6 +75,12 @@ func _ready() -> void:
 	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 19)
 	currency_row.add_child(status_label)
+
+	clock_label = Label.new()
+	clock_label.position = Vector2(360, 78)
+	clock_label.add_theme_font_size_override("font_size", 18)
+	clock_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.62))
+	ui_root.add_child(clock_label)
 
 	# Top-right quick actions.
 	var top_actions := HBoxContainer.new()
@@ -201,6 +208,8 @@ func _process(_delta: float) -> void:
 func _update_status() -> void:
 	if status_label:
 		status_label.text = "🪙 %s VNĐ   💎 0" % _format_money(GameState.wallet_vnd)
+	if clock_label:
+		clock_label.text = "🕒 " + GameState.get_world_clock_text() + "  •  Ngày mới"
 	if interact_button and player and player.has_method("is_riding_vehicle"):
 		interact_button.text = "XUỐNG XE" if player.is_riding_vehicle() else "TƯƠNG TÁC"
 
