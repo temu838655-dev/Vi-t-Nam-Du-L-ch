@@ -13,7 +13,10 @@ const VEHICLE_CATALOG := [
 	{"id":"sirius_fi","name":"Yamaha Sirius FI","price":21208000,"description":"Xe số tiết kiệm, quen thuộc ở nhiều tỉnh thành.","color":Color(0.08,0.2,0.68)},
 	{"id":"exciter_155","name":"Yamaha Exciter 155 VVA","price":55000000,"description":"Xe côn tay phong cách thể thao.","color":Color(0.08,0.25,0.78)},
 	{"id":"lead_125","name":"Honda LEAD 125","price":39557000,"description":"Xe tay ga tiện dụng, nhiều không gian chứa đồ.","color":Color(0.62,0.42,0.28)},
-	{"id":"janus","name":"Yamaha Janus","price":29151000,"description":"Xe tay ga nhỏ gọn, thiết kế trẻ trung.","color":Color(0.76,0.32,0.48)}
+	{"id":"janus","name":"Yamaha Janus","price":29151000,"description":"Xe tay ga nhỏ gọn, thiết kế trẻ trung.","color":Color(0.76,0.32,0.48)},
+	{"id":"future_125","name":"Honda Future 125 FI","price":32000000,"description":"Xe số phổ thông dáng thanh lịch, phù hợp đi xa.","color":Color(0.12,0.18,0.32)},
+	{"id":"winner_x","name":"Honda Winner X","price":46000000,"description":"Xe côn tay thể thao cho người thích lái chủ động.","color":Color(0.78,0.08,0.06)},
+	{"id":"grande","name":"Yamaha Grande","price":46000000,"description":"Xe tay ga thanh lịch, kiểu dáng đô thị.","color":Color(0.68,0.58,0.42)}
 ]
 
 const CLOTHING_CATALOG := [
@@ -21,6 +24,9 @@ const CLOTHING_CATALOG := [
 	{"id":"ao_so_mi","name":"Áo sơ mi trắng","price":220000,"description":"Sơ mi sáng màu, phù hợp đi làm và đi chơi.","slot":"top","color":Color(0.88,0.88,0.82)},
 	{"id":"hoodie","name":"Áo hoodie","price":350000,"description":"Áo nỉ có mũ cho ngày mát trời.","slot":"top","color":Color(0.28,0.3,0.34)},
 	{"id":"ao_khoac_chong_nang","name":"Áo khoác chống nắng","price":280000,"description":"Áo khoác nhẹ thường dùng khi đi xe máy.","slot":"top","color":Color(0.45,0.62,0.68)},
+	{"id":"ao_polo","name":"Áo polo","price":260000,"description":"Áo polo gọn gàng, mặc đi làm hoặc đi chơi.","slot":"top","color":Color(0.12,0.48,0.38)},
+	{"id":"ao_khoac_jean","name":"Áo khoác jean","price":480000,"description":"Áo khoác denim phong cách đường phố.","slot":"top","color":Color(0.16,0.28,0.52)},
+	{"id":"quan_short","name":"Quần short kaki","price":240000,"description":"Quần short mặc thường ngày.","slot":"bottom","color":Color(0.52,0.42,0.28)},
 	{"id":"quan_jeans","name":"Quần jeans xanh","price":0,"description":"Quần jeans cơ bản.","slot":"bottom","color":Color(0.12,0.22,0.48)},
 	{"id":"quan_tay","name":"Quần tây đen","price":280000,"description":"Quần dài lịch sự.","slot":"bottom","color":Color(0.08,0.09,0.12)},
 	{"id":"sneakers","name":"Giày sneaker trắng","price":550000,"description":"Giày thể thao dùng hằng ngày.","slot":"shoes","color":Color(0.9,0.9,0.86)},
@@ -42,7 +48,17 @@ const FOOD_CATALOG := [
 	{"id":"ca_phe_sua_da","name":"Cà phê sữa đá","price":25000,"description":"Cà phê phin cùng sữa đặc và đá.","region":"Khắp Việt Nam","satiety":8},
 	{"id":"che_ba_mau","name":"Chè ba màu","price":30000,"description":"Món chè mát với đậu và thạch.","region":"Nam Bộ","satiety":12},
 	{"id":"banh_pia","name":"Bánh pía Sóc Trăng","price":60000,"description":"Đặc sản bánh pía nhân đậu xanh, sầu riêng.","region":"Sóc Trăng","satiety":16},
-	{"id":"nem_chua","name":"Nem chua Thanh Hóa","price":50000,"description":"Đặc sản lên men truyền thống.","region":"Thanh Hóa","satiety":15}
+	{"id":"nem_chua","name":"Nem chua Thanh Hóa","price":50000,"description":"Đặc sản lên men truyền thống.","region":"Thanh Hóa","satiety":15},
+	{"id":"cha_muc","name":"Chả mực Hạ Long","price":85000,"description":"Đặc sản chả mực giã tay vùng biển.","region":"Quảng Ninh","satiety":24},
+	{"id":"banh_dau_xanh","name":"Bánh đậu xanh","price":40000,"description":"Bánh ngọt truyền thống dùng cùng trà.","region":"Hải Dương","satiety":14},
+	{"id":"me_xung","name":"Mè xửng","price":45000,"description":"Kẹo mè xửng dẻo thơm.","region":"Huế","satiety":13},
+	{"id":"keo_cu_do","name":"Kẹo cu đơ","price":35000,"description":"Kẹo lạc mạch nha giòn thơm.","region":"Hà Tĩnh","satiety":14},
+	{"id":"nuoc_mam_phu_quoc","name":"Nước mắm Phú Quốc","price":95000,"description":"Đặc sản nước mắm truyền thống đóng chai.","region":"Phú Quốc, Kiên Giang","satiety":0},
+	{"id":"banh_trang_tay_ninh","name":"Bánh tráng phơi sương","price":45000,"description":"Đặc sản bánh tráng dùng cuốn rau và thịt.","region":"Tây Ninh","satiety":16},
+	{"id":"ca_phe_buon_ma_thuot","name":"Cà phê Buôn Ma Thuột","price":65000,"description":"Cà phê rang xay đặc trưng Tây Nguyên.","region":"Đắk Lắk","satiety":8},
+	{"id":"dua_sap_tra_vinh","name":"Dừa sáp","price":75000,"description":"Trái cây đặc sản có cơm dừa dẻo.","region":"Trà Vinh","satiety":18},
+	{"id":"hat_dieu_binh_phuoc","name":"Hạt điều rang","price":60000,"description":"Hạt điều rang giòn, đóng gói mang đi.","region":"Bình Phước","satiety":17},
+	{"id":"sau_rieng_cai_mon","name":"Sầu riêng Cái Mơn","price":90000,"description":"Trái cây đặc sản miền sông nước.","region":"Bến Tre","satiety":22}
 ]
 
 var player_name := "Người chơi"
