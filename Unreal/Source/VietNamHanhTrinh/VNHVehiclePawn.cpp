@@ -123,10 +123,12 @@ void AVNHVehiclePawn::SetTrafficSignalStop(bool bShouldStop)
     bTrafficSignalStop = bShouldStop;
 }
 
-void AVNHVehiclePawn::Refuel(float Amount)
+float AVNHVehiclePawn::Refuel(float Amount)
 {
-    if (Amount <= 0.0f || FuelCapacity <= 0.0f) return;
+    if (Amount <= 0.0f || FuelCapacity <= 0.0f) return 0.0f;
+    const float PreviousFuel = CurrentFuel;
     CurrentFuel = FMath::Clamp(CurrentFuel + Amount, 0.0f, FuelCapacity);
+    return CurrentFuel - PreviousFuel;
 }
 
 void AVNHVehiclePawn::Interact_Implementation(AActor* InteractingActor)
