@@ -79,7 +79,10 @@ void AVNHVehiclePawn::Tick(float DeltaSeconds)
         CurrentFuel = FMath::Max(0.0f, CurrentFuel - FuelConsumptionPerSecond * DeltaSeconds * (1.0f + FMath::Abs(ThrottleInput)));
     }
 
-    TrafficSignalStopSources.Remove(nullptr);
+    for (auto It = TrafficSignalStopSources.CreateIterator(); It; ++It)
+    {
+        if (!It->IsValid()) It.RemoveCurrent();
+    }
     if (bBrakePressed || bTrafficSignalStop || !TrafficSignalStopSources.IsEmpty() || CurrentFuel <= 0.0f)
     {
         CurrentSpeed = FMath::FInterpConstantTo(CurrentSpeed, 0.0f, DeltaSeconds, BrakeDeceleration);
