@@ -235,6 +235,7 @@ func _build_prototype_world() -> void:
 	_add_box("FamilyHome", Vector3(0, 1.5, -8), Vector3(9, 3, 7), Color(0.82, 0.72, 0.55))
 	_add_box("HomeRoof", Vector3(0, 3.5, -8), Vector3(10, 1, 8), Color(0.48, 0.18, 0.13))
 	_add_box("Road", Vector3(0, 0.02, 8), Vector3(7, 0.08, 70), Color(0.12, 0.12, 0.13))
+	_build_street_details()
 	for i in range(5):
 		_add_box("StreetBuilding_%02d" % i, Vector3(-13 + i * 6.5, 2, -2 - (i % 2) * 10), Vector3(4, 4, 5), Color(0.72, 0.62, 0.48))
 	var label := Label3D.new()
@@ -414,3 +415,26 @@ func _add_landmark_sphere(object_name: String, at: Vector3, dimensions: Vector3,
 	material.roughness = 0.95
 	node.material_override = material
 	add_child(node)
+
+
+func _build_street_details() -> void:
+	# Sidewalks frame the starter street; all dimensions are in metres.
+	_add_box("Sidewalk_Left", Vector3(-4.25, 0.08, 8), Vector3(1.35, 0.16, 70), Color(0.48, 0.47, 0.43))
+	_add_box("Sidewalk_Right", Vector3(4.25, 0.08, 8), Vector3(1.35, 0.16, 70), Color(0.48, 0.47, 0.43))
+	# A zebra crossing near the family-home entrance.
+	for stripe in range(9):
+		var x := -3.0 + float(stripe) * 0.75
+		_add_box("ZebraCrossing_%02d" % stripe, Vector3(x, 0.075, 7.2), Vector3(0.42, 0.025, 1.45), Color(0.88, 0.87, 0.80))
+	# Repeated Vietnamese urban-style street lamps.
+	for side in [-1.0, 1.0]:
+		for index in range(6):
+			var z := -19.0 + float(index) * 12.0
+			var x := side * 4.85
+			_add_landmark_cylinder("StreetLamp_Pole_%s_%02d" % [str(side), index], Vector3(x, 2.25, z), 0.075, 0.09, 4.5, Color(0.16, 0.17, 0.18))
+			_add_landmark_box("StreetLamp_Arm_%s_%02d" % [str(side), index], Vector3(x - side * 0.38, 4.42, z), Vector3(0.85, 0.10, 0.12), Color(0.16, 0.17, 0.18))
+			_add_landmark_sphere("StreetLamp_Light_%s_%02d" % [str(side), index], Vector3(x - side * 0.72, 4.32, z), Vector3(0.16, 0.10, 0.16), Color(1.0, 0.82, 0.48))
+	# Small curb blocks visually separate sidewalk from road.
+	for index in range(35):
+		var z := -25.0 + float(index) * 1.95
+		for side in [-1.0, 1.0]:
+			_add_landmark_box("Curb_%s_%02d" % [str(side), index], Vector3(side * 3.58, 0.13, z), Vector3(0.16, 0.20, 1.72), Color(0.68, 0.66, 0.59))
