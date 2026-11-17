@@ -47,6 +47,14 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Life|Family")
     bool GetFamilyActivityAtTime(FName CharacterId, int32 MinuteOfDay, FName& OutActivityId, FName& OutLocationId);
 
+    // Advances simulation time by a positive number of in-game minutes and persists it.
+    UFUNCTION(BlueprintCallable, Category="VNH|World|Time")
+    bool AdvanceGameMinutes(int64 MinutesToAdvance);
+
+    // Reads the saved in-game calendar. WeekdayIndex: 0=Monday through 6=Sunday.
+    UFUNCTION(BlueprintCallable, Category="VNH|World|Time")
+    bool GetGameClock(int64& OutGameDay, int32& OutMinuteOfDay, int32& OutWeekdayIndex);
+
     UFUNCTION(BlueprintCallable, Category="VNH|Save")
     bool SaveCheckpoint(FName RegionId, FName CheckpointId);
 
