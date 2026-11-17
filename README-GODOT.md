@@ -10,7 +10,10 @@ Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
 - New game begins outside the player's family home.
 - Continue restores the last saved player position and facing direction.
 - Mobile third-person controls: visible left-side touch joystick, right-side camera drag, jump and interaction buttons. The joystick relocates to the initial touch point on the left side.
-- Motorbike prototype: approach the parked motorbike, tap TƯƠNG TÁC to mount, steer and accelerate with the left joystick, then tap XUỐNG XE to dismount. The rider camera pulls back while driving.
+- Motorbike prototype: approach the parked test bike, tap TƯƠNG TÁC to mount, steer and accelerate with the left joystick, then tap XUỐNG XE to dismount. The rider camera pulls back while driving.
+- Three interactive shops: a motorcycle dealer, a Vietnamese clothing shop and a food/specialty stall. The catalogs include popular models such as Wave Alpha, Vision, Air Blade, SH160i, Sirius FI, Exciter 155, LEAD and Janus; everyday clothes and traditional outfits; and dishes/specialties from multiple regions.
+- Vehicle purchases are saved as owned vehicles and spawn a rideable bike near the player. Clothing purchases are saved and immediately equip the selected outfit. Food purchases deduct money and increase the character satiety meter.
+- Character prototype now uses separate head, hair, face, torso, arms, legs and shoes meshes. Outfit slots update the visible colors and traditional outfit/helmet overlays.
 - Family prototype: talk to mother and father; family affection is tracked.
 - Career prototype: interact with the job board to choose one of four careers, then complete one paid shift per real-world date.
 - Wallet and career status are displayed in the mobile HUD.
@@ -18,7 +21,7 @@ Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
 
 ## Prototype limitations
 
-The house, street, NPCs and player are greybox/procedural placeholders. They are not final photorealistic Vietnam assets, finished character models, or motion-captured animations. The motorbike is a procedural gameplay prototype, not a realistic vehicle model. Traffic, additional drivable vehicles, detailed interiors, regional maps, quests, cloud accounts and production-quality art are not implemented yet.
+The house, street, shops, NPCs, character and motorcycles are still procedural prototype geometry. The listed vehicle names are game catalog entries; current bike meshes are not manufacturer-accurate licensed models. Character proportions, face, clothes and movement are early placeholders, not photorealistic scans or motion-captured animation. Shop prices are balancing values, not official retail quotations. Production-quality character/vehicle assets, traffic, detailed interiors, full regional maps, quests, cloud accounts and final sound design remain future work.
 
 ## Android build
 
