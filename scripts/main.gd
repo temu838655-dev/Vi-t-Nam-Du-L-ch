@@ -2,6 +2,9 @@ extends Node3D
 
 @onready var status_label: Label = $HUD/Status
 @onready var interact_button: Button = $HUD/Interact
+@onready var jump_button: Button = $HUD/Jump
+@onready var bag_button: Button = $HUD/Bag
+@onready var player: CharacterBody3D = $Player
 
 var player_money: int = 5000
 var player_level: int = 1
@@ -16,11 +19,19 @@ func _ready() -> void:
     _refresh_hud()
     interact_button.disabled = true
     interact_button.pressed.connect(_on_interact_pressed)
+    jump_button.pressed.connect(_on_jump_pressed)
+    bag_button.pressed.connect(_on_bag_pressed)
 
 func set_nearby_interactable(target: Node3D) -> void:
     nearby_interactable = target
     interact_button.disabled = target == null
     interact_button.text = "TƯƠNG TÁC" if target == null else str(target.get("action_label"))
+
+func _on_jump_pressed() -> void:
+    player.jump()
+
+func _on_bag_pressed() -> void:
+    status_label.text = "TÚI ĐỒ • Tính năng vật phẩm đang được phát triển."
 
 func _on_interact_pressed() -> void:
     if is_instance_valid(nearby_interactable):
