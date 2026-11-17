@@ -4,9 +4,20 @@ extends Node3D
 @export var shop_name := "Cửa hàng"
 @export var sign_color := Color(0.82, 0.2, 0.12)
 
+var staff_left_arm: MeshInstance3D
+var staff_right_arm: MeshInstance3D
+var staff_idle_time := 0.0
+
 func _ready() -> void:
 	add_to_group("interactable")
 	_build_shopfront()
+
+func _process(delta: float) -> void:
+	staff_idle_time += delta
+	if is_instance_valid(staff_left_arm):
+		staff_left_arm.rotation.z = sin(staff_idle_time * 1.25) * 0.055
+	if is_instance_valid(staff_right_arm):
+		staff_right_arm.rotation.z = sin(staff_idle_time * 1.25 + 1.2) * 0.055
 
 func interact() -> String:
 	var shop_ui := get_tree().get_first_node_in_group("shop_ui")
@@ -73,8 +84,8 @@ func _build_shop_staff() -> void:
 	var uniform_color := sign_color.lightened(0.18)
 	_add_person_capsule("Staff_Torso", 0.25, 0.78, Vector3(0, 1.08, 0.42), uniform_color)
 	_add_person_capsule("Staff_Head", 0.19, 0.38, Vector3(0, 1.72, 0.42), Color(0.72, 0.49, 0.36))
-	_add_person_capsule("Staff_LeftArm", 0.085, 0.58, Vector3(-0.31, 1.12, 0.34), uniform_color)
-	_add_person_capsule("Staff_RightArm", 0.085, 0.58, Vector3(0.31, 1.12, 0.34), uniform_color)
+	staff_left_arm = _add_person_capsule("Staff_LeftArm", 0.085, 0.58, Vector3(-0.31, 1.12, 0.34), uniform_color)
+	staff_right_arm = _add_person_capsule("Staff_RightArm", 0.085, 0.58, Vector3(0.31, 1.12, 0.34), uniform_color)
 	var label := Label3D.new()
 	label.text = "NHÂN VIÊN"
 	label.position = Vector3(0, 2.18, 0.42)
@@ -83,7 +94,7 @@ func _build_shop_staff() -> void:
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(label)
 
-func _add_person_capsule(part_name: String, radius: float, height: float, at: Vector3, tint: Color) -> void:
+func _add_person_capsule(part_name: String, radius: float, height: float, at: Vector3, tint: Color) -> MeshInstance3D:
 	var part := MeshInstance3D.new()
 	part.name = part_name
 	var mesh := CapsuleMesh.new()
@@ -96,6 +107,7 @@ func _add_person_capsule(part_name: String, radius: float, height: float, at: Ve
 	material.roughness = 0.88
 	part.material_override = material
 	add_child(part)
+	return part
 
 func _add_solid_box(object_name: String, at: Vector3, dimensions: Vector3, color: Color) -> void:
 	var body := StaticBody3D.new()
