@@ -4,6 +4,7 @@ const PLAYER_SCRIPT := preload("res://scripts/player.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
 const NPC_SCRIPT := preload("res://scripts/interactable_npc.gd")
 const MOTORBIKE_SCRIPT := preload("res://scripts/motorbike.gd")
+const SHOP_SCRIPT := preload("res://scripts/shop_interactable.gd")
 const DEFAULT_START := Vector3(0, 1.1, 7)
 
 var player: CharacterBody3D
@@ -119,11 +120,26 @@ func _spawn_family_and_career_board() -> void:
 	_add_npc("ĐẦU BẾP", "career_chef", Vector3(2.0, 0, 1.0), Color(0.72, 0.34, 0.12))
 	_add_npc("NHIẾP ẢNH GIA", "career_photographer", Vector3(6.0, 0, 1.0), Color(0.48, 0.28, 0.66))
 	_add_motorbike(Vector3(2.8, 0, 7.0))
+	_add_shop("vehicle", "ĐẠI LÝ XE MÁY", Vector3(-10.0, 0, 3.0), Color(0.78, 0.12, 0.08), PI)
+	_add_shop("clothing", "THỜI TRANG VIỆT", Vector3(10.0, 0, 3.0), Color(0.12, 0.32, 0.62), PI)
+	_add_shop("food", "QUÁN ĂN & ĐẶC SẢN", Vector3(0.0, 0, 17.0), Color(0.72, 0.34, 0.08), 0.0)
+
+func _add_shop(shop_type: String, display_name: String, at: Vector3, tint: Color, facing: float) -> void:
+	var shop := Node3D.new()
+	shop.name = "Shop_" + shop_type
+	shop.set_script(SHOP_SCRIPT)
+	shop.set("shop_type", shop_type)
+	shop.set("shop_name", display_name)
+	shop.set("sign_color", tint)
+	shop.position = at
+	shop.rotation.y = facing
+	add_child(shop)
 
 func _add_motorbike(at: Vector3) -> void:
 	var motorbike := Node3D.new()
-	motorbike.name = "Motorbike_Player"
+	motorbike.name = "Motorbike_TestDrive"
 	motorbike.set_script(MOTORBIKE_SCRIPT)
+	motorbike.set("display_name", "Xe máy trải nghiệm")
 	motorbike.position = at
 	add_child(motorbike)
 
