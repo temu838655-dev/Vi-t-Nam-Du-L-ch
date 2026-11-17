@@ -186,7 +186,8 @@ bool UVNHSaveSubsystem::UpdateFamilyRelationship(FName CharacterId, int32 Delta)
     {
         if (Member.CharacterId == CharacterId)
         {
-            Member.Relationship = FMath::Clamp(Member.Relationship + Delta, 0, 100);
+            Member.Relationship = static_cast<int32>(FMath::Clamp<int64>(
+                static_cast<int64>(Member.Relationship) + static_cast<int64>(Delta), 0, 100));
             return SaveProgress(SaveData);
         }
     }
