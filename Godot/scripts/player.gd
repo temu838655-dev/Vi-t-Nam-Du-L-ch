@@ -51,6 +51,7 @@ func enter_vehicle(vehicle: Node3D) -> String:
 		return "Bạn đang sử dụng một phương tiện rồi."
 	if not is_instance_valid(vehicle) or global_position.distance_to(vehicle.global_position) > 4.0:
 		return "Hãy đến gần xe máy hơn."
+	global_position = vehicle.global_position + Vector3(0, 1.1, 0)
 	current_vehicle = vehicle
 	velocity = Vector3.ZERO
 	player_visual.visible = false
