@@ -24,6 +24,8 @@ var helmet_node: MeshInstance3D
 var mobile_input := Vector2.ZERO
 var look_delta := Vector2.ZERO
 var current_vehicle: Node3D
+var home_action_remaining := 0.0
+var home_action_pose := ""
 
 func _ready() -> void:
 	add_to_group("player")
@@ -188,6 +190,13 @@ func spawn_owned_vehicle(vehicle_name: String, vehicle_color: Color) -> void:
 	get_parent().add_child(vehicle)
 	interaction_message.emit("Xe %s đã được đưa đến gần bạn. Hãy đến gần xe và nhấn TƯƠNG TÁC để lái." % vehicle_name)
 
+func begin_home_action(action: String) -> void:
+	if is_instance_valid(current_vehicle):
+		return
+	home_action_pose = action
+	home_action_remaining = 4.0
+	velocity = Vector3.ZERO
+
 func set_mobile_move(value: Vector2) -> void:
 	mobile_input = value.limit_length(1.0)
 
@@ -263,6 +272,8 @@ func _physics_process(delta: float) -> void:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	if mobile_input.length() > 0.05:
 		input = mobile_input
+	if home_action_remaining > 0.0:
+		input = Vector2.ZERO
 
 	if is_instance_valid(current_vehicle):
 		var throttle := -input.y
@@ -286,6 +297,15 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_animate_character(delta)
+	if home_action_remaining > 0.0:
+		home_action_remaining = maxf(0.0, home_action_remaining - delta)
+		player_visual.position.y = -0.28
+		left_leg.rotation.x = -0.55
+		right_leg.rotation.x = -0.55
+		left_arm.rotation.x = -0.22
+		right_arm.rotation.x = -0.22
+	elif home_action_pose != "":
+		home_action_pose = ""
 	if look_delta.length() > 0.0:
 		rotate_y(-look_delta.x * 0.004)
 		camera_pivot.rotate_x(-look_delta.y * 0.004)
