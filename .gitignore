@@ -1,0 +1,8 @@
+# Godot generated files
+.godot/
+.import/
+export.cfg
+build/
+*.translation
+*.keystore
+*.jks
