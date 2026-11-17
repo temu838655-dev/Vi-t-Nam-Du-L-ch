@@ -82,7 +82,7 @@ func _set_lamp(lamp: MeshInstance3D, active: bool) -> void:
 
 func _spawn_vehicles() -> void:
 	var palette := [Color(0.78, 0.08, 0.06), Color(0.12, 0.25, 0.68), Color(0.82, 0.72, 0.12), Color(0.82, 0.82, 0.78)]
-	var starts := [-19.0, -34.0, -49.0, -64.0]
+	var starts := [-22.0, -6.0, 10.0, 26.0]
 	for i in range(4):
 		var vehicle := Node3D.new()
 		vehicle.name = "TrafficCar_%02d" % i
