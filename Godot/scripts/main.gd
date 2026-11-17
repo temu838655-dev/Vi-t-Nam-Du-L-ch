@@ -29,6 +29,8 @@ func _notification(what: int) -> void:
 		_save_current_game()
 
 func _show_main_menu() -> void:
+	if is_instance_valid(menu_layer):
+		menu_layer.queue_free()
 	menu_layer = CanvasLayer.new()
 	menu_layer.name = "MainMenu"
 	add_child(menu_layer)
