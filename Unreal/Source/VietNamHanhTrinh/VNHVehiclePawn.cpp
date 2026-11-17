@@ -69,7 +69,17 @@ void AVNHVehiclePawn::Tick(float DeltaSeconds)
 
     if (!GetController()) return;
 
-    if (bBrakePressed || bTrafficSignalStop)
+    if (CurrentFuel <= 0.0f)
+    {
+        CurrentFuel = 0.0f;
+        ThrottleInput = 0.0f;
+    }
+    else if (!FMath::IsNearlyZero(ThrottleInput) && FMath::Abs(CurrentSpeed) > 10.0f)
+    {
+        CurrentFuel = FMath::Max(0.0f, CurrentFuel - FuelConsumptionPerSecond * DeltaSeconds * (1.0f + FMath::Abs(ThrottleInput)));
+    }
+
+    if (bBrakePressed || bTrafficSignalStop || CurrentFuel <= 0.0f)
     {
         CurrentSpeed = FMath::FInterpConstantTo(CurrentSpeed, 0.0f, DeltaSeconds, BrakeDeceleration);
     }
@@ -111,6 +121,12 @@ void AVNHVehiclePawn::SetBrake(bool bPressed)
 void AVNHVehiclePawn::SetTrafficSignalStop(bool bShouldStop)
 {
     bTrafficSignalStop = bShouldStop;
+}
+
+void AVNHVehiclePawn::Refuel(float Amount)
+{
+    if (Amount <= 0.0f || FuelCapacity <= 0.0f) return;
+    CurrentFuel = FMath::Clamp(CurrentFuel + Amount, 0.0f, FuelCapacity);
 }
 
 void AVNHVehiclePawn::Interact_Implementation(AActor* InteractingActor)
