@@ -4,6 +4,14 @@ extends Node3D
 @export var role := "mother"
 @export var body_color := Color(0.72, 0.18, 0.22)
 
+var current_activity := "Ở nhà"
+var routine_target := Vector3.ZERO
+var routine_clock := -1.0
+var idle_phase := 0.0
+var left_arm: MeshInstance3D
+var right_arm: MeshInstance3D
+var torso: MeshInstance3D
+
 const CAREER_BY_ROLE := {
 	"career_driver": "Tài xế công nghệ",
 	"career_tourism": "Nhân viên du lịch",
@@ -14,6 +22,58 @@ const CAREER_BY_ROLE := {
 func _ready() -> void:
 	add_to_group("interactable")
 	_build_person()
+	routine_target = position
+	if role == "mother" or role == "father":
+		_update_family_routine(true)
+
+func _process(delta: float) -> void:
+	if role != "mother" and role != "father":
+		return
+	routine_clock += delta
+	var clock := fposmod(GameState.world_time_seconds, 240.0)
+	var phase := int(floor(clock / 40.0))
+	if phase != int(floor(routine_clock / 40.0)) or routine_clock < 0.0:
+		_update_family_routine(false)
+	routine_clock = clock
+	var distance := position.distance_to(routine_target)
+	if distance > 0.08:
+		var direction := routine_target - position
+		direction.y = 0.0
+		if direction.length_squared() > 0.001:
+			rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), minf(1.0, delta * 4.0))
+		position = position.move_toward(routine_target, delta * 1.25)
+		idle_phase += delta * 7.0
+		if is_instance_valid(left_arm):
+			left_arm.rotation.x = sin(idle_phase) * 0.18
+		if is_instance_valid(right_arm):
+			right_arm.rotation.x = -sin(idle_phase) * 0.18
+	else:
+		idle_phase += delta
+		if is_instance_valid(left_arm):
+			left_arm.rotation.x = sin(idle_phase * 1.2) * 0.035
+		if is_instance_valid(right_arm):
+			right_arm.rotation.x = sin(idle_phase * 1.2 + 1.0) * 0.035
+
+func _update_family_routine(initial: bool) -> void:
+	var clock := fposmod(GameState.world_time_seconds, 240.0)
+	var phase := int(floor(clock / 40.0))
+	var mother_positions := [
+		Vector3(-2.8, 0.0, -9.7), Vector3(-1.5, 0.0, -7.5),
+		Vector3(2.5, 0.0, -9.7), Vector3(1.4, 0.0, -7.4),
+		Vector3(-2.7, 0.0, -9.5), Vector3(0.0, 0.0, -7.2)
+	]
+	var father_positions := [
+		Vector3(2.8, 0.0, -9.7), Vector3(-2.8, 0.0, -9.6),
+		Vector3(1.5, 0.0, -7.5), Vector3(2.7, 0.0, -9.6),
+		Vector3(-1.5, 0.0, -7.5), Vector3(2.8, 0.0, -9.7)
+	]
+	var activities := ["Chuẩn bị bữa ăn", "Dọn dẹp nhà cửa", "Nghỉ ngơi", "Xem TV", "Dùng bữa cùng gia đình", "Trò chuyện với gia đình"]
+	var positions: Array = mother_positions if role == "mother" else father_positions
+	var activity_index := posmod(phase + (0 if role == "mother" else 2), activities.size())
+	current_activity = activities[activity_index]
+	routine_target = positions[phase]
+	if initial:
+		position = routine_target
 
 func _build_person() -> void:
 	var skin_color := Color(0.72, 0.49, 0.36)
@@ -30,9 +90,11 @@ func _build_person() -> void:
 	var shoes := _material(Color(0.12, 0.1, 0.09))
 	var eyes := _material(Color(0.025, 0.02, 0.02))
 
-	_add_capsule("Torso", 0.27, 0.84, Vector3(0, 1.1, 0), clothes)
-	_add_capsule("LeftArm", 0.105, 0.74, Vector3(-0.36, 1.1, 0), clothes).rotation.z = deg_to_rad(-8)
-	_add_capsule("RightArm", 0.105, 0.74, Vector3(0.36, 1.1, 0), clothes).rotation.z = deg_to_rad(8)
+	torso = _add_capsule("Torso", 0.27, 0.84, Vector3(0, 1.1, 0), clothes)
+	left_arm = _add_capsule("LeftArm", 0.105, 0.74, Vector3(-0.36, 1.1, 0), clothes)
+	left_arm.rotation.z = deg_to_rad(-8)
+	right_arm = _add_capsule("RightArm", 0.105, 0.74, Vector3(0.36, 1.1, 0), clothes)
+	right_arm.rotation.z = deg_to_rad(8)
 	_add_capsule("LeftHand", 0.085, 0.18, Vector3(-0.37, 0.68, -0.01), skin)
 	_add_capsule("RightHand", 0.085, 0.18, Vector3(0.37, 0.68, -0.01), skin)
 	_add_capsule("HipsAndTrousers", 0.2, 0.4, Vector3(0, 0.62, 0), trousers)
@@ -119,9 +181,11 @@ func _add_sphere(part_name: String, at: Vector3, dimensions: Vector3, material: 
 func interact() -> String:
 	match role:
 		"mother":
-			return GameState.talk_with_family("Mẹ")
+			GameState.family_affection = mini(100, GameState.family_affection + 5)
+			return "Mẹ (%s): %s" % [current_activity, _family_reply("Mẹ")]
 		"father":
-			return GameState.talk_with_family("Bố")
+			GameState.family_affection = mini(100, GameState.family_affection + 5)
+			return "Bố (%s): %s" % [current_activity, _family_reply("Bố")]
 		"job_board":
 			return "Hãy đến từng quầy tuyển dụng để chọn nghề bạn muốn làm."
 		_:
@@ -132,3 +196,18 @@ func interact() -> String:
 					return "Bạn đã chọn nghề %s. Tương tác lần nữa tại quầy này để nhận ca làm." % career
 				return GameState.complete_work_shift()
 	return "Không có gì để tương tác."
+
+func _family_reply(member: String) -> String:
+	match current_activity:
+		"Chuẩn bị bữa ăn":
+			return "Mẹ đang chuẩn bị món ngon. Lát nữa cả nhà cùng ăn nhé!" if member == "Mẹ" else "Bố phụ mẹ chuẩn bị bữa tối, con có muốn giúp không?"
+		"Dọn dẹp nhà cửa":
+			return "Nhà cửa gọn gàng thì ai cũng thấy dễ chịu hơn." if member == "Mẹ" else "Bố đang sửa sang vài thứ trong nhà."
+		"Nghỉ ngơi":
+			return "Mẹ nghỉ một lát, con cứ tự nhiên nhé." if member == "Mẹ" else "Bố đang thư giãn một chút."
+		"Xem TV":
+			return "Có chương trình hay đấy, con ngồi xem cùng mẹ nhé." if member == "Mẹ" else "Con xem tin tức cùng bố một lát không?"
+		"Dùng bữa cùng gia đình":
+			return "Cả nhà ăn cơm thôi con!" if member == "Mẹ" else "Bữa cơm gia đình là lúc vui nhất."
+		_:
+			return "Đi đâu nhớ báo cho bố mẹ biết và giữ gìn sức khỏe nhé."
