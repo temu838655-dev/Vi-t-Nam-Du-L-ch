@@ -37,6 +37,7 @@ AVNHVehiclePawn::AVNHVehiclePawn()
             UStaticMeshComponent* Wheel = CreateDefaultSubobject<UStaticMeshComponent>(
                 *FString::Printf(TEXT("Wheel_%d"), Index));
             Wheel->SetupAttachment(VehicleBody);
+            Wheel->SetAbsolute(false, false, true);
             Wheel->SetStaticMesh(WheelMesh.Object);
             Wheel->SetRelativeLocation(WheelPositions[Index]);
             Wheel->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f));
