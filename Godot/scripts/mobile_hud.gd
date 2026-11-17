@@ -3,6 +3,7 @@ extends CanvasLayer
 var player: CharacterBody3D
 var status_label: Label
 var clock_label: Label
+var nearby_label: Label
 var message_label: Label
 var joystick_origin := Vector2.ZERO
 var joystick_touch := -1
@@ -167,6 +168,15 @@ func _ready() -> void:
 	message_label.add_theme_constant_override("shadow_offset_y", 2)
 	ui_root.add_child(message_label)
 
+	nearby_label = Label.new()
+	nearby_label.position = Vector2(-250, -278)
+	nearby_label.size = Vector2(500, 44)
+	nearby_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	nearby_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	nearby_label.add_theme_font_size_override("font_size", 18)
+	nearby_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.68))
+	ui_root.add_child(nearby_label)
+
 	if player and player.has_signal("interaction_message"):
 		player.interaction_message.connect(_show_message)
 	_update_status()
@@ -211,7 +221,13 @@ func _update_status() -> void:
 	if clock_label:
 		clock_label.text = "🕒 " + GameState.get_world_clock_text() + "  •  Ngày mới"
 	if interact_button and player and player.has_method("is_riding_vehicle"):
-		interact_button.text = "XUỐNG XE" if player.is_riding_vehicle() else "TƯƠNG TÁC"
+		if player.is_riding_vehicle():
+			interact_button.text = "XUỐNG XE"
+			nearby_label.text = "Bạn đang điều khiển phương tiện"
+		else:
+			var nearby_name := str(player.call("get_nearby_interactable_name"))
+			interact_button.text = "NÓI CHUYỆN" if not nearby_name.is_empty() else "TƯƠNG TÁC"
+			nearby_label.text = "Nhấn TƯƠNG TÁC: " + nearby_name if not nearby_name.is_empty() else "Di chuyển đến gần người dân, cửa hàng hoặc xe để tương tác"
 
 func _format_money(amount: int) -> String:
 	var raw := str(amount)
