@@ -73,6 +73,12 @@ bool UVNHSaveSubsystem::MigrateSaveData(UVNHSaveGame* SaveData) const
         SaveData->SchemaVersion = 3;
     }
 
+    if (SaveData->SchemaVersion < 4)
+    {
+        // Schedules are intentionally empty until authored; old saves remain valid.
+        SaveData->SchemaVersion = 4;
+    }
+
     return SaveData->SchemaVersion == UVNHSaveGame::CurrentSchemaVersion;
 }
 
@@ -209,6 +215,71 @@ bool UVNHSaveSubsystem::SetPlayerAppearance(const FVNHSavedAppearance& Appearanc
     if (!IsValid(SaveData)) return false;
     SaveData->PlayerAppearance = Appearance;
     return SaveProgress(SaveData);
+}
+
+bool UVNHSaveSubsystem::SetFamilyDailyRoutine(
+    FName CharacterId, const TArray<FVNHDailyRoutineEntry>& Routine)
+{
+    if (CharacterId.IsNone() || Routine.Num() > 12) return false;
+
+    TArray<FVNHDailyRoutineEntry> SortedRoutine = Routine;
+    SortedRoutine.Sort([](const FVNHDailyRoutineEntry& A, const FVNHDailyRoutineEntry& B)
+    {
+        return A.StartMinute < B.StartMinute;
+    });
+
+    int32 PreviousEndMinute = 0;
+    bool bHasPreviousEntry = false;
+    for (const FVNHDailyRoutineEntry& Entry : SortedRoutine)
+    {
+        if (Entry.StartMinute < 0 || Entry.EndMinute > 1440 ||
+            Entry.StartMinute >= Entry.EndMinute || Entry.ActivityId.IsNone() ||
+            Entry.LocationId.IsNone())
+        {
+            return false;
+        }
+        if (bHasPreviousEntry && Entry.StartMinute < PreviousEndMinute) return false;
+        PreviousEndMinute = Entry.EndMinute;
+        bHasPreviousEntry = true;
+    }
+
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+    for (FVNHFamilyMemberSave& Member : SaveData->FamilyMembers)
+    {
+        if (Member.CharacterId == CharacterId)
+        {
+            Member.DailyRoutine = MoveTemp(SortedRoutine);
+            return SaveProgress(SaveData);
+        }
+    }
+    return false;
+}
+
+bool UVNHSaveSubsystem::GetFamilyActivityAtTime(
+    FName CharacterId, int32 MinuteOfDay, FName& OutActivityId, FName& OutLocationId)
+{
+    OutActivityId = NAME_None;
+    OutLocationId = NAME_None;
+    if (CharacterId.IsNone() || MinuteOfDay < 0 || MinuteOfDay >= 1440) return false;
+
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+    for (const FVNHFamilyMemberSave& Member : SaveData->FamilyMembers)
+    {
+        if (Member.CharacterId != CharacterId) continue;
+        for (const FVNHDailyRoutineEntry& Entry : Member.DailyRoutine)
+        {
+            if (MinuteOfDay >= Entry.StartMinute && MinuteOfDay < Entry.EndMinute)
+            {
+                OutActivityId = Entry.ActivityId;
+                OutLocationId = Entry.LocationId;
+                return true;
+            }
+        }
+        return false;
+    }
+    return false;
 }
 
 bool UVNHSaveSubsystem::SaveCheckpoint(FName RegionId, FName CheckpointId)
