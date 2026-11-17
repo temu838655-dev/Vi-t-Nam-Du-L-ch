@@ -12,7 +12,7 @@ Tài liệu này đặt tiêu chuẩn cho giai đoạn thay placeholder bằng t
 
 ## 2. Xe máy phổ biến
 
-Catalog prototype hiện có: Honda Wave Alpha 110, Vision, Air Blade 125, SH160i, LEAD 125, Yamaha Sirius FI, Exciter 155 VVA và Janus.
+Catalog prototype hiện có 11 mẫu: Honda Wave Alpha 110, Vision, Air Blade 125, SH160i, LEAD 125, Future 125 FI, Winner X; Yamaha Sirius FI, Exciter 155 VVA, Janus và Grande.
 
 Mỗi mẫu hoàn chỉnh cần:
 - Silhouette đúng đời xe/năm sản xuất, tỷ lệ bánh, chiều dài cơ sở, yên, sàn để chân, yếm, đèn, gương, pô, phanh và cụm đồng hồ.
