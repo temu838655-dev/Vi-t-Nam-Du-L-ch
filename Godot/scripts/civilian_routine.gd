@@ -16,8 +16,11 @@ var right_leg: MeshInstance3D
 var status_label: Label3D
 var walk_phase := 0.0
 var previous_position := Vector3.ZERO
+var conversation_count := 0
+var current_activity := "Ở nhà"
 
 func _ready() -> void:
+	add_to_group("interactable")
 	_build_resident()
 	position = home_position
 	previous_position = position
@@ -66,6 +69,26 @@ func _update_schedule(delta: float) -> void:
 		left_leg.rotation.x = 0.0
 		right_leg.rotation.x = 0.0
 	status_label.text = "%s\n%s" % [resident_name, state]
+
+
+func interact() -> String:
+	conversation_count += 1
+	var replies: Array[String] = []
+	match current_activity:
+		"Ở nhà":
+			replies = ["Tôi đang nghỉ ở nhà. Hôm nay bạn định đi đâu?", "Ở nhà một chút cho khỏe, ngoài đường hôm nay khá đông đấy."]
+		"Đang đi làm":
+			replies = ["Tôi đang trên đường đi làm, hẹn gặp lại nhé!", "Sắp muộn giờ rồi, chúc bạn một ngày vui."]
+		"Đang làm việc":
+			replies = ["Công việc hôm nay cũng bận rộn, còn bạn làm nghề gì?", "Làm việc chăm chỉ mới có tiền đi du lịch chứ!"]
+		"Đang đi mua đồ":
+			replies = ["Tôi ghé cửa hàng mua ít đồ dùng.", "Bạn có biết quán ăn ngon nào gần đây không?"]
+		"Đang ở cửa hàng":
+			replies = ["Tôi đang chọn vài món đồ cần thiết.", "Đi mua sắm nhớ xem giá trước nhé!"]
+		"Đang về nhà":
+			replies = ["Tôi đang về nhà sau một ngày dài.", "Chúc bạn đi đường cẩn thận nhé!"]
+	var index := (conversation_count - 1) % replies.size()
+	return "%s: %s" % [resident_name, replies[index]]
 
 func _build_resident() -> void:
 	var skin := _material(Color(0.69, 0.49, 0.36))
