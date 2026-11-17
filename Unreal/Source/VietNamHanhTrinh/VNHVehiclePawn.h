@@ -32,6 +32,12 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Traffic")
     void SetTrafficSignalStop(bool bShouldStop);
 
+    UFUNCTION(BlueprintCallable, Category="VNH|Traffic")
+    void AddTrafficSignalStopSource(AActor* SignalSource);
+
+    UFUNCTION(BlueprintCallable, Category="VNH|Traffic")
+    void RemoveTrafficSignalStopSource(AActor* SignalSource);
+
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle")
     void ExitVehicle();
 
@@ -90,6 +96,7 @@ private:
     float SteeringInput = 0.0f;
     bool bBrakePressed = false;
     bool bTrafficSignalStop = false;
+    TSet<TWeakObjectPtr<AActor>> TrafficSignalStopSources;
 
     void ThrottleKeyboard(float Value);
     void SteerKeyboard(float Value);
