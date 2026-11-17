@@ -135,7 +135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if event.position.x < get_viewport().get_visible_rect().size.x * 0.45 and joystick_touch == -1:
 				joystick_touch = event.index
 				var viewport_size := get_viewport().get_visible_rect().size
-				var base_position := event.position - joystick_base.size * 0.5
+				var base_position: Vector2 = event.position - joystick_base.size * 0.5
 				base_position.x = clampf(base_position.x, 8.0, viewport_size.x - joystick_base.size.x - 8.0)
 				base_position.y = clampf(base_position.y, 8.0, viewport_size.y - joystick_base.size.y - 8.0)
 				joystick_base.position = base_position
