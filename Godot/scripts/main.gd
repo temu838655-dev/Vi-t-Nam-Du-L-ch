@@ -318,15 +318,46 @@ func _build_ho_guom_landmark() -> void:
 		_add_landmark_sphere("LakeTreeCanopy_%02d" % i, tree_pos + Vector3(0, 2.8, 0), Vector3(1.15, 1.2, 1.1), Color(0.12, 0.34, 0.18))
 
 	for i in range(4):
-		var bench := MeshInstance3D.new()
+		# Each lakeside bench is a solid, simple seat with a backrest and four legs.
+		var bench := StaticBody3D.new()
 		bench.name = "LakesideBench_%02d" % i
-		var bench_mesh := BoxMesh.new()
-		bench_mesh.size = Vector3(1.5, 0.12, 0.42)
-		bench.mesh = bench_mesh
-		bench.position = Vector3(15 + i * 8.0, 0.58, 11.2)
+		bench.position = Vector3(15 + i * 8.0, 0.0, 11.2)
 		var wood := StandardMaterial3D.new()
 		wood.albedo_color = Color(0.34, 0.20, 0.12)
-		bench.material_override = wood
+		wood.roughness = 0.88
+		var seat := MeshInstance3D.new()
+		seat.name = "Seat"
+		var seat_mesh := BoxMesh.new()
+		seat_mesh.size = Vector3(1.5, 0.12, 0.42)
+		seat.mesh = seat_mesh
+		seat.position = Vector3(0, 0.58, 0)
+		seat.material_override = wood
+		bench.add_child(seat)
+		var seat_back := MeshInstance3D.new()
+		seat_back.name = "Backrest"
+		var back_mesh := BoxMesh.new()
+		back_mesh.size = Vector3(1.5, 0.48, 0.10)
+		seat_back.mesh = back_mesh
+		seat_back.position = Vector3(0, 0.88, 0.16)
+		seat_back.material_override = wood
+		bench.add_child(seat_back)
+		for leg_x in [-0.62, 0.62]:
+			for leg_z in [-0.13, 0.13]:
+				var leg := MeshInstance3D.new()
+				leg.name = "Leg_%s_%s" % [str(leg_x), str(leg_z)]
+				var leg_mesh := BoxMesh.new()
+				leg_mesh.size = Vector3(0.10, 0.56, 0.10)
+				leg.mesh = leg_mesh
+				leg.position = Vector3(leg_x, 0.28, leg_z)
+				leg.material_override = wood
+				bench.add_child(leg)
+		var bench_collision := CollisionShape3D.new()
+		bench_collision.name = "SeatCollision"
+		var bench_shape := BoxShape3D.new()
+		bench_shape.size = Vector3(1.5, 0.12, 0.42)
+		bench_collision.shape = bench_shape
+		bench_collision.position = Vector3(0, 0.58, 0)
+		bench.add_child(bench_collision)
 		add_child(bench)
 
 	var landmark_label := Label3D.new()
