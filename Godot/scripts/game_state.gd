@@ -50,16 +50,21 @@ func load_game() -> bool:
 	family_affection = clampi(int(data.get("family_affection", 0)), 0, 100)
 	completed_work_shifts = maxi(0, int(data.get("completed_work_shifts", 0)))
 	last_work_day = str(data.get("last_work_day", ""))
-	var position_data: Array = data.get("position", [START_POSITION.x, START_POSITION.y, START_POSITION.z])
-	if position_data.size() == 3:
-		last_position = Vector3(float(position_data[0]), float(position_data[1]), float(position_data[2]))
+	var position_value: Variant = data.get("position", [START_POSITION.x, START_POSITION.y, START_POSITION.z])
+	last_position = START_POSITION
+	if position_value is Array and position_value.size() == 3:
+		var candidate := Vector3(float(position_value[0]), float(position_value[1]), float(position_value[2]))
+		if _is_valid_saved_position(candidate):
+			last_position = candidate
 	last_rotation_y = float(data.get("rotation_y", 0.0))
+	if not is_finite(last_rotation_y):
+		last_rotation_y = 0.0
 	has_save = true
 	return true
 
 func save_game(player_position: Vector3, rotation_y: float) -> bool:
-	last_position = player_position
-	last_rotation_y = rotation_y
+	last_position = player_position if _is_valid_saved_position(player_position) else START_POSITION
+	last_rotation_y = rotation_y if is_finite(rotation_y) else 0.0
 	var data := {
 		"version": 2,
 		"player_name": player_name,
@@ -120,3 +125,6 @@ func talk_with_family(member_name: String) -> String:
 
 func _format_money(amount: int) -> String:
 	return str(amount)
+
+func _is_valid_saved_position(value: Vector3) -> bool:
+	return is_finite(value.x) and is_finite(value.y) and is_finite(value.z) and absf(value.x) <= 45.0 and absf(value.z) <= 45.0 and value.y >= -0.5 and value.y <= 20.0
