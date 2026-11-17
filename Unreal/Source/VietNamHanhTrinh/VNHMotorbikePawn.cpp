@@ -10,7 +10,7 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
     SteeringRate = 105.0f;
     FuelCapacity = 8.0f;
     CurrentFuel = 8.0f;
-    FuelConsumptionPerSecond = 0.0012f;
+    FuelConsumptionPerSecond = 0.025f;
 
     if (VehicleBody)
     {
