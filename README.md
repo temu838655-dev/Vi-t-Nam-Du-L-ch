@@ -12,7 +12,7 @@ Game **mô phỏng cuộc sống tự do kết hợp du lịch thế giới mở
 ## Những hệ thống UE5 đã có trong mã nguồn
 - GameMode tự dựng blockout Hồ Hoàn Kiếm và PlayerStart dự phòng trên map trống; PlayerController hỗ trợ tạo HUD UMG cấu hình từ Blueprint.
 - Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
-- SaveGame schema v4: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint. Save Subsystem có API cập nhật quan hệ gia đình (0–100), lưu ngoại hình (chiều cao 120–220 cm), lưu lịch sinh hoạt theo phút trong ngày và truy vấn hoạt động/địa điểm hiện tại.
+- SaveGame schema v5: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint. Save Subsystem có API cập nhật quan hệ gia đình (0–100), lưu ngoại hình (chiều cao 120–220 cm), lưu lịch sinh hoạt theo phút trong ngày, truy vấn hoạt động/địa điểm hiện tại và lưu đồng hồ game (ngày, giờ, phút, thứ trong tuần).
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
 - NPC dân cư với AI tuần tra cơ bản.
@@ -39,6 +39,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Hồ sơ ngoại hình nhân vật và gia đình](docs/UE5_CHARACTER_AND_FAMILY_PROFILES.md)
 - [API quan hệ gia đình và lưu ngoại hình](docs/UE5_FAMILY_RELATIONSHIP_AND_APPEARANCE_API.md)
 - [Lịch sinh hoạt gia đình](docs/UE5_FAMILY_DAILY_ROUTINE.md)
+- [Đồng hồ và lịch trong game](docs/UE5_WORLD_CLOCK.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Lưu vị trí hành trình](docs/UE5_CHECKPOINT_SAVE.md)
