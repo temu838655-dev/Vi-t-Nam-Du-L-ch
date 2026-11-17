@@ -267,3 +267,38 @@ func _close_shop() -> void:
 	if is_instance_valid(shop_overlay):
 		shop_overlay.queue_free()
 	shop_overlay = null
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			if event.position.x < get_viewport().get_visible_rect().size.x * 0.45 and joystick_touch == -1:
+				joystick_touch = event.index
+				var viewport_size := get_viewport().get_visible_rect().size
+				var base_position: Vector2 = event.position - joystick_base.size * 0.5
+				base_position.x = clampf(base_position.x, 8.0, viewport_size.x - joystick_base.size.x - 8.0)
+				base_position.y = clampf(base_position.y, 8.0, viewport_size.y - joystick_base.size.y - 8.0)
+				joystick_base.position = base_position
+				joystick_origin = event.position
+				joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
+			elif look_touch == -1:
+				look_touch = event.index
+		else:
+			if event.index == joystick_touch:
+				joystick_touch = -1
+				if player:
+					player.set_mobile_move(Vector2.ZERO)
+				move_vector = Vector2.ZERO
+				if is_instance_valid(joystick_knob):
+					joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
+			if event.index == look_touch:
+				look_touch = -1
+	elif event is InputEventScreenDrag:
+		if event.index == joystick_touch:
+			move_vector = (event.position - joystick_origin).limit_length(58.0) / 58.0
+			joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5 + move_vector * 46.0
+			if player:
+				player.set_mobile_move(move_vector)
+		elif event.index == look_touch:
+			if player:
+				player.add_mobile_look(event.relative)
