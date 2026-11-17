@@ -15,6 +15,9 @@ var shop_overlay: Control
 var shop_items_container: VBoxContainer
 var current_shop_type := ""
 var current_shop_name := ""
+var inventory_overlay: Control
+var inventory_items_container: VBoxContainer
+var current_inventory_tab := "vehicle"
 
 func _ready() -> void:
 	add_to_group("shop_ui")
@@ -40,6 +43,14 @@ func _ready() -> void:
 	help.position = Vector2(24, 78)
 	help.add_theme_font_size_override("font_size", 15)
 	ui_root.add_child(help)
+
+	var inventory_button := Button.new()
+	inventory_button.text = "TÀI SẢN"
+	inventory_button.size = Vector2(136, 52)
+	inventory_button.position = Vector2(-154, 18)
+	inventory_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	inventory_button.pressed.connect(open_inventory)
+	ui_root.add_child(inventory_button)
 
 	# A visible, movable virtual joystick follows the first touch on the left side.
 	joystick_base = Panel.new()
@@ -269,6 +280,158 @@ func _close_shop() -> void:
 		shop_overlay.queue_free()
 	shop_overlay = null
 
+
+
+func open_inventory() -> void:
+	if is_instance_valid(inventory_overlay):
+		inventory_overlay.queue_free()
+	inventory_overlay = Control.new()
+	inventory_overlay.name = "InventoryOverlay"
+	inventory_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	inventory_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(inventory_overlay)
+
+	var shade := ColorRect.new()
+	shade.color = Color(0.015, 0.025, 0.04, 0.9)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	inventory_overlay.add_child(shade)
+
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.position = Vector2(-430, -285)
+	panel.size = Vector2(860, 570)
+	inventory_overlay.add_child(panel)
+
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 10)
+	panel.add_child(layout)
+
+	var header := HBoxContainer.new()
+	layout.add_child(header)
+	var heading := Label.new()
+	heading.text = "TÀI SẢN & HÀNH TRANG"
+	heading.add_theme_font_size_override("font_size", 26)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(heading)
+	var close := Button.new()
+	close.text = "ĐÓNG"
+	close.custom_minimum_size = Vector2(100, 46)
+	close.pressed.connect(_close_inventory)
+	header.add_child(close)
+
+	var balance := Label.new()
+	balance.text = "Ví tiền: %s VNĐ" % _format_money(GameState.wallet_vnd)
+	balance.add_theme_font_size_override("font_size", 18)
+	layout.add_child(balance)
+
+	var tabs := HBoxContainer.new()
+	layout.add_child(tabs)
+	for tab in ["vehicle", "clothing", "food"]:
+		var tab_button := Button.new()
+		match tab:
+			"vehicle": tab_button.text = "PHƯƠNG TIỆN"
+			"clothing": tab_button.text = "TỦ ĐỒ"
+			"food": tab_button.text = "ĐẶC SẢN"
+		tab_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab_button.pressed.connect(_set_inventory_tab.bind(tab))
+		tabs.add_child(tab_button)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	layout.add_child(scroll)
+	inventory_items_container = VBoxContainer.new()
+	inventory_items_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inventory_items_container.add_theme_constant_override("separation", 8)
+	scroll.add_child(inventory_items_container)
+	_refresh_inventory()
+
+func _set_inventory_tab(tab: String) -> void:
+	current_inventory_tab = tab
+	_refresh_inventory()
+
+func _refresh_inventory() -> void:
+	if not is_instance_valid(inventory_items_container):
+		return
+	for child in inventory_items_container.get_children():
+		child.queue_free()
+
+	var owned_ids: Array = []
+	match current_inventory_tab:
+		"vehicle":
+			owned_ids = GameState.owned_vehicles
+		"clothing":
+			owned_ids = GameState.owned_clothes
+		"food":
+			owned_ids = GameState.owned_specialties
+
+	var catalog := GameState.get_catalog(current_inventory_tab)
+	var found := 0
+	for item in catalog:
+		var item_id := str(item.get("id", ""))
+		if not owned_ids.has(item_id):
+			continue
+		found += 1
+		var row := HBoxContainer.new()
+		row.custom_minimum_size = Vector2(0, 68)
+		inventory_items_container.add_child(row)
+		var details := VBoxContainer.new()
+		details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(details)
+		var item_label := Label.new()
+		item_label.text = str(item.get("name", "Vật phẩm"))
+		item_label.add_theme_font_size_override("font_size", 18)
+		details.add_child(item_label)
+		var sub_label := Label.new()
+		match current_inventory_tab:
+			"vehicle":
+				sub_label.text = "Phương tiện đã mua" + (" • Đang chọn" if GameState.selected_vehicle == item_id else "")
+			"clothing":
+				var slot := str(item.get("slot", "top"))
+				sub_label.text = "Trang phục • " + ("Đang mặc" if str(GameState.equipped_clothes.get(slot, "")) == item_id else "Đã sở hữu")
+			"food":
+				sub_label.text = "Đặc sản • %s" % str(item.get("region", "Việt Nam"))
+		details.add_child(sub_label)
+
+		if current_inventory_tab == "clothing":
+			var wear := Button.new()
+			wear.text = "MẶC"
+			wear.custom_minimum_size = Vector2(110, 48)
+			wear.pressed.connect(_wear_owned_clothing.bind(item_id))
+			row.add_child(wear)
+		elif current_inventory_tab == "vehicle":
+			var select_button := Button.new()
+			select_button.text = "ĐANG CHỌN" if GameState.selected_vehicle == item_id else "CHỌN XE"
+			select_button.disabled = GameState.selected_vehicle == item_id
+			select_button.custom_minimum_size = Vector2(120, 48)
+			select_button.pressed.connect(_select_owned_vehicle.bind(item_id))
+			row.add_child(select_button)
+
+	if found == 0:
+		var empty := Label.new()
+		match current_inventory_tab:
+			"vehicle": empty.text = "Bạn chưa sở hữu xe máy. Hãy ghé đại lý xe máy."
+			"clothing": empty.text = "Tủ đồ đang trống."
+			"food": empty.text = "Bạn chưa mua đặc sản mang về."
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		inventory_items_container.add_child(empty)
+
+func _wear_owned_clothing(item_id: String) -> void:
+	var result: Dictionary = GameState.purchase_item("clothing", item_id)
+	if bool(result.get("ok", false)) and player and player.has_method("apply_outfit"):
+		player.apply_outfit(GameState.equipped_clothes)
+	_show_message(str(result.get("message", "Không thể mặc trang phục.")))
+	_refresh_inventory()
+
+func _select_owned_vehicle(item_id: String) -> void:
+	GameState.selected_vehicle = item_id
+	GameState.save_game(player.global_position, player.rotation.y) if player else null
+	_show_message("Đã chọn %s. Hãy đến xe trong thế giới để lái." % str(GameState.get_item("vehicle", item_id).get("name", "phương tiện")))
+	_refresh_inventory()
+
+func _close_inventory() -> void:
+	if is_instance_valid(inventory_overlay):
+		inventory_overlay.queue_free()
+	inventory_overlay = null
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
