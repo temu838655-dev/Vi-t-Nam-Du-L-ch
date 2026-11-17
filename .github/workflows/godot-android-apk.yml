@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: godot-android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     name: Validate Godot project
@@ -25,6 +29,7 @@ jobs:
           test -f Godot/scripts/player.gd
           test -f Godot/scripts/mobile_hud.gd
           test -f Godot/scripts/game_state.gd
+          test -f Godot/scripts/interactable_npc.gd
           test -f Godot/export_presets.cfg
           grep -q 'config/name="Việt Nam' Godot/project.godot
           echo "Godot project structure validated"
