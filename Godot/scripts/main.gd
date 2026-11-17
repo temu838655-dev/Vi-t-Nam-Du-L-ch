@@ -7,6 +7,33 @@ const MOTORBIKE_SCRIPT := preload("res://scripts/motorbike.gd")
 const SHOP_SCRIPT := preload("res://scripts/shop_interactable.gd")
 const DEFAULT_START := Vector3(0, 1.1, 7)
 
+class HomeInteractable:
+	extends Node3D
+
+	var display_name := "Đồ vật trong nhà"
+	var action := ""
+
+	func _ready() -> void:
+		add_to_group("interactable")
+
+	func interact() -> String:
+		match action:
+			"meal":
+				GameState.satiety = mini(100, GameState.satiety + 25)
+				return "Bạn dùng bữa cùng gia đình. Độ no hiện tại: %d/100." % GameState.satiety
+			"fridge":
+				if GameState.satiety >= 100:
+					return "Tủ lạnh có thức ăn và nước uống. Bạn hiện đã no."
+				GameState.satiety = mini(100, GameState.satiety + 15)
+				return "Bạn lấy chút đồ ăn trong tủ lạnh. Độ no: %d/100." % GameState.satiety
+			"tv":
+				return "Bạn bật chiếc TV trong phòng khách. Đây là tương tác mô phỏng."
+			"sofa":
+				return "Bạn ngồi nghỉ trên ghế sofa cùng gia đình. Tính năng ngồi và hồi phục thể lực sẽ được bổ sung sau."
+			"kitchen":
+				return "Đây là khu bếp của gia đình. Bạn có thể ghé bàn ăn để dùng bữa."
+		return "Bạn quan sát %s." % display_name
+
 var player: CharacterBody3D
 var autosave_elapsed := 0.0
 var menu_layer: CanvasLayer
@@ -163,8 +190,8 @@ func _save_current_game() -> void:
 
 func _spawn_family_and_career_board() -> void:
 	_spawn_daily_residents()
-	_add_npc("Mẹ", "mother", Vector3(-2.0, 0, -3.1), Color(0.72, 0.18, 0.22))
-	_add_npc("Bố", "father", Vector3(2.0, 0, -3.1), Color(0.16, 0.28, 0.48))
+	_add_npc("Mẹ", "mother", Vector3(-3.15, 0, -7.25), Color(0.72, 0.18, 0.22))
+	_add_npc("Bố", "father", Vector3(3.15, 0, -7.25), Color(0.16, 0.28, 0.48))
 	# Each career has its own recruiter so players can choose or change jobs directly.
 	_add_npc("TÀI XẾ CÔNG NGHỆ", "career_driver", Vector3(-6.0, 0, 1.0), Color(0.12, 0.38, 0.72))
 	_add_npc("NHÂN VIÊN DU LỊCH", "career_tourism", Vector3(-2.0, 0, 1.0), Color(0.12, 0.55, 0.48))
@@ -219,6 +246,8 @@ func _add_npc(display_name: String, role: String, at: Vector3, tint: Color) -> v
 	npc.set("role", role)
 	npc.set("body_color", tint)
 	npc.position = at
+	if role == "mother" or role == "father":
+		npc.rotation.y = PI
 	add_child(npc)
 
 func _add_traffic_system() -> void:
@@ -576,6 +605,15 @@ func _add_facade_box(object_name: String, at: Vector3, dimensions: Vector3, tint
 
 
 
+
+func _add_home_interactable(label: String, action_name: String, at: Vector3) -> void:
+	var target := HomeInteractable.new()
+	target.name = "HomeInteractable_" + action_name
+	target.display_name = label
+	target.action = action_name
+	target.position = at
+	add_child(target)
+
 func _build_family_home_interior() -> void:
 	# Simple Vietnamese family living space; furniture is solid so it has spatial presence.
 	_add_box("Home_SofaBase", Vector3(-2.55, 0.48, -8.9), Vector3(2.25, 0.42, 0.92), Color(0.34, 0.20, 0.14))
@@ -590,6 +628,12 @@ func _build_family_home_interior() -> void:
 		for leg_z in [-7.02, -6.28]:
 			_add_box("Home_DiningLeg_%s_%s" % [str(leg_x), str(leg_z)], Vector3(leg_x, 0.40, leg_z), Vector3(0.10, 0.72, 0.10), Color(0.30, 0.20, 0.12))
 	_add_box("Home_WallClock", Vector3(0, 2.35, -11.27), Vector3(0.58, 0.58, 0.06), Color(0.22, 0.16, 0.10))
+	# Interaction points are placed in front of furniture so the player can approach them.
+	_add_home_interactable("Ghế sofa", "sofa", Vector3(-2.55, 0, -8.0))
+	_add_home_interactable("Tivi phòng khách", "tv", Vector3(2.85, 0, -8.0))
+	_add_home_interactable("Tủ lạnh", "fridge", Vector3(2.9, 0, -5.0))
+	_add_home_interactable("Bàn ăn gia đình", "meal", Vector3(0.25, 0, -5.65))
+	_add_home_interactable("Khu bếp", "kitchen", Vector3(-2.65, 0, -5.0))
 	var home_note := Label3D.new()
 	home_note.text = "TỔ ẤM GIA ĐÌNH"
 	home_note.position = Vector3(0, 2.05, -11.22)
