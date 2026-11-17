@@ -40,7 +40,9 @@ func start_new_game() -> void:
         "gems": 100,
         "location": "Hà Nội",
         "last_scene": "res://scenes/main.tscn",
-        "google_linked": false
+        "google_linked": false,
+        "inventory": {"nuoc_suoi": 1, "ban_do_du_lich": 1},
+        "save_version": SAVE_VERSION
     }
     save_progress()
 
