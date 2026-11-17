@@ -1,0 +1,57 @@
+name: Godot Android APK
+
+on:
+  push:
+    branches: [godot4-port]
+    paths:
+      - "Godot/**"
+      - ".github/workflows/godot-android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Godot project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check project structure
+        run: |
+          test -f Godot/project.godot
+          test -f Godot/scenes/main.tscn
+          test -f Godot/scripts/main.gd
+          test -f Godot/scripts/player.gd
+          test -f Godot/scripts/mobile_hud.gd
+          test -f Godot/export_presets.cfg
+          grep -q 'config/name="Việt Nam' Godot/project.godot
+          echo "Godot project structure validated"
+
+  android-apk:
+    name: Export Android ARM64 APK
+    needs: validate
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Godot project
+        run: |
+          godot --version
+          godot --headless --path Godot --editor --quit
+      - name: Export APK
+        run: |
+          mkdir -p build
+          cd Godot
+          godot --headless --path . --export-debug "Android" ../build/VietNamHanhTrinh-Android-ARM64.apk
+      - name: Verify APK
+        run: |
+          test -s build/VietNamHanhTrinh-Android-ARM64.apk
+          file build/VietNamHanhTrinh-Android-ARM64.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VietNamHanhTrinh-Godot-Android-ARM64
+          path: build/VietNamHanhTrinh-Android-ARM64.apk
+          if-no-files-found: error
+          retention-days: 14
