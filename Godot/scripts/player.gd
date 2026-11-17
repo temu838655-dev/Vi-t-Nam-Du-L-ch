@@ -194,8 +194,13 @@ func begin_home_action(action: String) -> void:
 	if is_instance_valid(current_vehicle):
 		return
 	home_action_pose = action
-	home_action_remaining = 4.0
+	home_action_remaining = 8.0 if action == "sofa" or action == "tv" or action == "bench" else 5.0
 	velocity = Vector3.ZERO
+	mobile_input = Vector2.ZERO
+	if action == "meal":
+		player_visual.rotation.y = PI
+	elif action == "tv":
+		player_visual.rotation.y = PI * 0.5
 
 func set_mobile_move(value: Vector2) -> void:
 	mobile_input = value.limit_length(1.0)
@@ -252,6 +257,9 @@ func get_nearby_interactable_name() -> String:
 	return label
 
 func interact_nearby() -> void:
+	if home_action_remaining > 0.0:
+		interaction_message.emit("Bạn đang nghỉ ngơi. Chờ một chút để tiếp tục di chuyển.")
+		return
 	var closest: Node3D
 	var closest_distance := 3.8
 	for candidate in get_tree().get_nodes_in_group("interactable"):
@@ -299,13 +307,14 @@ func _physics_process(delta: float) -> void:
 	_animate_character(delta)
 	if home_action_remaining > 0.0:
 		home_action_remaining = maxf(0.0, home_action_remaining - delta)
-		player_visual.position.y = -0.28
-		left_leg.rotation.x = -0.55
-		right_leg.rotation.x = -0.55
-		left_arm.rotation.x = -0.22
-		right_arm.rotation.x = -0.22
+		player_visual.position.y = -0.24
+		left_leg.rotation.x = -0.62
+		right_leg.rotation.x = -0.62
+		left_arm.rotation.x = -0.18
+		right_arm.rotation.x = -0.18
 	elif home_action_pose != "":
 		home_action_pose = ""
+		player_visual.position.y = 0.0
 	if look_delta.length() > 0.0:
 		rotate_y(-look_delta.x * 0.004)
 		camera_pivot.rotate_x(-look_delta.y * 0.004)
