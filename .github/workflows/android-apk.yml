@@ -39,6 +39,8 @@ jobs:
           include-templates: true
       - name: Import project
         run: godot --headless --editor --path . --quit
+      - name: Install Android build template
+        run: godot --headless --path . --install-android-build-template
       - name: Build Android APK
         run: |
           mkdir -p build
