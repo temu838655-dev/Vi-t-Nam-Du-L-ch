@@ -206,6 +206,8 @@ func is_item_owned(shop_type: String, item_id: String) -> bool:
 			return owned_vehicles.has(item_id)
 		"clothing":
 			return owned_clothes.has(item_id)
+		"food":
+			return owned_specialties.has(item_id)
 	return false
 
 func purchase_item(shop_type: String, item_id: String) -> Dictionary:
