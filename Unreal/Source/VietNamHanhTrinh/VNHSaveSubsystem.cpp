@@ -60,15 +60,22 @@ UVNHSaveGame* UVNHSaveSubsystem::LoadProgress()
     UVNHSaveGame* LoadedSave = Cast<UVNHSaveGame>(
         UGameplayStatics::LoadGameFromSlot(SaveSlotName, UserIndex));
 
-    if (!IsValid(LoadedSave) || !MigrateSaveData(LoadedSave))
+    if (!IsValid(LoadedSave))
     {
         return nullptr;
     }
 
-    // Persist migration immediately so the next load uses the current schema.
-    if (LoadedSave->SchemaVersion == UVNHSaveGame::CurrentSchemaVersion)
+    const int32 LoadedSchemaVersion = LoadedSave->SchemaVersion;
+    if (!MigrateSaveData(LoadedSave))
     {
-        SaveProgress(LoadedSave);
+        return nullptr;
+    }
+
+    // Persist only when a migration actually changed the schema. A normal load
+    // must not increment LocalRevision or rewrite the save slot.
+    if (LoadedSchemaVersion != LoadedSave->SchemaVersion && !SaveProgress(LoadedSave))
+    {
+        return nullptr;
     }
 
     return LoadedSave;
