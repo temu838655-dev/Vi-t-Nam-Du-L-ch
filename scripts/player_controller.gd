@@ -3,6 +3,7 @@ extends CharacterBody3D
 @export var walk_speed: float = 4.2
 @export var acceleration: float = 14.0
 @export var gravity: float = 18.0
+@export var jump_velocity: float = 6.0
 @export var camera_sensitivity: float = 0.006
 
 @onready var camera_pivot: Node3D = $CameraPivot
@@ -26,6 +27,10 @@ func _physics_process(delta: float) -> void:
     if direction.length() > 0.1:
         var target_yaw := atan2(-direction.x, -direction.z)
         rotation.y = lerp_angle(rotation.y, target_yaw, 8.0 * delta)
+
+func jump() -> void:
+    if is_on_floor():
+        velocity.y = jump_velocity
 
 func set_joystick_vector(value: Vector2) -> void:
     joystick_vector = value.limit_length(1.0)
