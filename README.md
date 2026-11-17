@@ -28,13 +28,14 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 1. Cài Unreal Engine 5.8 và các thành phần Android cần thiết.
 2. Mở Unreal/VietNamHanhTrinh.uproject.
 3. Generate project files và biên dịch module C++ trong môi trường Unreal.
-4. Tạo map trong Unreal Editor, đặt PlayerStart và các actor prototype.
+4. Tạo map trống trong Unreal Editor; GameMode sẽ tự thêm blockout Hồ Hoàn Kiếm và PlayerStart dự phòng khi chạy.
 5. Kiểm tra trên thiết bị Android; cấu hình ký ứng dụng trước khi phát hành.
 6. Build iOS cần macOS, Xcode và provisioning/signing hợp lệ.
 
 ## Tài liệu
 - [Kiến trúc UE5 mobile](docs/UE5_MOBILE_ARCHITECTURE.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
+- [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md)
 - [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md)
 - [POI tương tác](docs/UE5_POI_INTERACTION.md)
