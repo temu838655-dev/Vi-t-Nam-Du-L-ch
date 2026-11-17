@@ -12,7 +12,7 @@ Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
 - Mobile third-person controls: visible left-side touch joystick, right-side camera drag, jump and interaction buttons. The joystick relocates to the initial touch point on the left side.
 - Motorbike prototype: approach the parked test bike, tap TƯƠNG TÁC to mount, steer and accelerate with the left joystick, then tap XUỐNG XE to dismount. The rider camera pulls back while driving.
 - Three interactive shops: a motorcycle dealer, a Vietnamese clothing shop and a food/specialty stall. The catalogs include popular models such as Wave Alpha, Vision, Air Blade, SH160i, Sirius FI, Exciter 155, LEAD and Janus; everyday clothes and traditional outfits; and dishes/specialties from multiple regions.
-- Vehicle purchases are saved as owned vehicles and spawn a rideable bike near the player. Clothing purchases are saved and immediately equip the selected outfit. Food purchases deduct money and increase the character satiety meter.
+- Vehicle purchases are saved as owned vehicles and spawn a rideable bike near the player. Clothing purchases are saved and immediately equip the selected outfit. Prepared dishes deduct money and increase the character satiety meter; packaged regional specialties are stored in the player inventory.
 - Character prototype now uses separate head, hair, face, torso, arms, legs and shoes meshes. Outfit slots update the visible colors and traditional outfit/helmet overlays.
 - Family prototype: talk to mother and father; family affection is tracked.
 - Career prototype: interact with the job board to choose one of four careers, then complete one paid shift per real-world date.
