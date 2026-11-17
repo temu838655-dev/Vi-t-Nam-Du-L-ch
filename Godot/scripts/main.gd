@@ -112,14 +112,11 @@ func _save_current_game() -> void:
 func _spawn_family_and_career_board() -> void:
 	_add_npc("Mẹ", "mother", Vector3(-2.0, 0, -3.1), Color(0.72, 0.18, 0.22))
 	_add_npc("Bố", "father", Vector3(2.0, 0, -3.1), Color(0.16, 0.28, 0.48))
-	_add_npc("BẢNG VIỆC LÀM", "job_board", Vector3(5.0, 0, -1.0), Color(0.16, 0.42, 0.28))
-	_add_box("CareerBoardPost", Vector3(5.0, 1.1, -1.0), Vector3(1.5, 2.2, 0.18), Color(0.36, 0.22, 0.12))
-	var sign_label := Label3D.new()
-	sign_label.text = "VIỆC LÀM"
-	sign_label.position = Vector3(5.0, 2.5, -0.85)
-	sign_label.font_size = 28
-	sign_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	add_child(sign_label)
+	# Each career has its own recruiter so players can choose or change jobs directly.
+	_add_npc("TÀI XẾ CÔNG NGHỆ", "career_driver", Vector3(-6.0, 0, 1.0), Color(0.12, 0.38, 0.72))
+	_add_npc("NHÂN VIÊN DU LỊCH", "career_tourism", Vector3(-2.0, 0, 1.0), Color(0.12, 0.55, 0.48))
+	_add_npc("ĐẦU BẾP", "career_chef", Vector3(2.0, 0, 1.0), Color(0.72, 0.34, 0.12))
+	_add_npc("NHIẾP ẢNH GIA", "career_photographer", Vector3(6.0, 0, 1.0), Color(0.48, 0.28, 0.66))
 
 func _add_npc(display_name: String, role: String, at: Vector3, tint: Color) -> void:
 	var npc := Node3D.new()
