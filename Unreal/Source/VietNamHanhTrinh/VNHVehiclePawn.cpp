@@ -40,6 +40,7 @@ AVNHVehiclePawn::AVNHVehiclePawn()
             Wheel->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f));
             Wheel->SetRelativeScale3D(FVector(0.36f, 0.18f, 0.36f));
             Wheel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            WheelMeshes.Add(Wheel);
         }
     }
 
@@ -121,9 +122,15 @@ void AVNHVehiclePawn::ExitVehicle()
     AController* DriverController = GetController();
     if (!DriverController) return;
 
-    const FVector ExitLocation = GetActorLocation() - GetActorForwardVector() * 320.0f + GetActorRightVector() * 180.0f;
+    const FVector ExitLocation = GetActorLocation() - GetActorForwardVector() * 320.0f + GetActorRightVector() * 220.0f;
     const FRotator ExitRotation(0.0f, GetActorRotation().Yaw, 0.0f);
-    PreviousCharacter->SetActorLocation(ExitLocation, false, nullptr, ETeleportType::TeleportPhysics);
+    FHitResult ExitHit;
+    const bool bPlacedSafely = PreviousCharacter->SetActorLocation(ExitLocation, true, &ExitHit, ETeleportType::TeleportPhysics);
+    if (!bPlacedSafely)
+    {
+        const FVector RearExit = GetActorLocation() - GetActorForwardVector() * 420.0f;
+        PreviousCharacter->SetActorLocation(RearExit, false, nullptr, ETeleportType::TeleportPhysics);
+    }
     PreviousCharacter->SetActorRotation(ExitRotation);
     DriverController->Possess(PreviousCharacter);
     PreviousCharacter = nullptr;
@@ -151,5 +158,9 @@ void AVNHVehiclePawn::ExitVehicleKeyboard() { ExitVehicle(); }
 
 void AVNHVehiclePawn::UpdateWheelVisuals(float DeltaSeconds)
 {
-    // Wheel rotation animation will be added with authored wheel meshes in a later pass.
+    const float WheelDegrees = (CurrentSpeed * DeltaSeconds / 35.0f) * (180.0f / PI);
+    for (UStaticMeshComponent* Wheel : WheelMeshes)
+    {
+        if (Wheel) Wheel->AddLocalRotation(FRotator(0.0f, WheelDegrees, 0.0f));
+    }
 }
