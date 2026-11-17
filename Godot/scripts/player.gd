@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal interaction_message(message: String)
+
 @export var move_speed: float = 5.0
 @export var acceleration: float = 18.0
 @export var gravity: float = 22.0
@@ -40,6 +42,22 @@ func set_mobile_move(value: Vector2) -> void:
 
 func add_mobile_look(value: Vector2) -> void:
 	look_delta += value
+
+func interact_nearby() -> void:
+	var closest: Node3D
+	var closest_distance := 3.8
+	for candidate in get_tree().get_nodes_in_group("interactable"):
+		if not candidate is Node3D:
+			continue
+		var distance := global_position.distance_to(candidate.global_position)
+		if distance < closest_distance:
+			closest = candidate
+			closest_distance = distance
+	if closest:
+		var message := str(closest.call("interact"))
+		interaction_message.emit(message)
+	else:
+		interaction_message.emit("Hãy đến gần bố mẹ hoặc bảng việc làm để tương tác.")
 
 func _physics_process(delta: float) -> void:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
