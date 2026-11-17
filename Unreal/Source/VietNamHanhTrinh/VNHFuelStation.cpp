@@ -1,5 +1,7 @@
 #include "VNHFuelStation.h"
 #include "VNHVehiclePawn.h"
+#include "VNHSaveSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "UObject/ConstructorHelpers.h"
@@ -62,12 +64,48 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
         }
     }
 
-    if (NearestVehicle)
+    if (!NearestVehicle) return;
+
+    UGameInstance* GameInstance = GetGameInstance();
+    UVNHSaveSubsystem* SaveSubsystem = GameInstance
+        ? GameInstance->GetSubsystem<UVNHSaveSubsystem>()
+        : nullptr;
+    if (!SaveSubsystem || PricePerFuelUnit <= 0)
     {
-        const float FuelAdded = NearestVehicle->Refuel(FuelPerInteraction);
-        if (FuelAdded > 0.0f)
-        {
-            OnFuelDispensed(NearestVehicle, FuelAdded);
-        }
+        OnFuelPurchaseFailed();
+        return;
+    }
+
+    const float RemainingCapacity = FMath::Max(0.0f, NearestVehicle->FuelCapacity - NearestVehicle->CurrentFuel);
+    const float AffordableFuel = static_cast<float>(SaveSubsystem->GetMoney()) / static_cast<float>(PricePerFuelUnit);
+    const float RequestedFuel = FMath::Min3(FuelPerInteraction, RemainingCapacity, AffordableFuel);
+    if (RequestedFuel <= KINDA_SMALL_NUMBER)
+    {
+        OnFuelPurchaseFailed();
+        return;
+    }
+
+    const int64 QuotedCost = static_cast<int64>(FMath::CeilToDouble(RequestedFuel * static_cast<double>(PricePerFuelUnit)));
+    if (!SaveSubsystem->TrySpendMoney(QuotedCost))
+    {
+        OnFuelPurchaseFailed();
+        return;
+    }
+
+    const float FuelAdded = NearestVehicle->Refuel(RequestedFuel);
+    const int64 ActualCost = static_cast<int64>(FMath::CeilToDouble(FuelAdded * static_cast<double>(PricePerFuelUnit)));
+    if (QuotedCost > ActualCost)
+    {
+        SaveSubsystem->AddMoney(QuotedCost - ActualCost);
+    }
+
+    if (FuelAdded > 0.0f)
+    {
+        OnFuelDispensed(NearestVehicle, FuelAdded, ActualCost);
+    }
+    else
+    {
+        SaveSubsystem->AddMoney(QuotedCost);
+        OnFuelPurchaseFailed();
     }
 }
