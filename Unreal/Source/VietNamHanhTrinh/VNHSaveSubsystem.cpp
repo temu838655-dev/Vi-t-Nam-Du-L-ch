@@ -29,7 +29,6 @@ bool UVNHSaveSubsystem::DeleteLocalSave()
     return !HasLocalSave() || UGameplayStatics::DeleteGameInSlot(SaveSlotName, UserIndex);
 }
 
-
 UVNHSaveGame* UVNHSaveSubsystem::LoadOrCreateProgress()
 {
     if (HasLocalSave())
@@ -44,6 +43,18 @@ UVNHSaveGame* UVNHSaveSubsystem::LoadOrCreateProgress()
     NewSave->Money = 100000;
     if (!SaveProgress(NewSave)) return nullptr;
     return NewSave;
+}
+
+bool UVNHSaveSubsystem::SaveCheckpoint(FName RegionId, FName CheckpointId)
+{
+    if (RegionId.IsNone() || CheckpointId.IsNone()) return false;
+
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+
+    SaveData->CurrentRegionId = RegionId;
+    SaveData->LastCheckpointId = CheckpointId;
+    return SaveProgress(SaveData);
 }
 
 int64 UVNHSaveSubsystem::GetMoney()
