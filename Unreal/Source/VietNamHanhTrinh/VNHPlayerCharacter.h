@@ -44,7 +44,9 @@ private:
     float TouchLookSensitivity = 0.12f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction", meta=(AllowPrivateAccess="true"))
     float InteractionDistance = 350.0f;
+    UPROPERTY(Transient)
     float MoveForwardInput = 0.0f;
+    UPROPERTY(Transient)
     float MoveRightInput = 0.0f;
 
     void MoveForwardKeyboard(float Value);
