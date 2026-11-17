@@ -515,7 +515,7 @@ func _build_street_details() -> void:
 func _build_vietnamese_facades() -> void:
 	# Family home: painted plaster, dark timber door, barred windows and a tiled-looking roof.
 	_add_facade_box("FamilyHome_FrontDoor", Vector3(0, 1.05, -4.43), Vector3(1.15, 2.1, 0.10), Color(0.28, 0.16, 0.10))
-	_add_facade_box("FamilyHome_DoorPanel", Vector3(0, 1.05, -4.36), Vector3(0.82, 1.72, 0.035), Color(0.40, 0.24, 0.14))
+	_add_facade_box("FamilyHome_DoorPanel", Vector3(-0.63, 1.05, -4.36), Vector3(0.10, 1.72, 0.035), Color(0.40, 0.24, 0.14))
 	for side in [-1.0, 1.0]:
 		_add_facade_box("FamilyHome_Window_%s" % str(side), Vector3(side * 2.65, 2.05, -4.43), Vector3(1.25, 1.05, 0.10), Color(0.10, 0.24, 0.29))
 		_add_facade_box("FamilyHome_WindowBar_%s" % str(side), Vector3(side * 2.65, 2.05, -4.34), Vector3(1.30, 0.07, 0.06), Color(0.18, 0.18, 0.16))
