@@ -433,18 +433,18 @@ func _build_street_details() -> void:
 	_add_box("Sidewalk_Right", Vector3(4.25, 0.08, 8), Vector3(1.35, 0.16, 70), Color(0.48, 0.47, 0.43))
 	# A zebra crossing near the family-home entrance.
 	for stripe in range(9):
-		var x := -3.0 + float(stripe) * 0.75
+		var x: float = -3.0 + float(stripe) * 0.75
 		_add_box("ZebraCrossing_%02d" % stripe, Vector3(x, 0.075, 7.2), Vector3(0.42, 0.025, 1.45), Color(0.88, 0.87, 0.80))
 	# Repeated Vietnamese urban-style street lamps.
 	for side in [-1.0, 1.0]:
 		for index in range(6):
-			var z := -19.0 + float(index) * 12.0
+			var z: float = -19.0 + float(index) * 12.0
 			var x := side * 4.85
 			_add_landmark_cylinder("StreetLamp_Pole_%s_%02d" % [str(side), index], Vector3(x, 2.25, z), 0.075, 0.09, 4.5, Color(0.16, 0.17, 0.18))
 			_add_landmark_box("StreetLamp_Arm_%s_%02d" % [str(side), index], Vector3(x - side * 0.38, 4.42, z), Vector3(0.85, 0.10, 0.12), Color(0.16, 0.17, 0.18))
 			_add_landmark_sphere("StreetLamp_Light_%s_%02d" % [str(side), index], Vector3(x - side * 0.72, 4.32, z), Vector3(0.16, 0.10, 0.16), Color(1.0, 0.82, 0.48))
 	# Small curb blocks visually separate sidewalk from road.
 	for index in range(35):
-		var z := -25.0 + float(index) * 1.95
+		var z: float = -25.0 + float(index) * 1.95
 		for side in [-1.0, 1.0]:
 			_add_landmark_box("Curb_%s_%02d" % [str(side), index], Vector3(side * 3.58, 0.13, z), Vector3(0.16, 0.20, 1.72), Color(0.68, 0.66, 0.59))
