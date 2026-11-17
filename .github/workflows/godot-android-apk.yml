@@ -24,6 +24,7 @@ jobs:
           test -f Godot/scripts/main.gd
           test -f Godot/scripts/player.gd
           test -f Godot/scripts/mobile_hud.gd
+          test -f Godot/scripts/game_state.gd
           test -f Godot/export_presets.cfg
           grep -q 'config/name="Việt Nam' Godot/project.godot
           echo "Godot project structure validated"
@@ -46,14 +47,21 @@ jobs:
           unzip -q /tmp/godot-templates/templates.tpz -d /tmp/godot-templates/unpacked
           cp -a /tmp/godot-templates/unpacked/templates/. "$TEMPLATE_DIR/"
           test -s "$TEMPLATE_DIR/android_debug.apk"
-      - name: Configure Android SDK, Java and debug signing
+      - name: Install Android SDK packages and configure signing
         run: |
           set -eux
           JAVA_BIN="$(command -v javac)"
           JAVA_HOME_PATH="$(dirname "$(dirname "$(readlink -f "$JAVA_BIN")")")"
-          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/opt/android-sdk}}"
-          test -d "$SDK_PATH"
-          mkdir -p "$HOME/.android" "$HOME/.config/godot"
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/lib/android-sdk}}"
+          mkdir -p "$SDK_PATH" "$HOME/.android" "$HOME/.config/godot"
+          SDKMANAGER="$(find "$SDK_PATH" /opt /usr/local -type f -name sdkmanager 2>/dev/null | head -n 1 || true)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Android sdkmanager not found in the runner image"
+            find "$SDK_PATH" -maxdepth 4 -type d | head -n 80
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --sdk_root="$SDK_PATH" --licenses || true
+          "$SDKMANAGER" --sdk_root="$SDK_PATH" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
           keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
@@ -66,6 +74,7 @@ jobs:
           EOF
           echo "Using Android SDK: $SDK_PATH"
           echo "Using Java: $JAVA_HOME_PATH"
+          ls -la "$SDK_PATH/platforms" "$SDK_PATH/build-tools"
       - name: Verify Godot project
         run: |
           godot --version
