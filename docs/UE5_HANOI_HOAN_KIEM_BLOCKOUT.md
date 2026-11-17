@@ -1,28 +1,41 @@
 # Khu vực thử nghiệm Hà Nội – Hồ Hoàn Kiếm
 
 ## Mục tiêu
-Tạo khung không gian ban đầu để kiểm tra tỷ lệ nhân vật, camera, di chuyển và hướng mở rộng bản đồ. Đây chưa phải bản đồ địa lý chính xác hoặc mô hình Hồ Gươm hoàn chỉnh.
+Tạo khung không gian đầu tiên để kiểm tra tỷ lệ nhân vật, camera, di chuyển và tương tác tại địa điểm du lịch. Đây là greybox để thử gameplay, không phải bản đồ địa lý chính xác hoặc mô hình hoàn chỉnh.
 
-## Actor đã thêm
-- AVNHHanoiPrototypeArea tạo mặt hồ dạng hình trụ dẹt, bốn hành lang đường bao quanh, khối Tháp Rùa giản lược và bốn cụm khối nhà phố.
-- Actor dùng mesh cơ bản có sẵn trong Unreal Engine (/Engine/BasicShapes).
-- Tọa độ hiện tại chỉ là blockout centimet, không phải tọa độ GIS hoặc kích thước khảo sát.
+## Thành phần blockout
+Actor `AVNHHanoiPrototypeArea` tạo:
+- Nền thử nghiệm khoảng 400 m x 320 m.
+- Mặt hồ hình trụ dẹt khoảng 160 m x 100 m, chỉ là hình khối thay thế nước.
+- Bốn tuyến đường bao quanh và các dải vỉa hè đơn giản.
+- Khối Tháp Rùa, khối Đền Ngọc Sơn và cầu Thê Húc ở mức dựng khối.
+- Bốn khối nhà phố đại diện khu phố cổ.
+
+Tất cả tọa độ dùng đơn vị centimet của Unreal, được đặt để kiểm tra camera và tỷ lệ. Chúng không phải tọa độ GIS hoặc kích thước đo đạc thực tế.
+
+## Điểm tham quan có thể tương tác
+Dùng `AVNHPOIActor` để tạo các điểm như:
+- `HN_HOAN_KIEM_TURTLE_TOWER`
+- `HN_NGOC_SON_TEMPLE`
+- `HN_THE_HUC_BRIDGE`
+
+Đặt tên và mô tả trong Details. Blueprint subclass có thể triển khai sự kiện `OnPointOfInterestInteracted` để mở bảng thông tin.
 
 ## Cách xem trong Unreal Editor
-1. Mở Unreal/VietNamHanhTrinh.uproject bằng phiên bản Unreal Engine tương thích với EngineAssociation.
-2. Biên dịch module C++ trong Editor hoặc IDE.
-3. Tạo level mới và lưu tại Content/Maps/L_Hanoi_HoanKiem_Blockout.
-4. Kéo actor VNHHanoiPrototypeArea từ Place Actors vào level.
-5. Đặt PlayerStart ở khu vực đường phố phía tây hồ.
-6. Chọn VNHGameMode làm GameMode Override của level và chạy thử.
-7. Bổ sung nền sàn lớn bên dưới nếu level chưa có ground hoặc Landscape.
+1. Mở `Unreal/VietNamHanhTrinh.uproject` bằng Unreal Engine tương thích với `EngineAssociation`.
+2. Biên dịch module C++.
+3. Tạo level mới tại `Content/Maps/L_Hanoi_HoanKiem_Blockout`.
+4. Kéo actor `VNHHanoiPrototypeArea` vào level.
+5. Đặt PlayerStart ở tuyến đường phía tây hoặc phía nam hồ, cao hơn mặt nền.
+6. Đặt một số Blueprint POI tại các địa danh.
+7. Chọn `VNHGameMode` làm GameMode Override và chạy thử.
 
-## Để đạt độ chân thực
-- Thay mặt hồ blockout bằng địa hình bờ hồ và mặt nước có vật liệu PBR.
-- Dựng Tháp Rùa, Đền Ngọc Sơn, cầu Thê Húc và phố cổ bằng tài sản 3D tự dựng hoặc được cấp phép.
+## Việc cần làm để đạt độ chân thực
+- Thay khối hồ bằng địa hình bờ hồ và vật liệu nước PBR.
+- Dựng chi tiết Tháp Rùa, Đền Ngọc Sơn, cầu Thê Húc và nhà phố bằng tài sản 3D tự tạo hoặc có giấy phép.
 - Dùng dữ liệu GIS có giấy phép phù hợp để định vị đường, vỉa hè và công trình.
 - Bổ sung cây, đèn đường, biển hiệu tiếng Việt, xe máy, người đi bộ và âm thanh môi trường.
-- Kiểm tra va chạm, LOD, texture streaming, nhiệt độ và FPS trên thiết bị Android/iOS thật.
+- Kiểm thử collision, LOD, texture streaming, nhiệt độ và FPS trên Android/iOS thật.
 
 ## Giới hạn hiện tại
-Commit chỉ thêm mã nguồn actor blockout. Chưa có file level .umap, mesh chi tiết, vật liệu nước, cây, NPC hoặc dữ liệu GIS. Cần Unreal Editor để biên dịch và đặt actor vào level.
+Repository có mã nguồn actor blockout và hệ thống POI tương tác cơ bản. Chưa có file level `.umap`, mesh chi tiết, vật liệu nước, cây, NPC, dữ liệu GIS hoặc UI thông tin địa điểm. Cần Unreal Editor để biên dịch, tạo level và đặt actor.
