@@ -1,7 +1,7 @@
 extends Node3D
 
 # Mobile-friendly daily routine for a small number of sidewalk residents.
-# One simulated day lasts four real-time minutes in this prototype.
+# Residents share the same accelerated world clock as the player.
 @export var resident_name := "Cư dân"
 @export var home_position := Vector3(-5.15, 0.0, -18.0)
 @export var work_position := Vector3(-5.15, 0.0, 5.0)
@@ -9,8 +9,6 @@ extends Node3D
 @export var shirt_color := Color(0.2, 0.42, 0.68)
 @export var schedule_offset := 0.0
 
-const DAY_LENGTH := 240.0
-var elapsed := 0.0
 var left_leg: MeshInstance3D
 var right_leg: MeshInstance3D
 var status_label: Label3D
@@ -27,11 +25,10 @@ func _ready() -> void:
 	_update_schedule(0.0)
 
 func _process(delta: float) -> void:
-	elapsed = fposmod(elapsed + delta, DAY_LENGTH)
 	_update_schedule(delta)
 
 func _update_schedule(delta: float) -> void:
-	var clock := fposmod(elapsed + schedule_offset, DAY_LENGTH)
+	var clock := fposmod(GameState.world_time_seconds + schedule_offset, 240.0)
 	var target := home_position
 	var state := "Ở nhà"
 	var walking := false
