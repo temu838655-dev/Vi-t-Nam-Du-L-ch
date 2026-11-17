@@ -5,14 +5,10 @@ void AVNHPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Mobile-first: touch is enabled and the desktop cursor stays hidden.
     bShowMouseCursor = false;
     bEnableClickEvents = true;
     bEnableTouchEvents = true;
     bEnableMouseOverEvents = false;
-
-    FInputModeGameOnly InputMode;
-    SetInputMode(InputMode);
 
     if (IsLocalController() && MobileHUDClass)
     {
@@ -20,6 +16,13 @@ void AVNHPlayerController::BeginPlay()
         if (MobileHUDInstance)
         {
             MobileHUDInstance->AddToViewport(0);
+            FInputModeGameAndUI InputMode;
+            InputMode.SetHideCursorDuringCapture(true);
+            SetInputMode(InputMode);
+            return;
         }
     }
+
+    FInputModeGameOnly InputMode;
+    SetInputMode(InputMode);
 }
