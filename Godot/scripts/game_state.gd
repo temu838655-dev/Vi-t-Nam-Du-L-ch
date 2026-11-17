@@ -18,6 +18,18 @@ var has_save := false
 func _ready() -> void:
 	load_game()
 
+func start_new_game() -> void:
+	player_name = "Người chơi"
+	selected_career = "Chưa chọn nghề"
+	wallet_vnd = 500000
+	current_location = "Nhà gia đình"
+	family_affection = 0
+	completed_work_shifts = 0
+	last_work_day = ""
+	last_position = START_POSITION
+	last_rotation_y = 0.0
+	has_save = false
+
 func load_game() -> bool:
 	if not FileAccess.file_exists(SAVE_PATH):
 		has_save = false
@@ -35,7 +47,7 @@ func load_game() -> bool:
 	selected_career = str(data.get("selected_career", selected_career))
 	wallet_vnd = maxi(0, int(data.get("wallet_vnd", wallet_vnd)))
 	current_location = str(data.get("current_location", current_location))
-	family_affection = maxi(0, int(data.get("family_affection", 0)))
+	family_affection = clampi(int(data.get("family_affection", 0)), 0, 100)
 	completed_work_shifts = maxi(0, int(data.get("completed_work_shifts", 0)))
 	last_work_day = str(data.get("last_work_day", ""))
 	var position_data: Array = data.get("position", [START_POSITION.x, START_POSITION.y, START_POSITION.z])
@@ -107,4 +119,4 @@ func talk_with_family(member_name: String) -> String:
 	return "Bố: Cứ mạnh dạn khám phá, nhưng nhớ giữ an toàn và quản lý tiền bạc nhé!"
 
 func _format_money(amount: int) -> String:
-	return "%s" % amount
+	return str(amount)
