@@ -28,3 +28,48 @@ bool UVNHSaveSubsystem::DeleteLocalSave()
 {
     return !HasLocalSave() || UGameplayStatics::DeleteGameInSlot(SaveSlotName, UserIndex);
 }
+
+
+UVNHSaveGame* UVNHSaveSubsystem::LoadOrCreateProgress()
+{
+    if (HasLocalSave())
+    {
+        return LoadProgress();
+    }
+
+    UVNHSaveGame* NewSave = Cast<UVNHSaveGame>(
+        UGameplayStatics::CreateSaveGameObject(UVNHSaveGame::StaticClass()));
+    if (!IsValid(NewSave)) return nullptr;
+
+    NewSave->Money = 100000;
+    if (!SaveProgress(NewSave)) return nullptr;
+    return NewSave;
+}
+
+int64 UVNHSaveSubsystem::GetMoney()
+{
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    return IsValid(SaveData) ? SaveData->Money : 0;
+}
+
+bool UVNHSaveSubsystem::TrySpendMoney(int64 Amount)
+{
+    if (Amount <= 0) return false;
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData) || SaveData->Money < Amount) return false;
+
+    SaveData->Money -= Amount;
+    return SaveProgress(SaveData);
+}
+
+bool UVNHSaveSubsystem::AddMoney(int64 Amount)
+{
+    if (Amount <= 0) return false;
+    UVNHSaveGame* SaveData = LoadOrCreateProgress();
+    if (!IsValid(SaveData)) return false;
+
+    SaveData->Money = (MAX_int64 - SaveData->Money < Amount)
+        ? MAX_int64
+        : SaveData->Money + Amount;
+    return SaveProgress(SaveData);
+}
