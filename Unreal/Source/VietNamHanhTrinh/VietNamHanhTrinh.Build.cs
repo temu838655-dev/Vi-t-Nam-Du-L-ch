@@ -10,7 +10,9 @@ public class VietNamHanhTrinh : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "InputCore"
+            "InputCore",
+            "AIModule",
+            "NavigationSystem"
         });
     }
 }
