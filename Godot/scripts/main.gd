@@ -439,7 +439,7 @@ func _build_street_details() -> void:
 	for side in [-1.0, 1.0]:
 		for index in range(6):
 			var z: float = -19.0 + float(index) * 12.0
-			var x := side * 4.85
+			var x: float = float(side) * 4.85
 			_add_landmark_cylinder("StreetLamp_Pole_%s_%02d" % [str(side), index], Vector3(x, 2.25, z), 0.075, 0.09, 4.5, Color(0.16, 0.17, 0.18))
 			_add_landmark_box("StreetLamp_Arm_%s_%02d" % [str(side), index], Vector3(x - side * 0.38, 4.42, z), Vector3(0.85, 0.10, 0.12), Color(0.16, 0.17, 0.18))
 			_add_landmark_sphere("StreetLamp_Light_%s_%02d" % [str(side), index], Vector3(x - side * 0.72, 4.32, z), Vector3(0.16, 0.10, 0.16), Color(1.0, 0.82, 0.48))
