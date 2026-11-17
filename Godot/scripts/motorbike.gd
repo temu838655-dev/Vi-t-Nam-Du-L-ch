@@ -5,6 +5,10 @@ extends Node3D
 
 var rider: CharacterBody3D
 var label: Label3D
+var speed_label: Label3D
+var wheel_nodes: Array[Node3D] = []
+var front_wheel: Node3D
+var wheel_rotation := 0.0
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -15,13 +19,34 @@ func _ready() -> void:
 	label.font_size = 24
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(label)
+	speed_label = Label3D.new()
+	speed_label.name = "Speedometer3D"
+	speed_label.position = Vector3(0, 1.72, -0.72)
+	speed_label.font_size = 30
+	speed_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	speed_label.modulate = Color(0.55, 0.95, 1.0)
+	add_child(speed_label)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if is_instance_valid(rider):
 		global_position = rider.global_position - Vector3(0, 1.1, 0)
 		global_rotation.y = rider.global_rotation.y
+		var speed_mps := Vector2(rider.velocity.x, rider.velocity.z).length()
+		var speed_kmh := int(round(speed_mps * 3.6))
+		wheel_rotation += speed_mps * delta / 0.38
+		for wheel in wheel_nodes:
+			wheel.rotation.x = wheel_rotation
+		if front_wheel:
+			front_wheel.rotation.y = clampf(-rider.velocity.dot(global_transform.basis.x) * 0.035, -0.32, 0.32)
+		rotation.z = lerpf(rotation.z, clampf(-rider.velocity.dot(global_transform.basis.x) * 0.018, -0.12, 0.12), delta * 5.0)
 		if label:
 			label.text = display_name + "\nĐANG SỬ DỤNG"
+		if speed_label:
+			speed_label.text = "%03d km/h" % speed_kmh
+	else:
+		rotation.z = lerpf(rotation.z, 0.0, delta * 4.0)
+		if speed_label:
+			speed_label.text = "00 km/h"
 
 func interact() -> String:
 	if is_instance_valid(rider):
@@ -94,7 +119,7 @@ func _build_motorbike() -> void:
 	_add_box("Biển số", Vector3(0, 0.88, 1.12), Vector3(0.28, 0.16, 0.035), _material(Color(0.92, 0.92, 0.88)))
 
 	var wheel_radius := 0.36 if is_scooter else 0.39
-	_add_wheel("Bánh trước", Vector3(0, 0.43, -1.02), wheel_radius, rubber, metal)
+	front_wheel = _add_wheel("Bánh trước", Vector3(0, 0.43, -1.02), wheel_radius, rubber, metal)
 	_add_wheel("Bánh sau", Vector3(0, 0.43, 0.95), wheel_radius, rubber, metal)
 
 func _add_mirror(at: Vector3, material: StandardMaterial3D) -> void:
@@ -109,18 +134,21 @@ func _add_mirror(at: Vector3, material: StandardMaterial3D) -> void:
 	mirror.material_override = material
 	add_child(mirror)
 
-func _add_wheel(wheel_name: String, at: Vector3, radius: float, tire_material: StandardMaterial3D, rim_material: StandardMaterial3D) -> void:
-	var wheel := MeshInstance3D.new()
-	wheel.name = wheel_name
+func _add_wheel(wheel_name: String, at: Vector3, radius: float, tire_material: StandardMaterial3D, rim_material: StandardMaterial3D) -> Node3D:
+	var wheel := Node3D.new()
+	wheel.name = wheel_name + "Assembly"
+	wheel.position = at
+	add_child(wheel)
+	wheel_nodes.append(wheel)
+	var tire_node := MeshInstance3D.new()
 	var tire := CylinderMesh.new()
 	tire.top_radius = radius
 	tire.bottom_radius = radius
 	tire.height = 0.18
-	wheel.mesh = tire
-	wheel.material_override = tire_material
-	wheel.position = at
-	wheel.rotation.z = PI * 0.5
-	add_child(wheel)
+	tire_node.mesh = tire
+	tire_node.material_override = tire_material
+	tire_node.rotation.z = PI * 0.5
+	wheel.add_child(tire_node)
 
 	var hub := MeshInstance3D.new()
 	var hub_mesh := CylinderMesh.new()
@@ -129,9 +157,9 @@ func _add_wheel(wheel_name: String, at: Vector3, radius: float, tire_material: S
 	hub_mesh.height = 0.2
 	hub.mesh = hub_mesh
 	hub.material_override = rim_material
-	hub.position = at
 	hub.rotation.z = PI * 0.5
-	add_child(hub)
+	wheel.add_child(hub)
+	return wheel
 
 func _add_box(object_name: String, at: Vector3, dimensions: Vector3, material: StandardMaterial3D) -> void:
 	var mesh_instance := MeshInstance3D.new()
