@@ -5,7 +5,8 @@
 
 ## Thành phần hiện có trong mã nguồn
 - GameMode đặt PlayerController và PlayerCharacter mặc định.
-- Nếu level chưa có khu vực mẫu, GameMode tự tạo greybox Hồ Hoàn Kiếm và PlayerStart dự phòng.
+- Nếu level chưa có khu vực mẫu, GameMode tự tạo greybox Hồ Hoàn Kiếm.
+- Nếu chưa có nhà gia đình, GameMode dựng một starter-home greybox; PlayerStart mặc định đặt bên ngoài căn nhà để nhân vật bắt đầu cuộc sống tại nhà, không phải giữa Hồ Gươm.
 - PlayerCharacter có camera góc nhìn thứ ba, di chuyển, chạy, nhảy và trace tương tác.
 - PlayerController hỗ trợ gắn Widget Blueprint HUD cảm ứng.
 - SaveGame lưu vị trí, tiền, hồ sơ nhân vật/gia đình và lịch game.
