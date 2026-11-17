@@ -1,6 +1,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+class USceneComponent;
 #include "VNHHanoiPrototypeArea.generated.h"
 
 UCLASS()
