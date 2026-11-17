@@ -24,6 +24,11 @@ public:
     void TriggerJump();
     UFUNCTION(BlueprintCallable, Category="VNH|Mobile Controls")
     void StopJump();
+    UFUNCTION(BlueprintCallable, Category="VNH|Interaction")
+    void TryInteract();
+
+protected:
+    virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
@@ -36,6 +41,8 @@ private:
     float SprintSpeed = 560.0f;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
     float TouchLookSensitivity = 0.12f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction", meta=(AllowPrivateAccess="true"))
+    float InteractionDistance = 350.0f;
 
     void MoveForwardKeyboard(float Value);
     void MoveRightKeyboard(float Value);
