@@ -17,6 +17,7 @@ func _ready() -> void:
 	_show_main_menu()
 
 func _process(delta: float) -> void:
+	GameState.advance_world_clock(delta)
 	if not is_instance_valid(player):
 		return
 	autosave_elapsed += delta
