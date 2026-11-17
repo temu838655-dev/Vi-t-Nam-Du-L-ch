@@ -2,9 +2,12 @@ config_version=5
 
 [application]
 config/name="Việt Nam - Hành Trình Bất Tận"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/start_menu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/description="Game mô phỏng cuộc sống và du lịch Việt Nam"
+
+[autoload]
+SaveManager="*res://scripts/save_manager.gd"
 
 [display]
 window/size/viewport_width=1280
