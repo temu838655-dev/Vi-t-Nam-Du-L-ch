@@ -19,7 +19,7 @@ class HomeInteractable:
 	func interact() -> String:
 		var player_node := get_tree().get_first_node_in_group("player")
 		if is_instance_valid(player_node) and player_node.has_method("begin_home_action"):
-			if action == "sofa" or action == "meal":
+			if action == "sofa" or action == "meal" or action == "tv" or action == "bench":
 				player_node.call("begin_home_action", action)
 		match action:
 			"meal":
@@ -31,9 +31,11 @@ class HomeInteractable:
 				GameState.satiety = mini(100, GameState.satiety + 15)
 				return "Bạn lấy chút đồ ăn trong tủ lạnh. Độ no: %d/100." % GameState.satiety
 			"tv":
-				return "Bạn bật chiếc TV trong phòng khách. Đây là tương tác mô phỏng."
+				return "Bạn ngồi xem TV cùng gia đình. Chương trình giải trí đang được mô phỏng."
 			"sofa":
-				return "Bạn ngồi nghỉ trên ghế sofa cùng gia đình. Tính năng ngồi và hồi phục thể lực sẽ được bổ sung sau."
+				return "Bạn ngồi nghỉ trên ghế sofa. Hãy tận hưởng chút thời gian thư giãn bên gia đình."
+			"bench":
+				return "Bạn ngồi nghỉ bên hồ Gươm, ngắm cảnh và tận hưởng không khí quanh hồ."
 			"kitchen":
 				return "Đây là khu bếp của gia đình. Bạn có thể ghé bàn ăn để dùng bữa."
 		return "Bạn quan sát %s." % display_name
@@ -401,6 +403,7 @@ func _build_ho_guom_landmark() -> void:
 		bench_collision.position = Vector3(0, 0.58, 0)
 		bench.add_child(bench_collision)
 		add_child(bench)
+		_add_home_interactable("Ghế nghỉ ven hồ %d" % (i + 1), "bench", Vector3(15 + i * 8.0, 0, 12.0))
 
 	var landmark_label := Label3D.new()
 	landmark_label.text = "HỒ GƯƠM • THÁP RÙA"
