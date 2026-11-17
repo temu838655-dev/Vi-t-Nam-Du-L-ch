@@ -9,7 +9,8 @@ Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
 - Main menu: start a new journey or continue the last saved session.
 - New game begins outside the player's family home.
 - Continue restores the last saved player position and facing direction.
-- Mobile third-person controls: left-side touch movement, right-side camera drag, jump and interaction buttons.
+- Mobile third-person controls: visible left-side touch joystick, right-side camera drag, jump and interaction buttons. The joystick relocates to the initial touch point on the left side.
+- Motorbike prototype: approach the parked motorbike, tap TƯƠNG TÁC to mount, steer and accelerate with the left joystick, then tap XUỐNG XE to dismount. The rider camera pulls back while driving.
 - Family prototype: talk to mother and father; family affection is tracked.
 - Career prototype: interact with the job board to choose one of four careers, then complete one paid shift per real-world date.
 - Wallet and career status are displayed in the mobile HUD.
@@ -17,7 +18,7 @@ Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
 
 ## Prototype limitations
 
-The house, street, NPCs and player are greybox/procedural placeholders. They are not final photorealistic Vietnam assets, finished character models, or motion-captured animations. Traffic, drivable vehicles, detailed interiors, regional maps, quests, cloud accounts and production-quality art are not implemented yet.
+The house, street, NPCs and player are greybox/procedural placeholders. They are not final photorealistic Vietnam assets, finished character models, or motion-captured animations. The motorbike is a procedural gameplay prototype, not a realistic vehicle model. Traffic, additional drivable vehicles, detailed interiors, regional maps, quests, cloud accounts and production-quality art are not implemented yet.
 
 ## Android build
 
