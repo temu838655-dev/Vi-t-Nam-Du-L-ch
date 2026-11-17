@@ -225,6 +225,23 @@ func exit_vehicle() -> String:
 func is_riding_vehicle() -> bool:
 	return is_instance_valid(current_vehicle)
 
+func get_nearby_interactable_name() -> String:
+	var closest: Node3D
+	var closest_distance := 3.8
+	for candidate in get_tree().get_nodes_in_group("interactable"):
+		if not candidate is Node3D:
+			continue
+		var distance := global_position.distance_to(candidate.global_position)
+		if distance < closest_distance:
+			closest = candidate
+			closest_distance = distance
+	if not is_instance_valid(closest):
+		return ""
+	var label := str(closest.get("display_name"))
+	if label.is_empty() or label == "<null>":
+		label = str(closest.name)
+	return label
+
 func interact_nearby() -> void:
 	var closest: Node3D
 	var closest_distance := 3.8
