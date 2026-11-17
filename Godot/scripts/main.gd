@@ -61,25 +61,72 @@ func _show_main_menu() -> void:
 	subtitle.add_theme_font_size_override("font_size", 18)
 	panel.add_child(subtitle)
 
+	var google_button := Button.new()
+	google_button.text = "ĐĂNG NHẬP BẰNG GOOGLE"
+	google_button.custom_minimum_size = Vector2(480, 64)
+	google_button.pressed.connect(_show_google_sign_in_notice)
+	panel.add_child(google_button)
+
+	var guest_button := Button.new()
+	guest_button.text = "CHƠI VỚI TƯ CÁCH KHÁCH"
+	guest_button.custom_minimum_size = Vector2(480, 64)
+	guest_button.pressed.connect(_show_guest_menu)
+	panel.add_child(guest_button)
+
+	var note := Label.new()
+	note.text = "Đăng nhập khách lưu tiến trình trên thiết bị. Google Sign-In cần cấu hình OAuth và dịch vụ xác thực trước khi kích hoạt."
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 14)
+	panel.add_child(note)
+
+func _show_google_sign_in_notice() -> void:
+	var dialog := AcceptDialog.new()
+	dialog.title = "Đăng nhập Google"
+	dialog.dialog_text = "Giao diện đăng nhập Google đã được bố trí, nhưng xác thực Google chưa thể hoạt động cho đến khi dự án được cấu hình OAuth Client ID, Android package fingerprint và dịch vụ lưu tài khoản. Bạn có thể chơi khách ngay bây giờ; dữ liệu sẽ lưu trên thiết bị."
+	add_child(dialog)
+	dialog.confirmed.connect(dialog.queue_free)
+	dialog.popup_centered(Vector2i(560, 260))
+
+func _show_guest_menu() -> void:
+	if is_instance_valid(menu_layer):
+		menu_layer.queue_free()
+	menu_layer = CanvasLayer.new()
+	menu_layer.name = "GuestMenu"
+	add_child(menu_layer)
+	var root := Control.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	menu_layer.add_child(root)
+	var shade := ColorRect.new()
+	shade.color = Color(0.025, 0.045, 0.07, 0.96)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_child(shade)
+	var panel := VBoxContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.position = Vector2(-250, -150)
+	panel.size = Vector2(500, 300)
+	panel.add_theme_constant_override("separation", 16)
+	root.add_child(panel)
+	var heading := Label.new()
+	heading.text = "CHẾ ĐỘ KHÁCH"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 30)
+	panel.add_child(heading)
 	var start_button := Button.new()
 	start_button.text = "BẮT ĐẦU HÀNH TRÌNH MỚI"
 	start_button.custom_minimum_size = Vector2(480, 64)
 	start_button.pressed.connect(_start_new_game)
 	panel.add_child(start_button)
-
 	var continue_button := Button.new()
 	continue_button.text = "TIẾP TỤC HÀNH TRÌNH"
 	continue_button.custom_minimum_size = Vector2(480, 64)
 	continue_button.disabled = not GameState.has_save
 	continue_button.pressed.connect(_continue_game)
 	panel.add_child(continue_button)
-
-	var note := Label.new()
-	note.text = "Bản thử nghiệm phát triển • Tiến trình được lưu trên thiết bị"
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.add_theme_font_size_override("font_size", 14)
-	panel.add_child(note)
+	var back_button := Button.new()
+	back_button.text = "QUAY LẠI"
+	back_button.pressed.connect(_show_main_menu)
+	panel.add_child(back_button)
 
 func _start_new_game() -> void:
 	GameState.start_new_game()
