@@ -64,7 +64,10 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
 
     if (NearestVehicle)
     {
-        NearestVehicle->Refuel(FuelPerInteraction);
-        OnFuelDispensed(NearestVehicle, FuelPerInteraction);
+        const float FuelAdded = NearestVehicle->Refuel(FuelPerInteraction);
+        if (FuelAdded > 0.0f)
+        {
+            OnFuelDispensed(NearestVehicle, FuelAdded);
+        }
     }
 }
