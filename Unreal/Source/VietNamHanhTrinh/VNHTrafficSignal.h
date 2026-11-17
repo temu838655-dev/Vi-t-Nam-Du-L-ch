@@ -25,6 +25,7 @@ class VIETNAMHANHTRINH_API AVNHTrafficSignal : public AActor
 public:
     AVNHTrafficSignal();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="VNH|Traffic Signal")
     TObjectPtr<UBoxComponent> StopZone;
