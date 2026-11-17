@@ -14,6 +14,11 @@ var upper_body: MeshInstance3D
 var lower_body: MeshInstance3D
 var shoe_left: MeshInstance3D
 var shoe_right: MeshInstance3D
+var left_arm: MeshInstance3D
+var right_arm: MeshInstance3D
+var left_leg: MeshInstance3D
+var right_leg: MeshInstance3D
+var walk_phase := 0.0
 var fullbody_overlay: MeshInstance3D
 var helmet_node: MeshInstance3D
 var mobile_input := Vector2.ZERO
@@ -54,12 +59,14 @@ func _build_character_model() -> void:
 
 	upper_body = _add_capsule("UpperBody", 0.27, 0.86, Vector3(0, 1.13, 0), shirt)
 	lower_body = _add_capsule("LowerBody", 0.19, 0.76, Vector3(0, 0.49, 0), pants)
-	_add_capsule("LeftArm", 0.105, 0.78, Vector3(-0.36, 1.12, 0), shirt).rotation.z = deg_to_rad(-9)
-	_add_capsule("RightArm", 0.105, 0.78, Vector3(0.36, 1.12, 0), shirt).rotation.z = deg_to_rad(9)
+	left_arm = _add_capsule("LeftArm", 0.105, 0.78, Vector3(-0.36, 1.12, 0), shirt)
+	left_arm.rotation.z = deg_to_rad(-9)
+	right_arm = _add_capsule("RightArm", 0.105, 0.78, Vector3(0.36, 1.12, 0), shirt)
+	right_arm.rotation.z = deg_to_rad(9)
 	_add_capsule("LeftHand", 0.09, 0.2, Vector3(-0.39, 0.68, -0.01), skin)
 	_add_capsule("RightHand", 0.09, 0.2, Vector3(0.39, 0.68, -0.01), skin)
-	_add_capsule("LeftLeg", 0.13, 0.7, Vector3(-0.145, 0.36, 0.015), pants)
-	_add_capsule("RightLeg", 0.13, 0.7, Vector3(0.145, 0.36, 0.015), pants)
+	left_leg = _add_capsule("LeftLeg", 0.13, 0.7, Vector3(-0.145, 0.36, 0.015), pants)
+	right_leg = _add_capsule("RightLeg", 0.13, 0.7, Vector3(0.145, 0.36, 0.015), pants)
 	shoe_left = _add_box_part("LeftShoe", Vector3(-0.15, 0.09, -0.07), Vector3(0.25, 0.16, 0.42), shoes)
 	shoe_right = _add_box_part("RightShoe", Vector3(0.15, 0.09, -0.07), Vector3(0.25, 0.16, 0.42), shoes)
 
@@ -261,8 +268,33 @@ func _physics_process(delta: float) -> void:
 			velocity.y = 6.0
 
 	move_and_slide()
+	_animate_character(delta)
 	if look_delta.length() > 0.0:
 		rotate_y(-look_delta.x * 0.004)
 		camera_pivot.rotate_x(-look_delta.y * 0.004)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, deg_to_rad(-55), deg_to_rad(35))
 		look_delta = Vector2.ZERO
+
+
+func _animate_character(delta: float) -> void:
+	if not is_instance_valid(player_visual) or not player_visual.visible:
+		return
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var moving := horizontal_speed > 0.18 and not is_instance_valid(current_vehicle)
+	if moving:
+		walk_phase += delta * clampf(horizontal_speed * 2.6, 5.0, 13.0)
+		var swing := sin(walk_phase) * 0.48
+		left_leg.rotation.x = swing
+		right_leg.rotation.x = -swing
+		left_arm.rotation.x = -swing * 0.62
+		right_arm.rotation.x = swing * 0.62
+		player_visual.position.y = absf(sin(walk_phase * 2.0)) * 0.035
+		var local_direction := global_transform.basis.inverse() * Vector3(velocity.x, 0.0, velocity.z).normalized()
+		var target_yaw := atan2(-local_direction.x, -local_direction.z)
+		player_visual.rotation.y = lerp_angle(player_visual.rotation.y, target_yaw, minf(1.0, delta * 9.0))
+	else:
+		left_leg.rotation.x = move_toward(left_leg.rotation.x, 0.0, delta * 4.0)
+		right_leg.rotation.x = move_toward(right_leg.rotation.x, 0.0, delta * 4.0)
+		left_arm.rotation.x = move_toward(left_arm.rotation.x, 0.0, delta * 4.0)
+		right_arm.rotation.x = move_toward(right_arm.rotation.x, 0.0, delta * 4.0)
+		player_visual.position.y = move_toward(player_visual.position.y, 0.0, delta * 0.12)
