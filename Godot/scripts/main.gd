@@ -154,6 +154,7 @@ func _add_npc(display_name: String, role: String, at: Vector3, tint: Color) -> v
 	add_child(npc)
 
 func _build_prototype_world() -> void:
+	_add_traffic_system()
 	_add_box("Ground", Vector3(0, -0.25, 0), Vector3(100, 0.5, 100), Color(0.22, 0.42, 0.25))
 	# Starter family home and street are greybox placeholders, not final Vietnam assets.
 	_add_box("FamilyHome", Vector3(0, 1.5, -8), Vector3(9, 3, 7), Color(0.82, 0.72, 0.55))
