@@ -4,6 +4,13 @@ extends Node3D
 @export var role := "mother"
 @export var body_color := Color(0.72, 0.18, 0.22)
 
+const CAREER_BY_ROLE := {
+	"career_driver": "Tài xế công nghệ",
+	"career_tourism": "Nhân viên du lịch",
+	"career_chef": "Đầu bếp",
+	"career_photographer": "Nhiếp ảnh gia"
+}
+
 func _ready() -> void:
 	add_to_group("interactable")
 	var body_mesh := CapsuleMesh.new()
@@ -31,7 +38,7 @@ func _ready() -> void:
 	var label := Label3D.new()
 	label.text = display_name
 	label.position.y = 2.05
-	label.font_size = 32
+	label.font_size = 26
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(label)
 
@@ -42,8 +49,12 @@ func interact() -> String:
 		"father":
 			return GameState.talk_with_family("Bố")
 		"job_board":
-			if GameState.selected_career == "Chưa chọn nghề":
-				var career := GameState.choose_next_career()
-				return "Bạn đã chọn nghề: %s. Hãy quay lại bảng việc làm để nhận ca làm." % career
-			return GameState.complete_work_shift()
+			return "Hãy đến từng quầy tuyển dụng để chọn nghề bạn muốn làm."
+		_:
+			if CAREER_BY_ROLE.has(role):
+				var career: String = CAREER_BY_ROLE[role]
+				if GameState.selected_career != career:
+					GameState.selected_career = career
+					return "Bạn đã chọn nghề %s. Tương tác lần nữa tại quầy này để nhận ca làm." % career
+				return GameState.complete_work_shift()
 	return "Không có gì để tương tác."
