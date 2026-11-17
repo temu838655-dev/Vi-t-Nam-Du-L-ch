@@ -13,7 +13,11 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Save") UVNHSaveGame* LoadProgress();
     UFUNCTION(BlueprintPure, Category="VNH|Save") bool HasLocalSave() const;
     UFUNCTION(BlueprintCallable, Category="VNH|Save") bool DeleteLocalSave();
+    UFUNCTION(BlueprintPure, Category="VNH|Economy") int64 GetMoney();
+    UFUNCTION(BlueprintCallable, Category="VNH|Economy") bool TrySpendMoney(int64 Amount);
+    UFUNCTION(BlueprintCallable, Category="VNH|Economy") bool AddMoney(int64 Amount);
 private:
+    UVNHSaveGame* LoadOrCreateProgress();
     UPROPERTY() FString SaveSlotName = TEXT("VNH_PlayerProgress");
     UPROPERTY() int32 UserIndex = 0;
 };
