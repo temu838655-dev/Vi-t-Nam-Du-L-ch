@@ -33,7 +33,8 @@ func _on_jump_pressed() -> void:
     player.jump()
 
 func _on_bag_pressed() -> void:
-    status_label.text = "TÚI ĐỒ • Tính năng vật phẩm đang được phát triển."
+    var inventory: Dictionary = SaveManager.profile.get("inventory", {})
+    status_label.text = "TÚI ĐỒ  |  Nước suối: %d  |  Bản đồ: %d" % [int(inventory.get("nuoc_suoi", 0)), int(inventory.get("ban_do_du_lich", 0))]
 
 func _on_interact_pressed() -> void:
     if is_instance_valid(nearby_interactable):
