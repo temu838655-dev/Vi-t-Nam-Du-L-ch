@@ -65,6 +65,7 @@ func _update_schedule(delta: float) -> void:
 	else:
 		left_leg.rotation.x = 0.0
 		right_leg.rotation.x = 0.0
+	current_activity = state
 	status_label.text = "%s\n%s" % [resident_name, state]
 
 
