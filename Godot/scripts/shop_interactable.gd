@@ -16,26 +16,85 @@ func interact() -> String:
 	return "Cửa hàng đang chuẩn bị mở. Hãy thử lại sau."
 
 func _build_shopfront() -> void:
-	var wall := _add_box("ShopBody", Vector3(0, 1.25, 0), Vector3(5.0, 2.5, 3.2), Color(0.82, 0.76, 0.63))
-	_add_box("Counter", Vector3(0, 0.55, -1.85), Vector3(4.5, 1.1, 0.45), Color(0.34, 0.2, 0.12))
-	_add_box("Awning", Vector3(0, 2.45, -1.55), Vector3(5.3, 0.18, 1.2), sign_color)
-	_add_box("SignBoard", Vector3(0, 2.05, -1.72), Vector3(4.5, 0.72, 0.12), sign_color)
+	# Walk-in shop shell: an open entrance, side/back walls and a walkable floor.
+	_add_solid_box("Shop_Floor", Vector3(0, 0.04, 0), Vector3(5.0, 0.12, 3.2), Color(0.55, 0.51, 0.43))
+	_add_solid_box("Shop_LeftWall", Vector3(-2.45, 1.35, 0), Vector3(0.16, 2.7, 3.2), Color(0.82, 0.76, 0.63))
+	_add_solid_box("Shop_RightWall", Vector3(2.45, 1.35, 0), Vector3(0.16, 2.7, 3.2), Color(0.82, 0.76, 0.63))
+	_add_solid_box("Shop_BackWall", Vector3(0, 1.35, 1.52), Vector3(5.0, 2.7, 0.16), Color(0.82, 0.76, 0.63))
+	_add_solid_box("Shop_Roof", Vector3(0, 2.78, 0), Vector3(5.0, 0.16, 3.2), sign_color.darkened(0.32))
+	# Front facade is split into two side pillars, leaving a central walk-in doorway.
+	_add_solid_box("Shop_FrontLeft", Vector3(-2.0, 1.25, -1.52), Vector3(0.9, 2.5, 0.16), Color(0.82, 0.76, 0.63))
+	_add_solid_box("Shop_FrontRight", Vector3(2.0, 1.25, -1.52), Vector3(0.9, 2.5, 0.16), Color(0.82, 0.76, 0.63))
+	_add_solid_box("Shop_FrontLintel", Vector3(0, 2.48, -1.52), Vector3(3.2, 0.24, 0.16), Color(0.82, 0.76, 0.63))
+	_add_visual_box("Awning", Vector3(0, 2.65, -1.9), Vector3(5.3, 0.18, 0.85), sign_color)
+	_add_visual_box("SignBoard", Vector3(0, 2.12, -1.64), Vector3(4.5, 0.62, 0.12), sign_color)
 	var sign := Label3D.new()
 	sign.text = shop_name.to_upper()
-	sign.position = Vector3(0, 2.05, -1.82)
-	sign.font_size = 28
+	sign.position = Vector3(0, 2.1, -1.72)
+	sign.font_size = 25
 	sign.modulate = Color.WHITE
 	sign.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	add_child(sign)
-	# Small display props make each shop recognizable even before final art arrives.
-	if shop_type == "vehicle":
-		_add_box("DisplayPlatform", Vector3(0, 0.12, 2.2), Vector3(4.0, 0.24, 2.0), Color(0.24, 0.25, 0.27))
-	elif shop_type == "clothing":
-		_add_box("ClothingRack", Vector3(0, 1.25, 2.0), Vector3(3.2, 1.6, 0.12), Color(0.2, 0.22, 0.25))
-	else:
-		_add_box("FoodDisplay", Vector3(0, 0.9, 2.0), Vector3(3.2, 0.8, 1.0), Color(0.58, 0.32, 0.12))
+	_add_visual_box("Counter", Vector3(0, 0.58, -0.42), Vector3(3.5, 1.05, 0.52), Color(0.34, 0.2, 0.12))
+	_add_visual_box("CounterTop", Vector3(0, 1.13, -0.42), Vector3(3.7, 0.12, 0.62), Color(0.55, 0.39, 0.24))
+	_add_visual_box("CashRegister", Vector3(1.15, 1.28, -0.42), Vector3(0.42, 0.22, 0.32), Color(0.08, 0.10, 0.12))
+	_build_shop_displays()
 
-func _add_box(object_name: String, at: Vector3, dimensions: Vector3, color: Color) -> MeshInstance3D:
+func _build_shop_displays() -> void:
+	match shop_type:
+		"vehicle":
+			_add_visual_box("VehicleDisplayPlatform", Vector3(0, 0.18, 0.95), Vector3(3.8, 0.24, 1.0), Color(0.24, 0.25, 0.27))
+			_add_visual_box("VehicleBackShelf", Vector3(0, 1.65, 1.32), Vector3(4.0, 1.25, 0.12), Color(0.24, 0.27, 0.31))
+			for index in range(4):
+				var x := -1.35 + float(index) * 0.9
+				_add_visual_box("VehicleStand_%02d" % index, Vector3(x, 0.45, 0.72), Vector3(0.52, 0.28, 0.62), Color(0.58, 0.56, 0.5))
+				_add_visual_box("VehicleSample_%02d" % index, Vector3(x, 0.85, 0.72), Vector3(0.42, 0.5, 0.18), [Color(0.78,0.08,0.06),Color(0.08,0.16,0.28),Color(0.72,0.72,0.68),Color(0.12,0.38,0.22)][index])
+		"clothing":
+			for rack_index in range(2):
+				var z := 0.35 + float(rack_index) * 0.85
+				_add_visual_box("ClothingRack_%02d" % rack_index, Vector3(-1.25, 1.35, z), Vector3(0.12, 1.7, 0.12), Color(0.18, 0.2, 0.23))
+				_add_visual_box("ClothingRail_%02d" % rack_index, Vector3(-1.25, 2.12, z), Vector3(1.35, 0.08, 0.08), Color(0.65, 0.64, 0.6))
+				for hanger in range(4):
+					_add_visual_box("ClothingItem_%02d_%02d" % [rack_index, hanger], Vector3(-1.72 + float(hanger) * 0.31, 1.55, z), Vector3(0.25, 0.75, 0.10), [Color(0.72,0.12,0.18),Color(0.12,0.32,0.68),Color(0.16,0.42,0.3),Color(0.82,0.72,0.52)][hanger])
+			_add_visual_box("ClothingMirrorFrame", Vector3(1.45, 1.25, 0.75), Vector3(0.12, 1.9, 0.8), Color(0.18, 0.2, 0.22))
+			_add_visual_box("ClothingMirror", Vector3(1.38, 1.25, 0.75), Vector3(0.035, 1.65, 0.58), Color(0.42, 0.62, 0.68))
+		_:
+			_add_visual_box("FoodDisplay", Vector3(0, 0.95, 0.9), Vector3(3.8, 0.8, 0.72), Color(0.58, 0.32, 0.12))
+			_add_visual_box("FoodShelf_Back", Vector3(0, 1.85, 1.35), Vector3(4.0, 0.12, 0.18), Color(0.34, 0.22, 0.12))
+			for index in range(5):
+				var x := -1.55 + float(index) * 0.77
+				_add_visual_box("FoodPackage_%02d" % index, Vector3(x, 1.42, 0.82), Vector3(0.42, 0.52, 0.38), [Color(0.72,0.18,0.12),Color(0.82,0.62,0.18),Color(0.18,0.42,0.24),Color(0.78,0.72,0.58),Color(0.16,0.32,0.58)][index])
+			_add_visual_box("DiningTable", Vector3(1.45, 0.72, 1.0), Vector3(1.1, 0.12, 0.72), Color(0.42, 0.25, 0.13))
+	# A small staff marker identifies the service position; final animated staff model comes later.
+	var staff_label := Label3D.new()
+	staff_label.text = "NHÂN VIÊN"
+	staff_label.position = Vector3(0, 1.75, -0.95)
+	staff_label.font_size = 18
+	staff_label.modulate = Color(1.0, 0.9, 0.72)
+	staff_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	add_child(staff_label)
+
+func _add_solid_box(object_name: String, at: Vector3, dimensions: Vector3, color: Color) -> void:
+	var body := StaticBody3D.new()
+	body.name = object_name
+	body.position = at
+	var mesh_instance := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = dimensions
+	mesh_instance.mesh = box
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.86
+	mesh_instance.material_override = material
+	body.add_child(mesh_instance)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = dimensions
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
+
+func _add_visual_box(object_name: String, at: Vector3, dimensions: Vector3, color: Color) -> void:
 	var mesh_instance := MeshInstance3D.new()
 	mesh_instance.name = object_name
 	var box := BoxMesh.new()
@@ -47,4 +106,3 @@ func _add_box(object_name: String, at: Vector3, dimensions: Vector3, color: Colo
 	mesh_instance.material_override = material
 	mesh_instance.position = at
 	add_child(mesh_instance)
-	return mesh_instance
