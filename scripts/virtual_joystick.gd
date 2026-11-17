@@ -24,12 +24,12 @@ func _gui_input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
         if event.pressed and active_touch == -1:
             active_touch = event.index
-            _update_knob(event.position)
+            _update_knob(make_canvas_position_local(event.position))
         elif not event.pressed and event.index == active_touch:
             active_touch = -1
             _reset_joystick()
     elif event is InputEventScreenDrag and event.index == active_touch:
-        _update_knob(event.position)
+        _update_knob(make_canvas_position_local(event.position))
     elif event is InputEventMouseButton:
         if event.pressed:
             _update_knob(event.position)
