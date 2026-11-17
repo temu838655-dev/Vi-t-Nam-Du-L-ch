@@ -38,6 +38,7 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
     {
         SeatMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorbikeSeat"));
         SeatMesh->SetupAttachment(VehicleBody);
+        SeatMesh->SetAbsolute(false, false, true);
         SeatMesh->SetStaticMesh(CubeMesh.Object);
         SeatMesh->SetRelativeLocation(FVector(-5.0f, 0.0f, 58.0f));
         SeatMesh->SetRelativeScale3D(FVector(0.48f, 0.27f, 0.10f));
@@ -45,6 +46,7 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
 
         FuelTankMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorbikeFuelTank"));
         FuelTankMesh->SetupAttachment(VehicleBody);
+        FuelTankMesh->SetAbsolute(false, false, true);
         FuelTankMesh->SetStaticMesh(CubeMesh.Object);
         FuelTankMesh->SetRelativeLocation(FVector(34.0f, 0.0f, 54.0f));
         FuelTankMesh->SetRelativeScale3D(FVector(0.34f, 0.25f, 0.20f));
@@ -52,6 +54,7 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
 
         HandlebarMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorbikeHandlebar"));
         HandlebarMesh->SetupAttachment(VehicleBody);
+        HandlebarMesh->SetAbsolute(false, false, true);
         HandlebarMesh->SetStaticMesh(CubeMesh.Object);
         HandlebarMesh->SetRelativeLocation(FVector(78.0f, 0.0f, 60.0f));
         HandlebarMesh->SetRelativeScale3D(FVector(0.10f, 0.48f, 0.06f));
@@ -62,6 +65,7 @@ AVNHMotorbikePawn::AVNHMotorbikePawn()
     {
         FrontForkMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorbikeFrontFork"));
         FrontForkMesh->SetupAttachment(VehicleBody);
+        FrontForkMesh->SetAbsolute(false, false, true);
         FrontForkMesh->SetStaticMesh(CylinderMesh.Object);
         FrontForkMesh->SetRelativeLocation(FVector(80.0f, 0.0f, 5.0f));
         FrontForkMesh->SetRelativeRotation(FRotator(0.0f, 0.0f, 12.0f));
