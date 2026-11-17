@@ -238,6 +238,7 @@ func _build_prototype_world() -> void:
 	_build_street_details()
 	for i in range(5):
 		_add_box("StreetBuilding_%02d" % i, Vector3(-13 + i * 6.5, 2, -2 - (i % 2) * 10), Vector3(4, 4, 5), Color(0.72, 0.62, 0.48))
+	_build_vietnamese_facades()
 	var label := Label3D.new()
 	label.text = "NHÀ GIA ĐÌNH"
 	label.position = Vector3(0, 5.2, -8)
@@ -500,3 +501,67 @@ func _build_street_details() -> void:
 		var z: float = -25.0 + float(index) * 1.95
 		for side in [-1.0, 1.0]:
 			_add_landmark_box("Curb_%s_%02d" % [str(side), index], Vector3(side * 3.58, 0.13, z), Vector3(0.16, 0.20, 1.72), Color(0.68, 0.66, 0.59))
+
+
+
+func _build_vietnamese_facades() -> void:
+	# Family home: painted plaster, dark timber door, barred windows and a tiled-looking roof.
+	_add_facade_box("FamilyHome_FrontDoor", Vector3(0, 1.05, -4.43), Vector3(1.15, 2.1, 0.10), Color(0.28, 0.16, 0.10))
+	_add_facade_box("FamilyHome_DoorPanel", Vector3(0, 1.05, -4.36), Vector3(0.82, 1.72, 0.035), Color(0.40, 0.24, 0.14))
+	for side in [-1.0, 1.0]:
+		_add_facade_box("FamilyHome_Window_%s" % str(side), Vector3(side * 2.65, 2.05, -4.43), Vector3(1.25, 1.05, 0.10), Color(0.10, 0.24, 0.29))
+		_add_facade_box("FamilyHome_WindowBar_%s" % str(side), Vector3(side * 2.65, 2.05, -4.34), Vector3(1.30, 0.07, 0.06), Color(0.18, 0.18, 0.16))
+		_add_facade_box("FamilyHome_WindowSill_%s" % str(side), Vector3(side * 2.65, 1.48, -4.35), Vector3(1.45, 0.12, 0.22), Color(0.72, 0.65, 0.52))
+	_add_facade_box("FamilyHome_Awning", Vector3(0, 3.25, -4.65), Vector3(4.8, 0.16, 0.72), Color(0.52, 0.20, 0.14))
+	_add_facade_box("FamilyHome_RoofFront", Vector3(0, 4.05, -5.25), Vector3(10.2, 0.18, 2.0), Color(0.42, 0.13, 0.10), -12.0)
+	_add_facade_box("FamilyHome_RoofBack", Vector3(0, 4.05, -10.75), Vector3(10.2, 0.18, 2.0), Color(0.42, 0.13, 0.10), 12.0)
+
+	var shop_names := ["TẠP HÓA MINH AN", "CÀ PHÊ PHỐ", "SỬA XE MÁY", "NHÀ PHỐ", "BÚN PHỞ VIỆT"]
+	var sign_colors := [
+		Color(0.12, 0.34, 0.22),
+		Color(0.35, 0.16, 0.10),
+		Color(0.12, 0.25, 0.48),
+		Color(0.52, 0.28, 0.12),
+		Color(0.62, 0.12, 0.08)
+	]
+	for i in range(5):
+		var center_x: float = -13.0 + float(i) * 6.5
+		var center_z: float = -2.0 - float(i % 2) * 10.0
+		var front_z: float = center_z + 2.57
+		# Ground-floor roller shutter and upper-floor windows.
+		_add_facade_box("StreetBuilding_Door_%02d" % i, Vector3(center_x, 1.05, front_z), Vector3(1.55, 2.05, 0.10), Color(0.24, 0.25, 0.25))
+		_add_facade_box("StreetBuilding_Shutter_%02d" % i, Vector3(center_x, 1.05, front_z + 0.07), Vector3(1.34, 1.82, 0.035), Color(0.48, 0.50, 0.49))
+		for side in [-1.0, 1.0]:
+			_add_facade_box("StreetBuilding_Window_%02d_%s" % [i, str(side)], Vector3(center_x + side * 1.25, 2.75, front_z), Vector3(0.92, 1.10, 0.10), Color(0.10, 0.27, 0.34))
+			_add_facade_box("StreetBuilding_WindowFrame_%02d_%s" % [i, str(side)], Vector3(center_x + side * 1.25, 2.75, front_z + 0.07), Vector3(1.02, 0.08, 0.05), Color(0.88, 0.82, 0.68))
+		_add_facade_box("StreetBuilding_Signboard_%02d" % i, Vector3(center_x, 3.72, front_z + 0.12), Vector3(3.55, 0.48, 0.16), sign_colors[i])
+		_add_facade_box("StreetBuilding_Awning_%02d" % i, Vector3(center_x, 2.12, front_z + 0.42), Vector3(3.9, 0.14, 0.95), sign_colors[i])
+		_add_facade_box("StreetBuilding_BalconySlab_%02d" % i, Vector3(center_x, 3.45, front_z + 0.52), Vector3(3.65, 0.12, 0.72), Color(0.66, 0.62, 0.53))
+		_add_facade_box("StreetBuilding_BalconyRail_%02d" % i, Vector3(center_x, 3.82, front_z + 0.82), Vector3(3.55, 0.58, 0.07), Color(0.22, 0.23, 0.22))
+		for rail_post in range(7):
+			var rail_x: float = center_x - 1.55 + float(rail_post) * 0.52
+			_add_facade_box("StreetBuilding_BalconyPost_%02d_%02d" % [i, rail_post], Vector3(rail_x, 3.82, front_z + 0.82), Vector3(0.055, 0.58, 0.08), Color(0.22, 0.23, 0.22))
+		var sign := Label3D.new()
+		sign.name = "StreetBuilding_SignText_%02d" % i
+		sign.text = shop_names[i]
+		sign.position = Vector3(center_x, 3.70, front_z + 0.23)
+		sign.font_size = 22
+		sign.modulate = Color(1.0, 0.94, 0.78)
+		sign.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+		add_child(sign)
+
+
+func _add_facade_box(object_name: String, at: Vector3, dimensions: Vector3, tint: Color, tilt_degrees: float = 0.0) -> void:
+	# Lightweight visual trim only: the original building collision remains authoritative.
+	var node := MeshInstance3D.new()
+	node.name = object_name
+	var mesh := BoxMesh.new()
+	mesh.size = dimensions
+	node.mesh = mesh
+	node.position = at
+	node.rotation_degrees.x = tilt_degrees
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.78
+	node.material_override = material
+	add_child(node)
