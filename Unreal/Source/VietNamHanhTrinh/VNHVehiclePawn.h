@@ -57,6 +57,9 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<ACharacter> PreviousCharacter;
 
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UStaticMeshComponent>> WheelMeshes;
+
     float CurrentSpeed = 0.0f;
     float ThrottleInput = 0.0f;
     float SteeringInput = 0.0f;
