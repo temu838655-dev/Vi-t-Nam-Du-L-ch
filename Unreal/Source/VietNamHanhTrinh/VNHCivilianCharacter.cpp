@@ -14,3 +14,11 @@ AVNHCivilianCharacter::AVNHCivilianCharacter()
 
     CivilianDisplayName = FText::FromString(TEXT("Người dân"));
 }
+
+void AVNHCivilianCharacter::Interact_Implementation(AActor* InteractingActor)
+{
+    if (bCanBeTalkedTo)
+    {
+        OnCivilianInteracted(InteractingActor);
+    }
+}
