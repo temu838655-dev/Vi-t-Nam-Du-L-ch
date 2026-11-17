@@ -2,6 +2,11 @@
 
 Game mô phỏng cuộc sống và du lịch Việt Nam trên Android. Đây là **prototype kỹ thuật 0.1.0**, chưa phải game hoàn chỉnh và chưa chứa dữ liệu địa phương hoặc asset ảnh thực tế.
 
+## Khởi động và lưu tiến trình
+- Game mở vào màn hình BẮT ĐẦU; nếu đã có dữ liệu trên máy sẽ hiện TIẾP TỤC và CHƠI MỚI.
+- Tiến trình khách được lưu cục bộ trên thiết bị và khôi phục khi mở lại.
+- Nút Google hiện là điểm tích hợp giao diện, chưa đăng nhập thật. Cần OAuth Android và dịch vụ cloud save trước khi bật đồng bộ tài khoản.
+
 ## Công nghệ
 - Godot 4.4.1, GDScript, renderer Compatibility ưu tiên tương thích Android.
 - Điều khiển nhân vật, joystick cảm ứng, camera xoay.
