@@ -25,7 +25,18 @@ struct FVNHSavedAppearance
     UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) float HeightCm = 170.0f;
 };
 
-// Persistent family state. Dialogue, schedules and animation are driven by gameplay systems.
+// A local-time activity interval. Minutes are measured from midnight; end is exclusive.
+USTRUCT(BlueprintType)
+struct FVNHDailyRoutineEntry
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) int32 StartMinute = 0;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) int32 EndMinute = 60;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) FName ActivityId = NAME_None;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) FName LocationId = NAME_None;
+};
+
+// Persistent family state. Dialogue and animation are driven by gameplay systems.
 USTRUCT(BlueprintType)
 struct FVNHFamilyMemberSave
 {
@@ -37,6 +48,7 @@ struct FVNHFamilyMemberSave
     UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) int32 Relationship = 50;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) FName DailyRoutineId = NAME_None;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) FName AppearancePresetId = NAME_None;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, SaveGame) TArray<FVNHDailyRoutineEntry> DailyRoutine;
 };
 
 UCLASS(BlueprintType)
@@ -44,7 +56,7 @@ class VIETNAMHANHTRINH_API UVNHSaveGame : public USaveGame
 {
     GENERATED_BODY()
 public:
-    static constexpr int32 CurrentSchemaVersion = 3;
+    static constexpr int32 CurrentSchemaVersion = 4;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Save") int32 SchemaVersion = CurrentSchemaVersion;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Player") FString PlayerId;
