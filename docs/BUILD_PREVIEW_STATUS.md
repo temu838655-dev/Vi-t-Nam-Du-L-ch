@@ -16,6 +16,9 @@ Dự án chỉ sử dụng Unreal Engine 5.8. Project chính: Unreal/VietNamHanh
 - Chưa có APK Android hoặc IPA iOS được build từ UE5 và kiểm thử trên thiết bị.
 - Chưa hoàn thiện asset 3D, animation, đăng nhập Google/Apple và cloud save.
 
+- GameMode đã có bộ điều khiển đồng hồ prototype: khi đã có save, cứ 5 giây thực tế tăng 5 phút trong game; thông số có thể chỉnh trong class defaults. Đây là bước thử lịch game, chưa phải chu kỳ ngày/đêm hay lịch NPC tự động.
+- Có hướng dẫn và checklist nghiệm thu vertical slice tại [UE5_VERTICAL_SLICE_PLAYTEST.md](UE5_VERTICAL_SLICE_PLAYTEST.md).
+
 ## Điều kiện để tạo bản thử UE5
 1. Máy build phải cài đúng Unreal Engine 5.8 và toolchain C++ tương ứng.
 2. Cấu hình Android SDK/NDK/JDK theo yêu cầu của phiên bản Unreal, bật Android platform support.
