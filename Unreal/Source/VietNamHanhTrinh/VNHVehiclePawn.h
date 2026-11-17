@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UStaticMeshComponent;
 class ACharacter;
 class AController;
+class AVNHTrafficRoute;
 
 UCLASS(Blueprintable)
 class VIETNAMHANHTRINH_API AVNHVehiclePawn : public APawn, public IVNHInteractable
@@ -30,6 +31,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle")
     void ExitVehicle();
+
+    UFUNCTION(BlueprintPure, Category="VNH|Traffic")
+    AVNHTrafficRoute* GetTrafficRoute() const { return TrafficRoute; }
+
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="VNH|Traffic")
+    TObjectPtr<AVNHTrafficRoute> TrafficRoute;
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Vehicle")
