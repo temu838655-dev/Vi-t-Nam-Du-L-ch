@@ -81,12 +81,12 @@ func _ready() -> void:
 	top_actions.position = Vector2(-350, 18)
 	top_actions.add_theme_constant_override("separation", 8)
 	ui_root.add_child(top_actions)
-	for action in ["🎁\\nQuà", "🏆\\nThành tựu", "⚙\\nCài đặt"]:
+	for action in ["🎁\nQuà", "🏆\nThành tựu", "⚙\nCài đặt"]:
 		var action_button := Button.new()
 		action_button.text = action
 		action_button.custom_minimum_size = Vector2(100, 58)
 		action_button.add_theme_font_size_override("font_size", 14)
-		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\\n", " ")))
+		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
 	# Location card / minimap placeholder. Replace with a real map texture when map tiles are integrated.
@@ -120,7 +120,7 @@ func _ready() -> void:
 
 	# Bottom-right action cluster.
 	var jump_button := Button.new()
-	jump_button.text = "🏃\\nNHẢY"
+	jump_button.text = "🏃\nNHẢY"
 	jump_button.size = Vector2(104, 78)
 	jump_button.position = Vector2(-128, -196)
 	jump_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -129,7 +129,7 @@ func _ready() -> void:
 	ui_root.add_child(jump_button)
 
 	interact_button = Button.new()
-	interact_button.text = "💬\\nTƯƠNG TÁC"
+	interact_button.text = "💬\nTƯƠNG TÁC"
 	interact_button.size = Vector2(132, 78)
 	interact_button.position = Vector2(-278, -112)
 	interact_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -138,7 +138,7 @@ func _ready() -> void:
 	ui_root.add_child(interact_button)
 
 	var inventory_button := Button.new()
-	inventory_button.text = "🎒\\nTÚI ĐỒ"
+	inventory_button.text = "🎒\nTÚI ĐỒ"
 	inventory_button.size = Vector2(112, 78)
 	inventory_button.position = Vector2(-132, -104)
 	inventory_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
