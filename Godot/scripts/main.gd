@@ -17,6 +17,10 @@ class HomeInteractable:
 		add_to_group("interactable")
 
 	func interact() -> String:
+		var player_node := get_tree().get_first_node_in_group("player")
+		if is_instance_valid(player_node) and player_node.has_method("begin_home_action"):
+			if action == "sofa" or action == "meal":
+				player_node.call("begin_home_action", action)
 		match action:
 			"meal":
 				GameState.satiety = mini(100, GameState.satiety + 25)
