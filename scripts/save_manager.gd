@@ -1,6 +1,7 @@
 extends Node
 
 const SAVE_PATH := "user://player_progress.cfg"
+const SAVE_VERSION := 2
 
 var profile: Dictionary = {
     "level": 1,
@@ -8,7 +9,9 @@ var profile: Dictionary = {
     "gems": 100,
     "location": "Hà Nội",
     "last_scene": "res://scenes/main.tscn",
-    "google_linked": false
+    "google_linked": false,
+    "inventory": {"nuoc_suoi": 1, "ban_do_du_lich": 1},
+    "save_version": SAVE_VERSION
 }
 
 func has_save() -> bool:
@@ -24,6 +27,7 @@ func load_progress() -> Dictionary:
     return profile.duplicate(true)
 
 func save_progress() -> void:
+    profile["save_version"] = SAVE_VERSION
     var config := ConfigFile.new()
     for key in profile.keys():
         config.set_value("player", key, profile[key])
