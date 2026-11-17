@@ -29,7 +29,7 @@ AVNHHanoiPrototypeArea::AVNHHanoiPrototypeArea()
     AddMesh(TEXT("PrototypeGround"), CubeMesh.Object, FVector(0, 0, -25), FVector(400, 320, 0.5f), true);
 
     // Lake footprint: approximately 160 m x 100 m. Water is only a visual placeholder.
-    AddMesh(TEXT("HoanKiemLake_Blockout"), CylinderMesh.Object, FVector(0, 0, -8), FVector(80, 50, 0.035f), false);
+    AddMesh(TEXT("HoanKiemLake_Blockout"), CylinderMesh.Object, FVector(0, 0, -8), FVector(160, 100, 0.035f), false);
 
     // Invisible collision boundaries keep the player out of the placeholder lake.
     auto AddLakeBoundary = [this](const TCHAR* Name, const FVector& Location, const FVector& Extent)
