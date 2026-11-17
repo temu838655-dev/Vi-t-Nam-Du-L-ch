@@ -7,6 +7,8 @@ var joystick_origin := Vector2.ZERO
 var joystick_touch := -1
 var look_touch := -1
 var move_vector := Vector2.ZERO
+var joystick_base: Panel
+var joystick_knob: Panel
 
 func _ready() -> void:
 	player = get_parent().get_node_or_null("Player")
@@ -32,13 +34,31 @@ func _ready() -> void:
 	help.add_theme_font_size_override("font_size", 15)
 	root.add_child(help)
 
-	var pad := ColorRect.new()
-	pad.color = Color(0.05, 0.08, 0.12, 0.28)
-	pad.position = Vector2(35, -190)
-	pad.size = Vector2(170, 150)
-	pad.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(pad)
+	# A visible, movable virtual joystick follows the first touch on the left side.
+	joystick_base = Panel.new()
+	joystick_base.name = "JoystickBase"
+	joystick_base.size = Vector2(160, 160)
+	joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var base_style := StyleBoxFlat.new()
+	base_style.bg_color = Color(0.05, 0.08, 0.12, 0.34)
+	base_style.border_color = Color(0.82, 0.9, 1.0, 0.48)
+	base_style.set_border_width_all(2)
+	base_style.set_corner_radius_all(80)
+	joystick_base.add_theme_stylebox_override("panel", base_style)
+	root.add_child(joystick_base)
+
+	joystick_knob = Panel.new()
+	joystick_knob.name = "JoystickKnob"
+	joystick_knob.size = Vector2(66, 66)
+	joystick_knob.position = Vector2(47, 47)
+	joystick_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var knob_style := StyleBoxFlat.new()
+	knob_style.bg_color = Color(0.72, 0.84, 1.0, 0.78)
+	knob_style.border_color = Color(1.0, 1.0, 1.0, 0.85)
+	knob_style.set_border_width_all(2)
+	knob_style.set_corner_radius_all(33)
+	joystick_knob.add_theme_stylebox_override("panel", knob_style)
+	joystick_base.add_child(joystick_knob)
 
 	var jump_button := Button.new()
 	jump_button.text = "NHẢY"
@@ -79,9 +99,10 @@ func _process(_delta: float) -> void:
 
 func _update_status() -> void:
 	if status_label:
-		status_label.text = "Ví: %s VNĐ   |   Nghề: %s   |   Gia đình: %d/100" % [
+		status_label.text = "Ví: %s VNĐ   |   Nghề: %s   |   Ca làm: %d   |   Gia đình: %d/100" % [
 			_format_money(GameState.wallet_vnd),
 			GameState.selected_career,
+			GameState.completed_work_shifts,
 			GameState.family_affection
 		]
 
@@ -113,7 +134,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed:
 			if event.position.x < get_viewport().get_visible_rect().size.x * 0.45 and joystick_touch == -1:
 				joystick_touch = event.index
+				var viewport_size := get_viewport().get_visible_rect().size
+				var base_position := event.position - joystick_base.size * 0.5
+				base_position.x = clampf(base_position.x, 8.0, viewport_size.x - joystick_base.size.x - 8.0)
+				base_position.y = clampf(base_position.y, 8.0, viewport_size.y - joystick_base.size.y - 8.0)
+				joystick_base.position = base_position
 				joystick_origin = event.position
+				joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
 			elif look_touch == -1:
 				look_touch = event.index
 		else:
@@ -121,11 +148,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				joystick_touch = -1
 				if player:
 					player.set_mobile_move(Vector2.ZERO)
+				move_vector = Vector2.ZERO
+				if is_instance_valid(joystick_knob):
+					joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
 			if event.index == look_touch:
 				look_touch = -1
 	elif event is InputEventScreenDrag:
 		if event.index == joystick_touch:
-			move_vector = (event.position - joystick_origin).limit_length(90.0) / 90.0
+			move_vector = (event.position - joystick_origin).limit_length(58.0) / 58.0
+			joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5 + move_vector * 46.0
 			if player:
 				player.set_mobile_move(move_vector)
 		elif event.index == look_touch:
