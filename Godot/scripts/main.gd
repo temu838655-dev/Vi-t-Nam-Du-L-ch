@@ -3,6 +3,7 @@ extends Node3D
 const PLAYER_SCRIPT := preload("res://scripts/player.gd")
 const HUD_SCRIPT := preload("res://scripts/mobile_hud.gd")
 const NPC_SCRIPT := preload("res://scripts/interactable_npc.gd")
+const MOTORBIKE_SCRIPT := preload("res://scripts/motorbike.gd")
 const DEFAULT_START := Vector3(0, 1.1, 7)
 
 var player: CharacterBody3D
@@ -117,6 +118,14 @@ func _spawn_family_and_career_board() -> void:
 	_add_npc("NHÂN VIÊN DU LỊCH", "career_tourism", Vector3(-2.0, 0, 1.0), Color(0.12, 0.55, 0.48))
 	_add_npc("ĐẦU BẾP", "career_chef", Vector3(2.0, 0, 1.0), Color(0.72, 0.34, 0.12))
 	_add_npc("NHIẾP ẢNH GIA", "career_photographer", Vector3(6.0, 0, 1.0), Color(0.48, 0.28, 0.66))
+	_add_motorbike(Vector3(2.8, 0, 7.0))
+
+func _add_motorbike(at: Vector3) -> void:
+	var motorbike := Node3D.new()
+	motorbike.name = "Motorbike_Player"
+	motorbike.set_script(MOTORBIKE_SCRIPT)
+	motorbike.position = at
+	add_child(motorbike)
 
 func _add_npc(display_name: String, role: String, at: Vector3, tint: Color) -> void:
 	var npc := Node3D.new()
