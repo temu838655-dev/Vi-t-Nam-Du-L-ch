@@ -1,24 +1,22 @@
-# Trạng thái build thử
+# Trạng thái build – Unreal Engine 5.8
 
-## Hai nhánh cần phân biệt
+## Engine và project
+Dự án chỉ sử dụng Unreal Engine 5.8. Project chính: Unreal/VietNamHanhTrinh.uproject. Các tệp project, scene, script và workflow của engine cũ đã được gỡ khỏi nhánh main; không còn quy trình build APK từ engine cũ.
 
-- **Godot 4.4.1 prototype:** workflow `.github/workflows/android-apk.yml` xuất APK Android từ dự án Godot ở thư mục gốc. Đây là bản prototype cũ để kiểm tra luồng điều khiển cảm ứng và màn hình khởi đầu; không phải bản Unreal Engine 5.
-- **Unreal Engine 5.8:** dự án chính nằm ở `Unreal/VietNamHanhTrinh.uproject`. Repository hiện có mã nguồn C++ và cấu hình nền tảng, nhưng chưa có Unreal Engine 5.8 toolchain/Editor trong GitHub Actions nên chưa thể tuyên bố đã biên dịch hoặc tạo APK UE5.
+## Trạng thái hiện tại
+- Có project descriptor, cấu hình Android/iOS và mã nguồn C++ cho các hệ thống gameplay nền tảng.
+- Chưa xác nhận biên dịch module bằng Unreal Editor 5.8.
+- Chưa có map hoàn chỉnh được tạo và kiểm thử trong Editor.
+- Chưa có APK Android hoặc IPA iOS được build từ UE5 và kiểm thử trên thiết bị.
+- Chưa hoàn thiện asset 3D, animation, giao diện UMG, đăng nhập Google/Apple và cloud save.
 
-## Build thử hiện tại
+## Điều kiện để tạo bản thử UE5
+1. Máy build phải cài đúng Unreal Engine 5.8 và toolchain C++ tương ứng.
+2. Cấu hình Android SDK/NDK/JDK theo yêu cầu của phiên bản Unreal, bật Android platform support.
+3. Generate project files, compile module và sửa mọi lỗi compile thực tế.
+4. Mở Editor, tạo map thử nghiệm, đặt PlayerStart, NavMesh và actor cần thiết.
+5. Chạy PIE/Standalone để kiểm tra trước khi package Android ARM64.
+6. iOS cần macOS, Xcode, chứng chỉ và provisioning profile.
 
-Mỗi lần push lên `main`, workflow Godot sẽ:
-1. Cài Godot 4.4.1 và Android SDK.
-2. Import dự án Godot.
-3. Xuất APK Android arm64.
-4. Đăng APK thành GitHub Actions artifact.
-
-Artifact chỉ được dùng để thử prototype Godot. Không dùng artifact này làm bản phát hành UE5.
-
-## Điều kiện để build UE5 thật
-
-Cần máy cài Unreal Engine 5.8, Android SDK/NDK tương thích và cấu hình Android SDK trong Unreal. Với iOS cần macOS, Xcode và provisioning/signing. Sau khi mở project, phải generate project files, compile module C++, tạo map trong Editor, đặt actor cần thiết và kiểm tra trên thiết bị trước khi phát hành.
-
-## Những gì bản prototype Godot hiện có
-
-Màn hình bắt đầu, điều khiển joystick cảm ứng, camera xoay bằng vuốt, nhân vật capsule, mặt đất thử nghiệm và HUD cơ bản. Bản này chưa đại diện cho đồ họa, địa hình hay hệ thống gameplay UE5 đang phát triển.
+## Nguyên tắc phát hành
+Chỉ gọi là bản build UE5 khi artifact được tạo từ project Unreal/VietNamHanhTrinh.uproject, có log build thành công và đã kiểm tra cài/chạy trên thiết bị. Không dùng APK từ engine khác để đại diện cho game UE5.
