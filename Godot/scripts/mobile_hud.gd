@@ -424,7 +424,8 @@ func _wear_owned_clothing(item_id: String) -> void:
 
 func _select_owned_vehicle(item_id: String) -> void:
 	GameState.selected_vehicle = item_id
-	GameState.save_game(player.global_position, player.rotation.y) if player else null
+	if player:
+		GameState.save_game(player.global_position, player.rotation.y)
 	_show_message("Đã chọn %s. Hãy đến xe trong thế giới để lái." % str(GameState.get_item("vehicle", item_id).get("name", "phương tiện")))
 	_refresh_inventory()
 
