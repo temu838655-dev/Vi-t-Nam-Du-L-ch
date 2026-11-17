@@ -96,15 +96,25 @@ jobs:
           test -d "$ANDROID_HOME/platforms/android-34"
           cat "$HOME/.config/godot/editor_settings-4.4.tres"
       - name: Import and validate Godot project
+        shell: bash
         run: |
-          godot --headless --path Godot --editor --quit --verbose
-          godot --headless --path Godot --quit-after 3 --verbose
+          set -euo pipefail
+          godot --headless --path Godot --editor --quit --verbose 2>&1 | tee /tmp/godot-import.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:" /tmp/godot-import.log; then
+            echo "Godot script compilation failed during import"
+            exit 1
+          fi
+          godot --headless --path Godot --quit-after 3 --verbose 2>&1 | tee /tmp/godot-runtime.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:" /tmp/godot-runtime.log; then
+            echo "Godot runtime script validation failed"
+            exit 1
+          fi
       - name: Export Android ARM64 APK
         run: |
-          # export_presets.cfg points to ../build from the Godot project directory.
-          # Create the repository-root folder that Godot resolves that path to.
+          # Godot resolves CLI export paths relative to the Godot/ project directory.
+          # ../build therefore targets the repository-root build folder.
           mkdir -p build
-          godot --headless --path Godot --export-debug "Android" build/VietNamHanhTrinh-Android-ARM64.apk --verbose
+          godot --headless --path Godot --export-debug "Android" ../build/VietNamHanhTrinh-Android-ARM64.apk --verbose
       - name: Verify APK
         run: |
           test -s build/VietNamHanhTrinh-Android-ARM64.apk
