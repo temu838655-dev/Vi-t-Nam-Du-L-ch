@@ -356,17 +356,27 @@ func _build_ho_guom_architecture() -> void:
 
 
 func _add_landmark_box(object_name: String, at: Vector3, dimensions: Vector3, tint: Color) -> void:
+	# Landmark architecture must be walkable/solid, not decorative meshes players pass through.
+	var body := StaticBody3D.new()
+	body.name = object_name
+	body.position = at
 	var node := MeshInstance3D.new()
-	node.name = object_name
+	node.name = "Visual"
 	var mesh := BoxMesh.new()
 	mesh.size = dimensions
 	node.mesh = mesh
-	node.position = at
 	var material := StandardMaterial3D.new()
 	material.albedo_color = tint
 	material.roughness = 0.82
 	node.material_override = material
-	add_child(node)
+	body.add_child(node)
+	var collision := CollisionShape3D.new()
+	collision.name = "Collision"
+	var shape := BoxShape3D.new()
+	shape.size = dimensions
+	collision.shape = shape
+	body.add_child(collision)
+	add_child(body)
 
 
 func _add_landmark_cylinder(object_name: String, at: Vector3, top_radius: float, bottom_radius: float, height: float, tint: Color) -> void:
