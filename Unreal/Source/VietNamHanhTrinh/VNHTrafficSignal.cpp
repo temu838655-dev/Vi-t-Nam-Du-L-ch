@@ -47,6 +47,20 @@ void AVNHTrafficSignal::BeginPlay()
     ScheduleNextState();
 }
 
+void AVNHTrafficSignal::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(StateTimerHandle);
+    }
+    for (AVNHVehiclePawn* Vehicle : VehiclesInZone)
+    {
+        if (IsValid(Vehicle)) Vehicle->RemoveTrafficSignalStopSource(this);
+    }
+    VehiclesInZone.Reset();
+    Super::EndPlay(EndPlayReason);
+}
+
 void AVNHTrafficSignal::SetSignalState(EVNHTrafficSignalState NewState)
 {
     CurrentState = NewState;
@@ -89,7 +103,8 @@ void AVNHTrafficSignal::OnStopZoneBeginOverlap(UPrimitiveComponent* OverlappedCo
     AVNHVehiclePawn* Vehicle = Cast<AVNHVehiclePawn>(OtherActor);
     if (!Vehicle) return;
     VehiclesInZone.AddUnique(Vehicle);
-    Vehicle->SetTrafficSignalStop(CurrentState != EVNHTrafficSignalState::Green);
+    if (CurrentState == EVNHTrafficSignalState::Green) Vehicle->RemoveTrafficSignalStopSource(this);
+    else Vehicle->AddTrafficSignalStopSource(this);
 }
 
 void AVNHTrafficSignal::OnStopZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -97,7 +112,7 @@ void AVNHTrafficSignal::OnStopZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 {
     AVNHVehiclePawn* Vehicle = Cast<AVNHVehiclePawn>(OtherActor);
     if (!Vehicle) return;
-    Vehicle->SetTrafficSignalStop(false);
+    Vehicle->RemoveTrafficSignalStopSource(this);
     VehiclesInZone.Remove(Vehicle);
 }
 
