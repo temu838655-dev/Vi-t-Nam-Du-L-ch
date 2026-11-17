@@ -79,7 +79,8 @@ void AVNHVehiclePawn::Tick(float DeltaSeconds)
         CurrentFuel = FMath::Max(0.0f, CurrentFuel - FuelConsumptionPerSecond * DeltaSeconds * (1.0f + FMath::Abs(ThrottleInput)));
     }
 
-    if (bBrakePressed || bTrafficSignalStop || CurrentFuel <= 0.0f)
+    TrafficSignalStopSources.Remove(nullptr);
+    if (bBrakePressed || bTrafficSignalStop || !TrafficSignalStopSources.IsEmpty() || CurrentFuel <= 0.0f)
     {
         CurrentSpeed = FMath::FInterpConstantTo(CurrentSpeed, 0.0f, DeltaSeconds, BrakeDeceleration);
     }
@@ -120,7 +121,24 @@ void AVNHVehiclePawn::SetBrake(bool bPressed)
 
 void AVNHVehiclePawn::SetTrafficSignalStop(bool bShouldStop)
 {
+    // Retained for Blueprint/manual stops. Signal actors should use source registration below.
     bTrafficSignalStop = bShouldStop;
+}
+
+void AVNHVehiclePawn::AddTrafficSignalStopSource(AActor* SignalSource)
+{
+    if (IsValid(SignalSource))
+    {
+        TrafficSignalStopSources.Add(SignalSource);
+    }
+}
+
+void AVNHVehiclePawn::RemoveTrafficSignalStopSource(AActor* SignalSource)
+{
+    if (SignalSource)
+    {
+        TrafficSignalStopSources.Remove(SignalSource);
+    }
 }
 
 float AVNHVehiclePawn::Refuel(float Amount)
