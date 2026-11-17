@@ -29,6 +29,9 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle")
     void SetBrake(bool bPressed);
 
+    UFUNCTION(BlueprintCallable, Category="VNH|Traffic")
+    void SetTrafficSignalStop(bool bShouldStop);
+
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle")
     void ExitVehicle();
 
@@ -71,6 +74,7 @@ private:
     float ThrottleInput = 0.0f;
     float SteeringInput = 0.0f;
     bool bBrakePressed = false;
+    bool bTrafficSignalStop = false;
 
     void ThrottleKeyboard(float Value);
     void SteerKeyboard(float Value);
