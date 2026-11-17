@@ -9,9 +9,9 @@ Game mô phỏng du lịch và đời sống Việt Nam theo hướng thế gi�
 - **Unreal scaffold:** nằm trong thư mục `Unreal/`.
 
 ## Trạng thái thực tế
-Repository có bộ khung UE5 C++ gồm GameMode, PlayerController, nhân vật góc nhìn thứ ba, camera, hàm điều khiển cảm ứng, lưu tiến trình cục bộ, trace tương tác và actor điểm tham quan (POI). Khu vực Hồ Hoàn Kiếm hiện có actor dựng khối greybox với nền, hồ, đường, vỉa hè và khối đại diện một số địa danh.
+Repository có bộ khung UE5 C++ gồm GameMode, PlayerController, nhân vật góc nhìn thứ ba, camera, hàm điều khiển cảm ứng, lưu tiến trình cục bộ, trace tương tác và actor điểm tham quan (POI). Khu vực Hồ Hoàn Kiếm hiện có actor dựng khối greybox với nền, hồ, đường, vỉa hè và khối đại diện một số địa danh. Hệ thống POI có thể tương tác và Pawn phương tiện arcade thử nghiệm đã được thêm vào mã nguồn; phương tiện hỗ trợ vào/ra, ga, lùi, phanh, đánh lái và camera bám xe.
 
-Chưa xác nhận biên dịch bằng Unreal Editor. Chưa có level `.umap` đã tạo trong Editor, nhân vật 3D hoàn chỉnh, animation, mô hình địa danh chi tiết, xe cộ, NPC, đăng nhập Google/Apple, cloud save hoặc APK/IPA.
+Chưa xác nhận biên dịch bằng Unreal Editor. Chưa có level `.umap` đã tạo trong Editor, nhân vật 3D hoàn chỉnh, animation, mô hình địa danh chi tiết, xe cộ, NPC, đăng nhập Google/Apple, cloud save hoặc APK/IPA. Phương tiện hiện dùng mesh hình khối và chuyển động arcade, chưa phải mô phỏng Chaos Vehicles hay xe máy hoàn chỉnh.
 
 ## Mở dự án Unreal
 1. Cài Unreal Engine phiên bản tương thích với `EngineAssociation` trong project descriptor.
@@ -22,7 +22,7 @@ Chưa xác nhận biên dịch bằng Unreal Editor. Chưa có level `.umap` đ�
 6. Build iOS cần máy Mac, Xcode và chứng chỉ ký ứng dụng.
 
 ## Kiến trúc và lộ trình
-Xem [Kiến trúc Unreal Engine 5](docs/UE5_MOBILE_ARCHITECTURE.md), [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md), [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md) và [POI tương tác](docs/UE5_POI_INTERACTION.md).
+Xem [Kiến trúc Unreal Engine 5](docs/UE5_MOBILE_ARCHITECTURE.md), [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md), [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md) và [POI tương tác](docs/UE5_POI_INTERACTION.md) và [phương tiện thử nghiệm](docs/UE5_VEHICLE_PROTOTYPE.md).
 
 ## Tính chân thực
 Mục tiêu là tái tạo địa điểm dựa trên dữ liệu, ảnh tham chiếu và quyền sử dụng được xác minh. Không tuyên bố mô phỏng chính xác 100% mọi địa phương. Bản đầu tiên sẽ là một vertical slice nhỏ, được kiểm thử và tối ưu trước khi mở rộng.
