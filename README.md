@@ -12,7 +12,7 @@ Game **mô phỏng cuộc sống tự do kết hợp du lịch thế giới mở
 ## Những hệ thống UE5 đã có trong mã nguồn
 - GameMode tự dựng blockout Hồ Hoàn Kiếm và PlayerStart dự phòng trên map trống; PlayerController hỗ trợ tạo HUD UMG cấu hình từ Blueprint.
 - Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
-- SaveGame schema v2: hồ sơ nhân vật, nhà gia đình, định danh bố mẹ, nghề nghiệp, lương, tiền, hành trình và checkpoint.
+- SaveGame schema v3: hồ sơ ngoại hình nhân vật theo preset ID, hồ sơ bố mẹ/gia đình, nhà, nghề nghiệp, lương, tiền, hành trình và checkpoint.
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
 - NPC dân cư với AI tuần tra cơ bản.
@@ -36,6 +36,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Kiến trúc UE5 mobile](docs/UE5_MOBILE_ARCHITECTURE.md)
 - [Mô phỏng cuộc sống: nhà, gia đình, nghề nghiệp, du lịch tự do](docs/UE5_LIFE_SIMULATION_DESIGN.md)
 - [API tạo cuộc sống mới và lưu nghề nghiệp](docs/UE5_NEW_LIFE_AND_CAREER_API.md)
+- [Hồ sơ ngoại hình nhân vật và gia đình](docs/UE5_CHARACTER_AND_FAMILY_PROFILES.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
 - [Lưu vị trí hành trình](docs/UE5_CHECKPOINT_SAVE.md)
