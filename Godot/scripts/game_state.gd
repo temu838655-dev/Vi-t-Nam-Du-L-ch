@@ -257,7 +257,7 @@ func talk_with_family(member_name: String) -> String:
 	return "Bố: Cứ mạnh dạn khám phá, nhưng nhớ giữ an toàn và quản lý tiền bạc nhé!"
 
 func _format_money(amount: int) -> String:
-	return str(amount).reverse().insert(0, "").reverse() if amount < 1000 else _format_grouped_money(amount)
+	return _format_grouped_money(amount)
 
 func _format_grouped_money(amount: int) -> String:
 	var raw := str(amount)
