@@ -6,7 +6,7 @@ extends Node3D
 
 var current_activity := "Ở nhà"
 var routine_target := Vector3.ZERO
-var routine_clock := -1.0
+var last_routine_phase := -1
 var idle_phase := 0.0
 var left_arm: MeshInstance3D
 var right_arm: MeshInstance3D
@@ -29,12 +29,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if role != "mother" and role != "father":
 		return
-	routine_clock += delta
 	var clock := fposmod(GameState.world_time_seconds, 240.0)
 	var phase := int(floor(clock / 40.0))
-	if phase != int(floor(routine_clock / 40.0)) or routine_clock < 0.0:
+	if phase != last_routine_phase:
 		_update_family_routine(false)
-	routine_clock = clock
+		last_routine_phase = phase
 	var distance := position.distance_to(routine_target)
 	if distance > 0.08:
 		var direction := routine_target - position
