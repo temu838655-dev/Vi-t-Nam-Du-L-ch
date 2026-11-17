@@ -1,6 +1,7 @@
 #include "VNHHanoiPrototypeArea.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "UObject/ConstructorHelpers.h"
 
 AVNHHanoiPrototypeArea::AVNHHanoiPrototypeArea()
@@ -29,6 +30,21 @@ AVNHHanoiPrototypeArea::AVNHHanoiPrototypeArea()
 
     // Lake footprint: approximately 160 m x 100 m. Water is only a visual placeholder.
     AddMesh(TEXT("HoanKiemLake_Blockout"), CylinderMesh.Object, FVector(0, 0, -8), FVector(80, 50, 0.035f), false);
+
+    // Invisible collision boundaries keep the player out of the placeholder lake.
+    auto AddLakeBoundary = [this](const TCHAR* Name, const FVector& Location, const FVector& Extent)
+    {
+        UBoxComponent* Boundary = CreateDefaultSubobject<UBoxComponent>(FName(Name));
+        Boundary->SetupAttachment(SceneRoot);
+        Boundary->SetRelativeLocation(Location);
+        Boundary->SetBoxExtent(Extent);
+        Boundary->SetCollisionProfileName(TEXT("BlockAll"));
+        Boundary->SetHiddenInGame(true);
+    };
+    AddLakeBoundary(TEXT("LakeBoundary_East"), FVector(8100, 0, 120), FVector(120, 5000, 120));
+    AddLakeBoundary(TEXT("LakeBoundary_West"), FVector(-8100, 0, 120), FVector(120, 5000, 120));
+    AddLakeBoundary(TEXT("LakeBoundary_North"), FVector(0, 5100, 120), FVector(8000, 120, 120));
+    AddLakeBoundary(TEXT("LakeBoundary_South"), FVector(0, -5100, 120), FVector(8000, 120, 120));
 
     // Roads around the lake, with long blocks to make the scale readable.
     AddMesh(TEXT("NorthRoad"), CubeMesh.Object, FVector(0, 7200, 0), FVector(150, 8, 0.04f), true);
