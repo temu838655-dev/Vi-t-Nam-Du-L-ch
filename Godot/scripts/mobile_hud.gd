@@ -9,6 +9,7 @@ var look_touch := -1
 var move_vector := Vector2.ZERO
 var joystick_base: Panel
 var joystick_knob: Panel
+var interact_button: Button
 
 func _ready() -> void:
 	player = get_parent().get_node_or_null("Player")
@@ -29,7 +30,7 @@ func _ready() -> void:
 	root.add_child(status_label)
 
 	var help := Label.new()
-	help.text = "Chạm trái để di chuyển • Vuốt phải để xoay camera"
+	help.text = "Cần trái: đi bộ / lái xe • Vuốt phải: camera • Đến gần xe máy để sử dụng"
 	help.position = Vector2(24, 78)
 	help.add_theme_font_size_override("font_size", 15)
 	root.add_child(help)
@@ -46,6 +47,8 @@ func _ready() -> void:
 	base_style.set_corner_radius_all(80)
 	joystick_base.add_theme_stylebox_override("panel", base_style)
 	root.add_child(joystick_base)
+	var initial_viewport_size := get_viewport().get_visible_rect().size
+	joystick_base.position = Vector2(42.0, maxf(8.0, initial_viewport_size.y - 202.0))
 
 	joystick_knob = Panel.new()
 	joystick_knob.name = "JoystickKnob"
@@ -68,7 +71,7 @@ func _ready() -> void:
 	jump_button.pressed.connect(_jump)
 	root.add_child(jump_button)
 
-	var interact_button := Button.new()
+	interact_button = Button.new()
 	interact_button.text = "TƯƠNG TÁC"
 	interact_button.size = Vector2(130, 66)
 	interact_button.position = Vector2(-270, -110)
@@ -105,6 +108,8 @@ func _update_status() -> void:
 			GameState.completed_work_shifts,
 			GameState.family_affection
 		]
+	if interact_button and player and player.has_method("is_riding_vehicle"):
+		interact_button.text = "XUỐNG XE" if player.is_riding_vehicle() else "TƯƠNG TÁC"
 
 func _format_money(amount: int) -> String:
 	var raw := str(amount)
