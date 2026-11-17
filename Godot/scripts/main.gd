@@ -325,6 +325,47 @@ func _build_ho_guom_landmark() -> void:
 	landmark_label.modulate = Color(1.0, 0.91, 0.68)
 	landmark_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(landmark_label)
+	_build_ho_guom_architecture()
+
+
+func _build_ho_guom_architecture() -> void:
+	# Cau The Huc: red pedestrian bridge linking the eastern shore to the island.
+	var bridge_red := Color(0.72, 0.075, 0.055)
+	_add_landmark_box("TheHucBridge_Deck", Vector3(27, 0.48, 5.1), Vector3(2.15, 0.22, 7.8), bridge_red)
+	for side in [-1.0, 1.0]:
+		_add_landmark_box("TheHucBridge_Rail_%s" % str(side), Vector3(27 + side * 0.94, 0.92, 5.1), Vector3(0.12, 0.72, 7.8), bridge_red)
+		for post in range(9):
+			_add_landmark_box("TheHucBridge_Post_%s_%02d" % [str(side), post], Vector3(27 + side * 0.94, 1.08, 1.55 + post * 0.88), Vector3(0.18, 1.05, 0.18), Color(0.82, 0.12, 0.075))
+
+	# Ngoc Son Temple: raised timber hall, visible columns, tiled roof and sign.
+	_add_landmark_box("NgocSonTemple_Platform", Vector3(30.0, 0.72, -1.0), Vector3(4.2, 0.42, 3.5), Color(0.62, 0.54, 0.40))
+	_add_landmark_box("NgocSonTemple_Hall", Vector3(30.0, 1.95, -1.0), Vector3(3.45, 2.1, 2.75), Color(0.68, 0.24, 0.14))
+	for x_offset in [-1.45, 1.45]:
+		for z_offset in [-1.12, 1.12]:
+			_add_landmark_cylinder("NgocSonTemple_Column_%s_%s" % [str(x_offset), str(z_offset)], Vector3(30.0 + x_offset, 1.95, -1.0 + z_offset), 0.10, 0.12, 2.05, Color(0.78, 0.62, 0.38))
+	_add_landmark_box("NgocSonTemple_Roof", Vector3(30.0, 3.18, -1.0), Vector3(4.15, 0.28, 3.45), Color(0.30, 0.16, 0.12))
+	_add_landmark_box("NgocSonTemple_Sign", Vector3(30.0, 2.12, -2.42), Vector3(1.65, 0.42, 0.08), Color(0.88, 0.72, 0.42))
+	var temple_label := Label3D.new()
+	temple_label.text = "ĐỀN NGỌC SƠN"
+	temple_label.position = Vector3(30.0, 4.0, -1.0)
+	temple_label.font_size = 30
+	temple_label.modulate = Color(1.0, 0.91, 0.72)
+	temple_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	add_child(temple_label)
+
+
+func _add_landmark_box(object_name: String, at: Vector3, dimensions: Vector3, tint: Color) -> void:
+	var node := MeshInstance3D.new()
+	node.name = object_name
+	var mesh := BoxMesh.new()
+	mesh.size = dimensions
+	node.mesh = mesh
+	node.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.82
+	node.material_override = material
+	add_child(node)
 
 
 func _add_landmark_cylinder(object_name: String, at: Vector3, top_radius: float, bottom_radius: float, height: float, tint: Color) -> void:
