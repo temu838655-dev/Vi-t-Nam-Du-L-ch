@@ -69,7 +69,7 @@ void AVNHVehiclePawn::Tick(float DeltaSeconds)
 
     if (!GetController()) return;
 
-    if (bBrakePressed)
+    if (bBrakePressed || bTrafficSignalStop)
     {
         CurrentSpeed = FMath::FInterpConstantTo(CurrentSpeed, 0.0f, DeltaSeconds, BrakeDeceleration);
     }
@@ -106,6 +106,11 @@ void AVNHVehiclePawn::SetVehicleInput(float Throttle, float Steering)
 void AVNHVehiclePawn::SetBrake(bool bPressed)
 {
     bBrakePressed = bPressed;
+}
+
+void AVNHVehiclePawn::SetTrafficSignalStop(bool bShouldStop)
+{
+    bTrafficSignalStop = bShouldStop;
 }
 
 void AVNHVehiclePawn::Interact_Implementation(AActor* InteractingActor)
