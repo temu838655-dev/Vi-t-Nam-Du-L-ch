@@ -13,6 +13,4 @@ public:
     AVNHTrafficAIController();
     virtual void Tick(float DeltaSeconds) override;
 
-private:
-    float RouteDistance = 0.0f;
 };
