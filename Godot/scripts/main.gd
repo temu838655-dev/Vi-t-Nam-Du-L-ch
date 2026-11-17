@@ -229,6 +229,7 @@ func _add_traffic_system() -> void:
 
 func _build_prototype_world() -> void:
 	_add_traffic_system()
+	_build_ho_guom_landmark()
 	_add_box("Ground", Vector3(0, -0.25, 0), Vector3(100, 0.5, 100), Color(0.22, 0.42, 0.25))
 	# Starter family home and street are greybox placeholders, not final Vietnam assets.
 	_add_box("FamilyHome", Vector3(0, 1.5, -8), Vector3(9, 3, 7), Color(0.82, 0.72, 0.55))
@@ -261,3 +262,114 @@ func _add_box(object_name: String, at: Vector3, dimensions: Vector3, color: Colo
 	collision.shape = shape
 	body.add_child(collision)
 	add_child(body)
+
+
+func _build_ho_guom_landmark() -> void:
+	# A distinct landmark district beside the starter neighbourhood.
+	var water := MeshInstance3D.new()
+	water.name = "HoanKiemLake_Water"
+	var water_mesh := PlaneMesh.new()
+	water_mesh.size = Vector2(30, 22)
+	water.mesh = water_mesh
+	water.position = Vector3(27, 0.015, -1)
+	var water_mat := StandardMaterial3D.new()
+	water_mat.albedo_color = Color(0.10, 0.36, 0.42, 0.88)
+	water_mat.roughness = 0.22
+	water_mat.metallic = 0.12
+	water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	water.material_override = water_mat
+	add_child(water)
+
+	var island := MeshInstance3D.new()
+	island.name = "TurtleTower_Island"
+	var island_mesh := CylinderMesh.new()
+	island_mesh.top_radius = 2.3
+	island_mesh.bottom_radius = 2.7
+	island_mesh.height = 0.55
+	island.mesh = island_mesh
+	island.position = Vector3(27, 0.28, -1)
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color(0.55, 0.52, 0.42)
+	stone.roughness = 0.92
+	island.material_override = stone
+	add_child(island)
+
+	_add_landmark_cylinder("TurtleTower_LowerFloor", Vector3(27, 1.0, -1), 1.05, 1.35, 1.0, Color(0.78, 0.72, 0.56))
+	_add_landmark_cylinder("TurtleTower_MiddleFloor", Vector3(27, 2.05, -1), 0.82, 1.05, 0.95, Color(0.82, 0.76, 0.62))
+	_add_landmark_cylinder("TurtleTower_UpperFloor", Vector3(27, 3.05, -1), 0.62, 0.82, 0.85, Color(0.78, 0.72, 0.56))
+	_add_landmark_cone("TurtleTower_Roof", Vector3(27, 3.95, -1), 0.78, 0.72, Color(0.48, 0.19, 0.13))
+	_add_landmark_cylinder("TurtleTower_Top", Vector3(27, 4.62, -1), 0.10, 0.12, 0.55, Color(0.72, 0.62, 0.4))
+
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var tree_pos := Vector3(27 + cos(angle) * 11.0, 0, -1 + sin(angle) * 8.0)
+		_add_landmark_cylinder("LakeTreeTrunk_%02d" % i, tree_pos + Vector3(0, 1.1, 0), 0.20, 0.24, 2.2, Color(0.30, 0.20, 0.12))
+		_add_landmark_sphere("LakeTreeCanopy_%02d" % i, tree_pos + Vector3(0, 2.8, 0), Vector3(1.15, 1.2, 1.1), Color(0.12, 0.34, 0.18))
+
+	for i in range(4):
+		var bench := MeshInstance3D.new()
+		bench.name = "LakesideBench_%02d" % i
+		var bench_mesh := BoxMesh.new()
+		bench_mesh.size = Vector3(1.5, 0.12, 0.42)
+		bench.mesh = bench_mesh
+		bench.position = Vector3(15 + i * 8.0, 0.58, 11.2)
+		var wood := StandardMaterial3D.new()
+		wood.albedo_color = Color(0.34, 0.20, 0.12)
+		bench.material_override = wood
+		add_child(bench)
+
+	var landmark_label := Label3D.new()
+	landmark_label.text = "HỒ GƯƠM • THÁP RÙA"
+	landmark_label.position = Vector3(27, 6.2, -1)
+	landmark_label.font_size = 42
+	landmark_label.modulate = Color(1.0, 0.91, 0.68)
+	landmark_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	add_child(landmark_label)
+
+
+func _add_landmark_cylinder(object_name: String, at: Vector3, top_radius: float, bottom_radius: float, height: float, tint: Color) -> void:
+	var node := MeshInstance3D.new()
+	node.name = object_name
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = top_radius
+	mesh.bottom_radius = bottom_radius
+	mesh.height = height
+	node.mesh = mesh
+	node.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.86
+	node.material_override = material
+	add_child(node)
+
+
+func _add_landmark_cone(object_name: String, at: Vector3, radius: float, height: float, tint: Color) -> void:
+	var node := MeshInstance3D.new()
+	node.name = object_name
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.03
+	mesh.bottom_radius = radius
+	mesh.height = height
+	node.mesh = mesh
+	node.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.78
+	node.material_override = material
+	add_child(node)
+
+
+func _add_landmark_sphere(object_name: String, at: Vector3, dimensions: Vector3, tint: Color) -> void:
+	var node := MeshInstance3D.new()
+	node.name = object_name
+	var mesh := SphereMesh.new()
+	mesh.radius = 1.0
+	mesh.height = 2.0
+	node.mesh = mesh
+	node.scale = dimensions
+	node.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.95
+	node.material_override = material
+	add_child(node)
