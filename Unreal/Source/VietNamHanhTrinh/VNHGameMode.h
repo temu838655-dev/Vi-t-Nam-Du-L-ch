@@ -11,4 +11,5 @@ class VIETNAMHANHTRINH_API AVNHGameMode : public AGameModeBase
 
 public:
     AVNHGameMode();
+    virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 };
