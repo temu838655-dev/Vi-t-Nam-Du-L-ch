@@ -20,3 +20,7 @@
 - Độ nhạy camera cảm ứng: 0.12.
 
 Các thông số cần playtest trên điện thoại để cân chỉnh. Widget, skeletal mesh, animation blueprint và bản đồ 3D chưa được tạo trong commit này.
+
+## Tương tác
+- Nút HUD gọi `TryInteract()` để kiểm tra vật thể trước camera trong khoảng cách cấu hình.
+- Actor tương tác triển khai `UVNHInteractable`; xem `docs/UE5_POI_INTERACTION.md` để tạo điểm tham quan Blueprint.
