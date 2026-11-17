@@ -39,6 +39,14 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Life|Appearance")
     bool SetPlayerAppearance(const FVNHSavedAppearance& Appearance);
 
+    // Replaces a family member schedule. Intervals must be valid and non-overlapping.
+    UFUNCTION(BlueprintCallable, Category="VNH|Life|Family")
+    bool SetFamilyDailyRoutine(FName CharacterId, const TArray<FVNHDailyRoutineEntry>& Routine);
+
+    // Returns the activity/location active at the supplied in-game minute (0-1439).
+    UFUNCTION(BlueprintCallable, Category="VNH|Life|Family")
+    bool GetFamilyActivityAtTime(FName CharacterId, int32 MinuteOfDay, FName& OutActivityId, FName& OutLocationId);
+
     UFUNCTION(BlueprintCallable, Category="VNH|Save")
     bool SaveCheckpoint(FName RegionId, FName CheckpointId);
 
