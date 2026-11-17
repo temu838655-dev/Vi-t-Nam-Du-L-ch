@@ -35,6 +35,21 @@ public:
     UFUNCTION(BlueprintCallable, Category="VNH|Vehicle")
     void ExitVehicle();
 
+    UFUNCTION(BlueprintCallable, Category="VNH|Vehicle|Fuel")
+    void Refuel(float Amount);
+
+    UFUNCTION(BlueprintPure, Category="VNH|Vehicle|Fuel")
+    float GetFuelPercent() const { return FuelCapacity > 0.0f ? CurrentFuel / FuelCapacity : 0.0f; }
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="VNH|Vehicle|Fuel")
+    float FuelCapacity = 45.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="VNH|Vehicle|Fuel")
+    float FuelConsumptionPerSecond = 0.0018f;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="VNH|Vehicle|Fuel")
+    float CurrentFuel = 45.0f;
+
     UFUNCTION(BlueprintPure, Category="VNH|Traffic")
     AVNHTrafficRoute* GetTrafficRoute() const { return TrafficRoute; }
 
