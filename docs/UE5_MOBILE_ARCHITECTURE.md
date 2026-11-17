@@ -5,7 +5,7 @@
 - Engine chính: Unreal Engine 5, C++ cho hệ thống nền và Blueprint cho nội dung/gameplay có thể cấu hình.
 - Nền tảng phát hành đầu tiên: Android và iOS.
 - PC là nền tảng phát triển/kiểm thử bổ sung, không phải mục tiêu phát hành đầu tiên.
-- Godot ở thư mục gốc được giữ làm prototype tham chiếu điều khiển và UI; không trộn mã Godot vào runtime Unreal.
+- Không sử dụng Godot hoặc engine thứ hai; toàn bộ runtime game triển khai bằng Unreal Engine 5.8.
 - Ưu tiên Mobile Forward Renderer, baked/static lighting, LOD/HLOD, texture streaming và scalability theo thiết bị.
 - Không phụ thuộc Nanite hoặc Lumen để game chạy được trên điện thoại. Có thể nghiên cứu nhánh PC chất lượng cao riêng sau này.
 
