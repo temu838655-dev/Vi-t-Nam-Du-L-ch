@@ -1,4 +1,5 @@
 #include "VNHPlayerController.h"
+#include "Blueprint/UserWidget.h"
 
 void AVNHPlayerController::BeginPlay()
 {
@@ -12,4 +13,13 @@ void AVNHPlayerController::BeginPlay()
 
     FInputModeGameOnly InputMode;
     SetInputMode(InputMode);
+
+    if (IsLocalController() && MobileHUDClass)
+    {
+        MobileHUDInstance = CreateWidget<UUserWidget>(this, MobileHUDClass);
+        if (MobileHUDInstance)
+        {
+            MobileHUDInstance->AddToViewport(0);
+        }
+    }
 }
