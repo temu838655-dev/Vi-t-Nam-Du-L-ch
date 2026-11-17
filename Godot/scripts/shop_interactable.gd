@@ -65,14 +65,37 @@ func _build_shop_displays() -> void:
 				var x := -1.55 + float(index) * 0.77
 				_add_visual_box("FoodPackage_%02d" % index, Vector3(x, 1.42, 0.82), Vector3(0.42, 0.52, 0.38), [Color(0.72,0.18,0.12),Color(0.82,0.62,0.18),Color(0.18,0.42,0.24),Color(0.78,0.72,0.58),Color(0.16,0.32,0.58)][index])
 			_add_visual_box("DiningTable", Vector3(1.45, 0.72, 1.0), Vector3(1.1, 0.12, 0.72), Color(0.42, 0.25, 0.13))
-	# A small staff marker identifies the service position; final animated staff model comes later.
-	var staff_label := Label3D.new()
-	staff_label.text = "NHÂN VIÊN"
-	staff_label.position = Vector3(0, 1.75, -0.95)
-	staff_label.font_size = 18
-	staff_label.modulate = Color(1.0, 0.9, 0.72)
-	staff_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	add_child(staff_label)
+	# Static low-poly attendant behind the counter; interaction is handled by the shop itself.
+	_build_shop_staff()
+
+
+func _build_shop_staff() -> void:
+	var uniform_color := sign_color.lightened(0.18)
+	_add_person_capsule("Staff_Torso", 0.25, 0.78, Vector3(0, 1.08, 0.42), uniform_color)
+	_add_person_capsule("Staff_Head", 0.19, 0.38, Vector3(0, 1.72, 0.42), Color(0.72, 0.49, 0.36))
+	_add_person_capsule("Staff_LeftArm", 0.085, 0.58, Vector3(-0.31, 1.12, 0.34), uniform_color)
+	_add_person_capsule("Staff_RightArm", 0.085, 0.58, Vector3(0.31, 1.12, 0.34), uniform_color)
+	var label := Label3D.new()
+	label.text = "NHÂN VIÊN"
+	label.position = Vector3(0, 2.18, 0.42)
+	label.font_size = 17
+	label.modulate = Color(1.0, 0.9, 0.72)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	add_child(label)
+
+func _add_person_capsule(part_name: String, radius: float, height: float, at: Vector3, tint: Color) -> void:
+	var part := MeshInstance3D.new()
+	part.name = part_name
+	var mesh := CapsuleMesh.new()
+	mesh.radius = radius
+	mesh.height = height
+	part.mesh = mesh
+	part.position = at
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	material.roughness = 0.88
+	part.material_override = material
+	add_child(part)
 
 func _add_solid_box(object_name: String, at: Vector3, dimensions: Vector3, color: Color) -> void:
 	var body := StaticBody3D.new()
