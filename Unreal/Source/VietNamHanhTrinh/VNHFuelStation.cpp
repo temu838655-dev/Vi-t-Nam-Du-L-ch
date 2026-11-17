@@ -35,15 +35,11 @@ void AVNHFuelStation::Interact_Implementation(AActor* InteractingActor)
     FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(VNHFuelStation), false, this);
     if (InteractingActor) QueryParams.AddIgnoredActor(InteractingActor);
 
-    FCollisionObjectQueryParams ObjectTypes;
-    ObjectTypes.AddObjectTypesToQuery(ECC_WorldDynamic);
-    ObjectTypes.AddObjectTypesToQuery(ECC_Pawn);
-
-    const bool bFound = GetWorld()->OverlapMultiByObjectType(
+    const bool bFound = GetWorld()->OverlapMultiByChannel(
         Overlaps,
         GetActorLocation(),
         FQuat::Identity,
-        ObjectTypes,
+        ECC_Visibility,
         FCollisionShape::MakeSphere(InteractionRadius),
         QueryParams);
 
