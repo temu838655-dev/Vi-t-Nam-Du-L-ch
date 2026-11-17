@@ -513,8 +513,8 @@ func _build_vietnamese_facades() -> void:
 		_add_facade_box("FamilyHome_WindowBar_%s" % str(side), Vector3(side * 2.65, 2.05, -4.34), Vector3(1.30, 0.07, 0.06), Color(0.18, 0.18, 0.16))
 		_add_facade_box("FamilyHome_WindowSill_%s" % str(side), Vector3(side * 2.65, 1.48, -4.35), Vector3(1.45, 0.12, 0.22), Color(0.72, 0.65, 0.52))
 	_add_facade_box("FamilyHome_Awning", Vector3(0, 3.25, -4.65), Vector3(4.8, 0.16, 0.72), Color(0.52, 0.20, 0.14))
-	_add_facade_box("FamilyHome_RoofFront", Vector3(0, 4.05, -5.25), Vector3(10.2, 0.18, 2.0), Color(0.42, 0.13, 0.10), -12.0)
-	_add_facade_box("FamilyHome_RoofBack", Vector3(0, 4.05, -10.75), Vector3(10.2, 0.18, 2.0), Color(0.42, 0.13, 0.10), 12.0)
+	_add_facade_box("FamilyHome_RoofFront", Vector3(0, 4.05, -6.0), Vector3(10.2, 0.18, 4.0), Color(0.42, 0.13, 0.10), -12.0)
+	_add_facade_box("FamilyHome_RoofBack", Vector3(0, 4.05, -10.0), Vector3(10.2, 0.18, 4.0), Color(0.42, 0.13, 0.10), 12.0)
 
 	var shop_names := ["TẠP HÓA MINH AN", "CÀ PHÊ PHỐ", "SỬA XE MÁY", "NHÀ PHỐ", "BÚN PHỞ VIỆT"]
 	var sign_colors := [
