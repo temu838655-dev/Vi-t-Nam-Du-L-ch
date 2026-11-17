@@ -60,12 +60,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Vehicle|Handling")
     float SteeringRate = 85.0f;
 
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UStaticMeshComponent>> WheelMeshes;
+
 private:
     UPROPERTY(Transient)
     TObjectPtr<ACharacter> PreviousCharacter;
-
-    UPROPERTY(Transient)
-    TArray<TObjectPtr<UStaticMeshComponent>> WheelMeshes;
 
     float CurrentSpeed = 0.0f;
     float ThrottleInput = 0.0f;
