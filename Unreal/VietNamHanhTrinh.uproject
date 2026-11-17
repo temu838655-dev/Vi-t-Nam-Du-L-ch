@@ -1,0 +1,18 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.6",
+  "Category": "Games",
+  "Description": "Vietnam open-world travel and life simulation",
+  "Modules": [
+    {
+      "Name": "VietNamHanhTrinh",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "TargetPlatforms": [
+    "Android",
+    "IOS",
+    "Windows"
+  ]
+}
