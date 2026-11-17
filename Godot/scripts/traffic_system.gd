@@ -114,23 +114,32 @@ func _build_car_model(root: Node3D, tint: Color) -> void:
 			root.add_child(wheel)
 
 func _move_vehicles(delta: float) -> void:
-	for entry in cars:
+	for i in range(cars.size()):
+		var entry: Dictionary = cars[i]
 		var vehicle := entry["node"] as Node3D
 		if not is_instance_valid(vehicle):
 			continue
-		var speed := float(entry["speed"])
-		var next_z := vehicle.position.z + speed * delta
-		var should_stop := phase == 2 and vehicle.position.z < STOP_LINE_Z and next_z >= STOP_LINE_Z
-		if phase == 2 and vehicle.position.z >= STOP_LINE_Z - 1.2 and vehicle.position.z < STOP_LINE_Z + 0.2:
-			should_stop = true
-		if should_stop:
-			vehicle.position.z = minf(vehicle.position.z, STOP_LINE_Z - 1.2)
+		var target_speed := float(entry["speed"])
+		# Keep a safe visual gap between cars travelling in the same lane.
+		for other_entry in cars:
+			var other := other_entry["node"] as Node3D
+			if not is_instance_valid(other) or other == vehicle:
+				continue
+			var gap := other.position.z - vehicle.position.z
+			if gap > 0.0 and gap < 4.2:
+				target_speed = minf(target_speed, maxf(0.0, (gap - 2.7) * 1.6))
+		var next_z := vehicle.position.z + target_speed * delta
+		var stop_z := STOP_LINE_Z - 1.2
+		if phase == 2 and vehicle.position.z < STOP_LINE_Z and next_z >= stop_z:
+			vehicle.position.z = minf(next_z, stop_z)
 			continue
-		if phase == 2 and vehicle.position.z >= STOP_LINE_Z - 1.2 and vehicle.position.z < STOP_LINE_Z:
+		if phase == 2 and vehicle.position.z >= stop_z and vehicle.position.z < STOP_LINE_Z:
 			continue
 		vehicle.position.z = next_z
 		if vehicle.position.z > ROAD_MAX_Z:
 			vehicle.position.z = ROAD_MIN_Z - 2.0
+			vehicle.rotation.y = 0.0
+
 
 func _spawn_pedestrians() -> void:
 	var specs := [
@@ -145,7 +154,9 @@ func _spawn_pedestrians() -> void:
 		person.position = Vector3(float(spec["x"]), 0.0, float(spec["z"]))
 		add_child(person)
 		_build_pedestrian_model(person, spec["shirt"])
-		pedestrians.append({"node": person, "speed": float(spec["speed"]), "direction": float(spec["direction"])})
+		var left_leg := person.get_node("LeftLeg") as MeshInstance3D
+		var right_leg := person.get_node("RightLeg") as MeshInstance3D
+		pedestrians.append({"node": person, "speed": float(spec["speed"]), "direction": float(spec["direction"]), "left_leg": left_leg, "right_leg": right_leg, "walk_phase": float(i)})
 
 func _build_pedestrian_model(root: Node3D, shirt_color: Color) -> void:
 	_add_child_box(root, "Body", Vector3(0, 0.98, 0), Vector3(0.38, 0.62, 0.22), shirt_color)
@@ -160,6 +171,12 @@ func _move_pedestrians(delta: float) -> void:
 			continue
 		var direction := float(entry["direction"])
 		person.position.z += float(entry["speed"]) * direction * delta
+		entry["walk_phase"] = float(entry["walk_phase"]) + delta * 7.0
+		var swing := sin(float(entry["walk_phase"])) * 0.38
+		var left_leg := entry["left_leg"] as MeshInstance3D
+		var right_leg := entry["right_leg"] as MeshInstance3D
+		left_leg.rotation.x = swing
+		right_leg.rotation.x = -swing
 		if person.position.z > ROAD_MAX_Z - 2.0:
 			entry["direction"] = -1.0
 			person.rotation.y = PI
