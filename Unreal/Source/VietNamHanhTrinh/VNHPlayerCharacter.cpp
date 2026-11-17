@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "Components/InputComponent.h"
 
 AVNHPlayerCharacter::AVNHPlayerCharacter()
 {
@@ -54,3 +55,22 @@ void AVNHPlayerCharacter::SetSprinting(bool bNewSprinting)
 }
 void AVNHPlayerCharacter::TriggerJump() { Jump(); }
 void AVNHPlayerCharacter::StopJump() { StopJumping(); }
+
+void AVNHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(PlayerInputComponent);
+    PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AVNHPlayerCharacter::MoveForwardKeyboard);
+    PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AVNHPlayerCharacter::MoveRightKeyboard);
+    PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AVNHPlayerCharacter::TurnKeyboard);
+    PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AVNHPlayerCharacter::LookUpKeyboard);
+    PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AVNHPlayerCharacter::StartKeyboardJump);
+    PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AVNHPlayerCharacter::StopKeyboardJump);
+}
+
+void AVNHPlayerCharacter::MoveForwardKeyboard(float Value) { SetMoveInput(Value, 0.0f); }
+void AVNHPlayerCharacter::MoveRightKeyboard(float Value) { SetMoveInput(0.0f, Value); }
+void AVNHPlayerCharacter::TurnKeyboard(float Value) { AddLookInput(Value * 8.0f, 0.0f); }
+void AVNHPlayerCharacter::LookUpKeyboard(float Value) { AddLookInput(0.0f, -Value * 8.0f); }
+void AVNHPlayerCharacter::StartKeyboardJump() { TriggerJump(); }
+void AVNHPlayerCharacter::StopKeyboardJump() { StopJump(); }
