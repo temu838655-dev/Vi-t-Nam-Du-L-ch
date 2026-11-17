@@ -56,7 +56,7 @@ class VIETNAMHANHTRINH_API UVNHSaveGame : public USaveGame
 {
     GENERATED_BODY()
 public:
-    static constexpr int32 CurrentSchemaVersion = 4;
+    static constexpr int32 CurrentSchemaVersion = 5;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Save") int32 SchemaVersion = CurrentSchemaVersion;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Player") FString PlayerId;
@@ -77,6 +77,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Life|Career") int32 CompletedWorkShifts = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Economy") int64 Money = 0;
+    // In-game calendar: Day 1, Monday (weekday index 0), starts at 08:00.
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="World|Time") int64 GameDay = 1;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="World|Time") int32 MinuteOfDay = 480;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="World|Time") int32 WeekdayIndex = 0;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="World") FName CurrentRegionId = TEXT("HANOI_HOAN_KIEM");
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="World") FName LastCheckpointId = NAME_None;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, SaveGame, Category="Progress") TArray<FName> CompletedMissionIds;
