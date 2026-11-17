@@ -12,7 +12,7 @@ Game mô phỏng du lịch và đời sống Việt Nam theo hướng thế gi�
 ## Những hệ thống UE5 đã có trong mã nguồn
 - GameMode tự dựng blockout Hồ Hoàn Kiếm và PlayerStart dự phòng trên map trống; PlayerController hỗ trợ tạo HUD UMG cấu hình từ Blueprint.
 - Cầu nối UMG cho joystick, vuốt camera, chạy, nhảy, tương tác và điều khiển xe.
-- SaveGame và subsystem lưu tiến trình cục bộ.
+- SaveGame và subsystem lưu tiến trình cục bộ, ví tiền và checkpoint theo mã khu vực/địa điểm.
 - Actor khu vực blockout Hồ Hoàn Kiếm, POI có thể tương tác.
 - Pawn ô tô/xe máy thử nghiệm, điều khiển arcade, vào/ra phương tiện.
 - NPC dân cư với AI tuần tra cơ bản.
@@ -36,6 +36,7 @@ Không lấy bất kỳ APK prototype engine cũ nào làm bản build của d�
 - [Kiến trúc UE5 mobile](docs/UE5_MOBILE_ARCHITECTURE.md)
 - [Thiết lập HUD UMG cảm ứng](docs/UE5_MOBILE_UMG_SETUP.md)
 - [Tạo vertical slice đầu tiên](docs/UE5_VERTICAL_SLICE_BOOTSTRAP.md)
+- [Lưu checkpoint theo khu vực](docs/UE5_CHECKPOINT_SAVE.md)
 - [Quy trình nội dung địa phương](docs/VIETNAM_CONTENT_PIPELINE.md)
 - [Blockout Hồ Hoàn Kiếm](docs/UE5_HANOI_HOAN_KIEM_BLOCKOUT.md)
 - [POI tương tác](docs/UE5_POI_INTERACTION.md)
