@@ -615,19 +615,28 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	var greeting := Button.new()
 	greeting.text = "HỎI THĂM SỨC KHỎE"
 	greeting.custom_minimum_size = Vector2(0, 58)
-	greeting.pressed.connect(_choose_family_dialogue.bind(member_role, "greeting"))
+	greeting.pressed.connect(_choose_family_dialogue.bind(member_role, "greeting", activity))
 	layout.add_child(greeting)
 
 	var help := Button.new()
-	help.text = "GIÚP " + ("MẸ NẤU ĂN" if member_role == "mother" else "BỐ SỬA SANG NHÀ")
+	if activity == "Chuẩn bị bữa ăn":
+		help.text = "PHỤ CHUẨN BỊ BỮA ĂN"
+	elif activity == "Dọn dẹp nhà cửa":
+		help.text = "CÙNG DỌN DẸP NHÀ CỬA"
+	elif activity == "Xem TV":
+		help.text = "NGỒI XEM TV CÙNG GIA ĐÌNH"
+	elif activity == "Dùng bữa cùng gia đình":
+		help.text = "MỜI CẢ NHÀ DÙNG BỮA"
+	else:
+		help.text = "GIÚP ĐỠ BỐ MẸ"
 	help.custom_minimum_size = Vector2(0, 58)
-	help.pressed.connect(_choose_family_dialogue.bind(member_role, "help"))
+	help.pressed.connect(_choose_family_dialogue.bind(member_role, "help", activity))
 	layout.add_child(help)
 
 	var advice := Button.new()
 	advice.text = "XIN LỜI KHUYÊN CHO CHUYẾN ĐI"
 	advice.custom_minimum_size = Vector2(0, 58)
-	advice.pressed.connect(_choose_family_dialogue.bind(member_role, "advice"))
+	advice.pressed.connect(_choose_family_dialogue.bind(member_role, "advice", activity))
 	layout.add_child(advice)
 
 	var close := Button.new()
@@ -637,7 +646,7 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	layout.add_child(close)
 
 
-func _choose_family_dialogue(member_role: String, choice: String) -> void:
+func _choose_family_dialogue(member_role: String, choice: String, activity: String = "") -> void:
 	var member_name := "Mẹ" if member_role == "mother" else "Bố"
 	var affection_gain := 5
 	var response := ""
@@ -646,11 +655,19 @@ func _choose_family_dialogue(member_role: String, choice: String) -> void:
 			response = "Mẹ vui vì con vẫn quan tâm đến gia đình." if member_role == "mother" else "Bố khỏe, cảm ơn con đã hỏi thăm. Nhớ giữ an toàn khi đi đường nhé."
 		"help":
 			affection_gain = 8
-			if member_role == "mother":
-				GameState.satiety = mini(100, GameState.satiety + 5)
-				response = "Cảm ơn con đã phụ mẹ chuẩn bị bữa ăn. Cả nhà cùng cố gắng nhé!"
-			else:
-				response = "Có con phụ một tay, công việc sửa sang nhà cửa nhẹ nhàng hơn nhiều."
+			match activity:
+				"Chuẩn bị bữa ăn":
+					GameState.satiety = mini(100, GameState.satiety + 5)
+					response = "Cảm ơn con đã phụ chuẩn bị bữa ăn. Cả nhà sắp có một bữa cơm ngon rồi!"
+				"Dọn dẹp nhà cửa":
+					response = "Hai mẹ con/bố con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!"
+				"Xem TV":
+					response = "Ngồi xem cùng gia đình nhé. Có thời gian bên nhau mới quý."
+				"Dùng bữa cùng gia đình":
+					GameState.satiety = mini(100, GameState.satiety + 12)
+					response = "Cả nhà cùng ăn nhé! Bữa cơm hôm nay thật ấm cúng."
+				_:
+					response = "Cảm ơn con đã quan tâm và giúp đỡ gia đình."
 		"advice":
 			response = "Con hãy tìm hiểu đường đi, chuẩn bị đủ tiền và luôn đội mũ bảo hiểm khi đi xe máy nhé."
 	GameState.family_affection = mini(100, GameState.family_affection + affection_gain)
