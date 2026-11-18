@@ -7,6 +7,7 @@ class LocalMapCanvas:
 
 	var player_position := Vector3.ZERO
 	var player_rotation_y := 0.0
+	var map_center := Vector3.ZERO
 	var waypoint_position := Vector3.ZERO
 	var has_waypoint := false
 
@@ -15,12 +16,17 @@ class LocalMapCanvas:
 		custom_minimum_size = Vector2(0, 300)
 
 	func _world_to_canvas(world: Vector3) -> Vector2:
+		# North-up, player-centred map: the player stays visible while the
+		# streets and landmarks move relative to their live world position.
 		var usable := size - Vector2(28, 28)
-		return Vector2(14.0 + (world.x + 25.0) / 70.0 * usable.x, 14.0 + (world.z + 32.0) / 74.0 * usable.y)
+		var scale := Vector2(usable.x / 70.0, usable.y / 74.0)
+		return size * 0.5 + Vector2((world.x - map_center.x) * scale.x, (world.z - map_center.z) * scale.y)
 
 	func _canvas_to_world(point: Vector2) -> Vector3:
 		var usable := size - Vector2(28, 28)
-		return Vector3(clampf((point.x - 14.0) / maxf(1.0, usable.x) * 70.0 - 25.0, -25.0, 45.0), 0.0, clampf((point.y - 14.0) / maxf(1.0, usable.y) * 74.0 - 32.0, -32.0, 42.0))
+		var scale := Vector2(maxf(1.0, usable.x) / 70.0, maxf(1.0, usable.y) / 74.0)
+		var offset := (point - size * 0.5) / scale
+		return Vector3(clampf(map_center.x + offset.x, -25.0, 45.0), 0.0, clampf(map_center.z + offset.y, -32.0, 42.0))
 
 	func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.12, 0.15, 1.0))
@@ -761,6 +767,7 @@ func _process(delta: float) -> void:
 	if is_instance_valid(map_canvas) and is_instance_valid(player):
 		map_canvas.player_position = player.global_position
 		map_canvas.player_rotation_y = player.rotation.y
+		map_canvas.map_center = player.global_position
 		map_canvas.queue_redraw()
 	if is_instance_valid(waypoint_marker):
 		waypoint_animation_time += delta
@@ -1344,6 +1351,7 @@ func _open_local_map() -> void:
 	map_canvas.custom_minimum_size = Vector2(0, minf(300.0, viewport_size.y * 0.32))
 	map_canvas.player_position = player.global_position if is_instance_valid(player) else Vector3.ZERO
 	map_canvas.player_rotation_y = player.rotation.y if is_instance_valid(player) else 0.0
+	map_canvas.map_center = player.global_position if is_instance_valid(player) else Vector3.ZERO
 	map_canvas.has_waypoint = has_active_waypoint
 	map_canvas.waypoint_position = active_waypoint
 	map_canvas.waypoint_selected.connect(_set_map_waypoint)
