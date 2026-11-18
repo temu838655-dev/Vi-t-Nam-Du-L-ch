@@ -100,6 +100,30 @@ def inspect_asset(asset, asset_root):
                 problems.append(f"{asset_id}: no clearly named head/face node for art review")
             if not has_name(nodes, [r"hair"]):
                 problems.append(f"{asset_id}: no clearly named hair node for art review")
+            facial_parts = {
+                "eyes": [r"eye", r"iris", r"pupil"],
+                "eyebrows": [r"brow", r"eyebrow"],
+                "nose": [r"nose", r"nostril"],
+                "mouth/lips": [r"mouth", r"lip"],
+                "teeth": [r"teeth", r"tooth"],
+                "ears": [r"ear"],
+                "jaw": [r"jaw", r"chin"]
+            }
+            for part, patterns in facial_parts.items():
+                if not has_name(nodes, patterns):
+                    problems.append(f"{asset_id}: missing clearly named facial feature node: {part}")
+            # Facial movement may be authored as glTF morph targets or facial bones.
+            morph_targets = any(
+                isinstance(primitive, dict) and bool(primitive.get("targets"))
+                for mesh in meshes if isinstance(mesh, dict)
+                for primitive in mesh.get("primitives", [])
+            )
+            facial_bones = has_name(nodes, [
+                r"jaw", r"mouth", r"lip", r"eyelid", r"eye.?lid",
+                r"brow", r"cheek", r"facial"
+            ])
+            if not morph_targets and not facial_bones:
+                problems.append(f"{asset_id}: no facial morph targets or facial rig bones for expressions/lip sync")
         elif profile == "motorbike":
             if len(meshes) < 5:
                 problems.append(f"{asset_id}: motorbike needs at least 5 distinct mesh parts (found {len(meshes)})")
