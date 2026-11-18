@@ -6,10 +6,11 @@ on:
     paths:
       - "Godot/**"
       - ".github/workflows/godot-android-apk.yml"
+      - "README-GODOT.md"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: godot-android-${{ github.ref }}
@@ -115,17 +116,32 @@ jobs:
           fi
       - name: Export Android ARM64 APK
         run: |
-          # Godot resolves CLI export paths relative to the Godot/ project directory.
-          # ../build therefore targets the repository-root build folder.
           mkdir -p build
           godot --headless --path Godot --export-debug "Android" ../build/VietNamHanhTrinh-Android-ARM64.apk --verbose
       - name: Verify APK
         run: |
+          set -eux
           test -s build/VietNamHanhTrinh-Android-ARM64.apk
           file build/VietNamHanhTrinh-Android-ARM64.apk
+          aapt dump badging build/VietNamHanhTrinh-Android-ARM64.apk | grep -F "com.bovietnam.hanhtrinh"
       - uses: actions/upload-artifact@v4
         with:
           name: VietNamHanhTrinh-Godot-Android-ARM64
           path: build/VietNamHanhTrinh-Android-ARM64.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Publish test APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: godot-android-test-${{ github.run_number }}
+          name: "Godot Android Test Build ${{ github.run_number }}"
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+          body: |
+            Automated ARM64 test build from branch `godot4-port`.
+
+            This is a debug-signed testing APK, not a Play Store production release.
+            Install and smoke-test on a real Android device before treating the build as verified.
+          files: build/VietNamHanhTrinh-Android-ARM64.apk
