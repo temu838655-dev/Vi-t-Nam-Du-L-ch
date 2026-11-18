@@ -155,7 +155,7 @@ func _ready() -> void:
 	level.add_theme_font_size_override("font_size", 17)
 	profile_text.add_child(level)
 	var xp := ProgressBar.new()
-	xp.custom_minimum_size = Vector2(150, 10)
+	xp.custom_minimum_size = Vector2(90 if compact_layout else 150, 10)
 	xp.max_value = 100
 	xp.value = 28
 	xp.show_percentage = false
