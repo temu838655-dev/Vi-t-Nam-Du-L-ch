@@ -88,14 +88,50 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 			return found
 	return null
 
+func _normalize_animation_name(value: String) -> String:
+	var normalized := value.to_lower()
+	for separator in [" ", "_", "-", "|", ":", ".", "/", "\\"]:
+		normalized = normalized.replace(separator, "")
+	return normalized
+
+func _animation_aliases(state_name: String) -> Array[String]:
+	match state_name.to_lower():
+		"idle":
+			return ["idle", "breathingidle", "standingidle", "stand", "standing", "rest"]
+		"walk":
+			return ["walk", "walking", "walkforward", "locomotionwalk"]
+		"run":
+			return ["run", "running", "sprint", "jog", "fastwalk"]
+		_:
+			return [state_name.to_lower()]
+
 func _play_production_animation(state_name: String) -> void:
 	if not is_instance_valid(production_animation_player):
 		return
-	for animation_name in production_animation_player.get_animation_list():
-		if animation_name.to_lower() == state_name.to_lower():
-			if production_animation_player.current_animation != animation_name:
-				production_animation_player.play(animation_name)
-			return
+	var animations: Array = production_animation_player.get_animation_list()
+	var aliases := _animation_aliases(state_name)
+	var selected: StringName = &""
+	var best_score := -1
+	for animation_name in animations:
+		var normalized := _normalize_animation_name(str(animation_name))
+		for alias_name in aliases:
+			var score := -1
+			if normalized == alias_name:
+				score = 100
+			elif normalized.ends_with(alias_name):
+				score = 80
+			elif normalized.contains(alias_name):
+				score = 60
+			if score > best_score:
+				best_score = score
+				selected = animation_name
+	if selected == &"" and state_name.to_lower() == "run":
+		_play_production_animation("walk")
+		return
+	if selected == &"":
+		return
+	if production_animation_player.current_animation != selected:
+		production_animation_player.play(selected)
 
 func _build_procedural_character_model() -> void:
 	player_visual = Node3D.new()
