@@ -84,6 +84,38 @@ var home_cleanliness: int = 50
 var family_cooking_sessions: int = 0
 var family_meals_shared: int = 0
 var family_tv_sessions: int = 0
+var tutorial_stage: int = 0
+
+const TUTORIAL_EVENTS := {
+	"talk_family": 0,
+	"visit_ho_guom": 1,
+	"buy_food": 2,
+	"choose_career": 3,
+	"complete_work": 4
+}
+
+const TUTORIAL_MISSIONS := [
+	{"title":"Chào hỏi bố mẹ","description":"Về nhà và trò chuyện với bố hoặc mẹ.","target":"family"},
+	{"title":"Khám phá Hồ Gươm","description":"Đi đến khu vực cầu Thê Húc cạnh Tháp Rùa.","target":"ho_guom"},
+	{"title":"Thưởng thức món Việt","description":"Ghé quán ăn và mua một món ăn Việt Nam.","target":"food_shop"},
+	{"title":"Chọn công việc đầu tiên","description":"Gặp một người tuyển dụng và chọn nghề bạn yêu thích.","target":"career"},
+	{"title":"Nhận ca làm đầu tiên","description":"Quay lại người tuyển dụng và hoàn thành một ca làm.","target":"career"},
+	{"title":"Tự do khám phá Việt Nam","description":"Bạn đã hoàn thành hướng dẫn nhập môn. Hãy tự chọn hành trình tiếp theo!","target":"none"}
+]
+
+func get_tutorial_mission() -> Dictionary:
+	return TUTORIAL_MISSIONS[clampi(tutorial_stage, 0, TUTORIAL_MISSIONS.size() - 1)].duplicate(true)
+
+func advance_tutorial(event_id: String) -> bool:
+	if not TUTORIAL_EVENTS.has(event_id):
+		return false
+	var expected_stage := int(TUTORIAL_EVENTS[event_id])
+	if tutorial_stage != expected_stage:
+		return false
+	tutorial_stage = mini(TUTORIAL_MISSIONS.size() - 1, tutorial_stage + 1)
+	if tutorial_stage == TUTORIAL_MISSIONS.size() - 1:
+		earn_money(100000)
+	return true
 
 func advance_world_clock(delta: float) -> void:
 	world_time_seconds = fposmod(world_time_seconds + delta, 240.0)
@@ -120,6 +152,7 @@ func start_new_game() -> void:
 	family_cooking_sessions = 0
 	family_meals_shared = 0
 	family_tv_sessions = 0
+	tutorial_stage = 0
 	has_save = false
 
 func load_game() -> bool:
@@ -178,6 +211,7 @@ func load_game() -> bool:
 	family_cooking_sessions = maxi(0, int(data.get("family_cooking_sessions", 0)))
 	family_meals_shared = maxi(0, int(data.get("family_meals_shared", 0)))
 	family_tv_sessions = maxi(0, int(data.get("family_tv_sessions", 0)))
+	tutorial_stage = clampi(int(data.get("tutorial_stage", 0)), 0, TUTORIAL_MISSIONS.size() - 1)
 	has_save = true
 	return true
 
@@ -185,7 +219,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 	last_position = player_position if _is_valid_saved_position(player_position) else START_POSITION
 	last_rotation_y = rotation_y if is_finite(rotation_y) else 0.0
 	var data := {
-		"version": 4,
+		"version": 5,
 		"player_name": player_name,
 		"selected_career": selected_career,
 		"wallet_vnd": wallet_vnd,
@@ -206,6 +240,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 		"family_cooking_sessions": family_cooking_sessions,
 		"family_meals_shared": family_meals_shared,
 		"family_tv_sessions": family_tv_sessions,
+		"tutorial_stage": tutorial_stage,
 		"position": [last_position.x, last_position.y, last_position.z],
 		"rotation_y": last_rotation_y,
 		"saved_at_unix": int(Time.get_unix_time_from_system())
@@ -311,6 +346,7 @@ func complete_work_shift() -> String:
 	earn_money(salary)
 	last_work_day = today
 	completed_work_shifts += 1
+	advance_tutorial("complete_work")
 	return "Bạn hoàn thành ca làm nghề %s và nhận %s VNĐ." % [selected_career, _format_money(salary)]
 
 func has_family_interaction(member_role: String, choice: String) -> bool:
