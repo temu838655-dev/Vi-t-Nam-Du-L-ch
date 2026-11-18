@@ -170,7 +170,7 @@ func _ready() -> void:
 	navigation_row.add_theme_constant_override("separation", 8)
 	navigation_panel.add_child(navigation_row)
 	navigation_label = Label.new()
-	navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
+	navigation_label.text = "🧭 Chưa đặt điểm đến\nMở bản đồ để chọn nơi muốn đến"
 	navigation_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	navigation_label.add_theme_font_size_override("font_size", 14)
 	navigation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -344,7 +344,7 @@ func _update_navigation_guidance() -> void:
 	if not is_instance_valid(navigation_label):
 		return
 	if not has_active_waypoint or not is_instance_valid(player):
-		navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
+		navigation_label.text = "🧭 Chưa đặt điểm đến\nMở bản đồ để chọn nơi muốn đến"
 		return
 	var offset := active_waypoint - player.global_position
 	var flat_offset := Vector2(offset.x, offset.z)
@@ -358,7 +358,7 @@ func _update_navigation_guidance() -> void:
 	var relative_angle := wrapf(world_angle - player.rotation.y, -PI, PI)
 	var arrows := ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
 	var arrow_index := posmod(int(round(relative_angle / (PI / 4.0))), 8)
-	navigation_label.text = "🧭 ĐIỂM ĐẾN\\n%s  Còn %.0f m" % [arrows[arrow_index], distance]
+	navigation_label.text = "🧭 ĐIỂM ĐẾN\n%s  Còn %.0f m" % [arrows[arrow_index], distance]
 
 func _clear_waypoint() -> void:
 	has_active_waypoint = false
@@ -367,7 +367,7 @@ func _clear_waypoint() -> void:
 		map_canvas.has_waypoint = false
 		map_canvas.queue_redraw()
 	if is_instance_valid(navigation_label):
-		navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
+		navigation_label.text = "🧭 Chưa đặt điểm đến\nMở bản đồ để chọn nơi muốn đến"
 
 func _update_status() -> void:
 	if status_label:
