@@ -25,6 +25,18 @@ The target is a realistic, game-ready Vietnamese hero and a reusable NPC family,
    - https://grab3d.com/tools/character-mixer/
    - CC0 modular rigged GLB export, but current visual styles are stylized/low-poly. Useful for placeholder NPC prototyping only.
 
+
+## Additional source research (18 November 2026)
+
+5. **Vietnamese Man (Basic Rig), Sketchfab**
+   - https://sketchfab.com/3d-models/vietnamese-man-basic-rig-7dffbc85e8044a2f9198e626ef95aa92
+   - Listing advertises a downloadable model, reports about 356.7k triangles and CC BY-SA.
+   - This is a potential Vietnamese male reference, not a ready-to-ship character. The share-alike obligation must be reviewed before inclusion in a proprietary/commercial game. Retopology, rig, facial anatomy and animation must be inspected.
+6. **Ara 3D Gen, GitHub**
+   - https://github.com/TuriaArt/3d-gen-TU
+   - Its project documentation describes local character generation and GLB export using MakeHuman CC0 character data; code is MIT according to its repository.
+   - Evaluate it as a production tool, not as a prebuilt Vietnamese character. Customize facial proportions, hairstyles and locally accurate wardrobe; inspect the actual exported GLB and licenses of every dependency.
+
 ## Production workflow
 
 ### A. Reference and design
