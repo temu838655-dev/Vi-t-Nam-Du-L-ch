@@ -123,7 +123,12 @@ jobs:
           set -eux
           test -s build/VietNamHanhTrinh-Android-ARM64.apk
           file build/VietNamHanhTrinh-Android-ARM64.apk
-          aapt dump badging build/VietNamHanhTrinh-Android-ARM64.apk | grep -F "com.bovietnam.hanhtrinh"
+          AAPT="$ANDROID_HOME/build-tools/34.0.0/aapt"
+          APK_SIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          test -x "$AAPT"
+          test -x "$APK_SIGNER"
+          "$AAPT" dump badging build/VietNamHanhTrinh-Android-ARM64.apk | grep -F "com.bovietnam.hanhtrinh"
+          "$APK_SIGNER" verify --verbose build/VietNamHanhTrinh-Android-ARM64.apk
       - uses: actions/upload-artifact@v4
         with:
           name: VietNamHanhTrinh-Godot-Android-ARM64
