@@ -1,5 +1,20 @@
 extends Node3D
 
+class ShopSeatInteractable:
+	extends Node3D
+
+	var display_name := "Chỗ ngồi trong quán"
+
+	func _ready() -> void:
+		add_to_group("interactable")
+
+	func interact() -> String:
+		var player_node := get_tree().get_first_node_in_group("player")
+		if is_instance_valid(player_node) and player_node.has_method("begin_home_action"):
+			player_node.call("begin_home_action", "bench")
+			return "Bạn ngồi nghỉ tại %s. Hãy thư giãn và ngắm không khí nhộn nhịp của quán." % display_name
+		return "Bạn tìm một chỗ ngồi trong quán."
+
 @export var shop_type := "food"
 @export var shop_name := "Cửa hàng"
 @export var sign_color := Color(0.82, 0.2, 0.12)
@@ -76,6 +91,16 @@ func _build_shop_displays() -> void:
 				var x := -1.55 + float(index) * 0.77
 				_add_visual_box("FoodPackage_%02d" % index, Vector3(x, 1.42, 0.82), Vector3(0.42, 0.52, 0.38), [Color(0.72,0.18,0.12),Color(0.82,0.62,0.18),Color(0.18,0.42,0.24),Color(0.78,0.72,0.58),Color(0.16,0.32,0.58)][index])
 			_add_visual_box("DiningTable", Vector3(1.45, 0.72, 1.0), Vector3(1.1, 0.12, 0.72), Color(0.42, 0.25, 0.13))
+			_add_visual_box("DiningChair_Seat", Vector3(1.45, 0.48, 0.18), Vector3(0.62, 0.12, 0.62), Color(0.36, 0.22, 0.12))
+			_add_visual_box("DiningChair_Back", Vector3(1.45, 0.86, -0.08), Vector3(0.62, 0.72, 0.10), Color(0.36, 0.22, 0.12))
+			for leg_x in [-0.22, 0.22]:
+				for leg_z in [-0.20, 0.20]:
+					_add_visual_box("DiningChair_Leg_%s_%s" % [str(leg_x), str(leg_z)], Vector3(1.45 + leg_x, 0.24, 0.18 + leg_z), Vector3(0.07, 0.48, 0.07), Color(0.28, 0.18, 0.10))
+			var seat_target := ShopSeatInteractable.new()
+			seat_target.name = "DiningSeatInteraction"
+			seat_target.display_name = "Bàn ăn của " + shop_name
+			seat_target.position = Vector3(1.45, 0.0, -0.35)
+			add_child(seat_target)
 	# Static low-poly attendant behind the counter; interaction is handled by the shop itself.
 	_build_shop_staff()
 
