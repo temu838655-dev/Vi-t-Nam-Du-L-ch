@@ -79,6 +79,7 @@ var satiety: int = 100
 var food_history: Array = []
 var owned_specialties: Array = []
 var world_time_seconds: float = 8.0 * 60.0
+var family_interaction_log: Dictionary = {}
 
 func advance_world_clock(delta: float) -> void:
 	world_time_seconds = fposmod(world_time_seconds + delta, 240.0)
@@ -110,6 +111,7 @@ func start_new_game() -> void:
 	food_history = []
 	owned_specialties = []
 	world_time_seconds = 8.0 * 60.0
+	family_interaction_log = {}
 	has_save = false
 
 func load_game() -> bool:
@@ -162,6 +164,8 @@ func load_game() -> bool:
 	if specialties_value is Array:
 		owned_specialties = specialties_value.duplicate()
 	world_time_seconds = fposmod(float(data.get("world_time_seconds", 8.0 * 60.0)), 240.0)
+	var family_log_value: Variant = data.get("family_interaction_log", {})
+	family_interaction_log = family_log_value.duplicate(true) if family_log_value is Dictionary else {}
 	has_save = true
 	return true
 
@@ -185,6 +189,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 		"food_history": food_history,
 		"owned_specialties": owned_specialties,
 		"world_time_seconds": world_time_seconds,
+		"family_interaction_log": family_interaction_log,
 		"position": [last_position.x, last_position.y, last_position.z],
 		"rotation_y": last_rotation_y,
 		"saved_at_unix": int(Time.get_unix_time_from_system())
@@ -291,6 +296,14 @@ func complete_work_shift() -> String:
 	last_work_day = today
 	completed_work_shifts += 1
 	return "Bạn hoàn thành ca làm nghề %s và nhận %s VNĐ." % [selected_career, _format_money(salary)]
+
+func register_family_interaction(member_role: String, choice: String) -> bool:
+	var today := Time.get_date_string_from_system()
+	var key := today + "|" + member_role + "|" + choice
+	if bool(family_interaction_log.get(key, false)):
+		return false
+	family_interaction_log[key] = true
+	return true
 
 func talk_with_family(member_name: String) -> String:
 	family_affection = mini(100, family_affection + 5)
