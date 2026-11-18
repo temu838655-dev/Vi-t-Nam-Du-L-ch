@@ -51,6 +51,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y blender python3-numpy
           blender --background --python Godot/tools/generate_original_vietnamese_hero.py
+          blender --background --python Godot/tools/generate_original_vietnamese_woman.py
+          test -s Godot/assets/characters/npc/vietnamese_woman.glb
+          python3 Godot/tools/validate_generated_hero_glb.py Godot/assets/characters/npc/vietnamese_woman.glb
+          file Godot/assets/characters/npc/vietnamese_woman.glb
           test -s Godot/assets/characters/player/player_hero.glb
           python3 Godot/tools/validate_generated_hero_glb.py
           file Godot/assets/characters/player/player_hero.glb
@@ -63,6 +67,13 @@ jobs:
         with:
           name: Original-Vietnamese-Underbone-Motorbike-GLB
           path: Godot/assets/vehicles/motorbikes/honda_wave_alpha_110.glb
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload generated Vietnamese woman NPC GLB for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: Original-Vietnamese-Woman-NPC-GLB
+          path: Godot/assets/characters/npc/vietnamese_woman.glb
           if-no-files-found: error
           retention-days: 30
       - name: Upload generated hero GLB for inspection
