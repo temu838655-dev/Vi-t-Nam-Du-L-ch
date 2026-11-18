@@ -14,6 +14,16 @@ For each exact variant, collect a reference pack with permission:
 
 Record source URLs, capture date, model year and license/permission in the asset manifest. Reference photos are not automatically licensed as game textures.
 
+
+## Additional source research (18 November 2026)
+
+1. **Honda official creator 3D models** — https://global.honda/en/motorcycle/3d-models/
+   - Honda lists Super Cub C125, CT125 and CB1000F as free/royalty-free creator assets, subject to the terms of the distribution platform.
+   - These are official manufacturer geometry candidates, but none is a Wave Alpha. Do not relabel a Super Cub as a Wave Alpha. Acquire through the official platform links and inspect the actual file and platform-specific terms before integration.
+2. **Honda 110, Sketchfab by KR.Origin** — https://sketchfab.com/3d-models/honda-110-ad89d02d48044260a453a176d4ef5e5f
+   - Listing advertises download and CC BY, with approximately 1 million triangles; it was uploaded as a RealityScan capture.
+   - Treat as a scan/reference candidate only. Its exact model year/variant and mechanical completeness are not established. A scan is not a substitute for independently rigged wheels, steering and suspension.
+
 ## Blender authoring requirements
 
 - Separate named meshes for body panels, seat, front/rear wheels, tyres, rims, handlebar, mirrors, lamps, indicators, exhaust, brake components and small controls.
