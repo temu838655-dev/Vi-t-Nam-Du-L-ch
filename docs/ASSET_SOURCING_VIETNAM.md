@@ -23,10 +23,16 @@ This catalog is a research shortlist, not a claim that the models have been down
 
 ## Vehicle sourcing
 
+| Asset | Source | Format / technical notes | License / integration decision |
+|---|---|---|---|
+| DRIVER MOTOR BIKE (Honda Wave) | https://www.cgtrader.com/free-3d-models/vehicle/motorcycle/driver-motor-bike | FBX, 2.52 MB; CGTrader page description says “DRIVER BIKE HONDA WAVE”; CGTrader technical check reports PBR base color, roughness, metalness and normal maps, UV unwrapped, no N-gons/faceted geometry; textures are not embedded | Listed as free with Royalty Free License; creator ppphuthuy. Promising first Honda Wave-family candidate, but inspect the downloaded model visually and confirm the license terms and whether the rider is a separate mesh before production integration. |
+| Official Honda Super Cub C125 | https://global.honda/en/motorcycle/3d-models/ | Honda official 3D model data; Super Cub C125 variants offered via CLIP STUDIO ASSETS and Unity Asset Store | Honda says the models are royalty-free subject to each platform's terms. Authentic Honda asset, but it is not a Wave Alpha; use only as a separate Cub-family vehicle. |
+| Official Honda CT125 and CB1000F | https://global.honda/en/motorcycle/3d-models/ | Official Honda creator assets; multiple color variants | Royalty-free subject to platform terms. Useful authentic vehicles for later expansion, not substitutes for Vietnamese commuter models. |
+
 - TurboSquid motor-scooter catalog: https://www.turbosquid.com/Search/3D-Models/motor-scooter
 - TurboSquid lists FBX, GLTF/GLB and OBJ among exchange formats. Filter for downloadable, game-ready models and verify each product license.
 - Do not substitute a generic scooter for Honda Wave Alpha, Vision, Air Blade, SH, Lead, Future, Winner X, Yamaha Sirius, Exciter, Janus or Grande. Exact model/year, body panels, wheelbase, headlamp, tail lamp, mirrors, seat and control rig must be checked against reference photos.
-- No verified downloadable Honda Wave Alpha model was found in this search pass.
+- The CGTrader Wave model is a candidate, not yet accepted as the exact Wave Alpha. Do not label it Wave Alpha without matching its body design and model year to reference photos.
 
 ## Important platform and license notes
 
