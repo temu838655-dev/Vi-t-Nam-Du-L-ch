@@ -629,6 +629,17 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	affection_bar.custom_minimum_size = Vector2(0, 12)
 	layout.add_child(affection_bar)
 
+	var family_progress := Label.new()
+	family_progress.text = GameState.get_family_progress_text()
+	family_progress.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	family_progress.add_theme_font_size_override("font_size", 14)
+	layout.add_child(family_progress)
+	var picnic_status := Label.new()
+	picnic_status.text = "ĐÃ MỞ KHÓA: CHUYẾN DÃ NGOẠI GIA ĐÌNH" if GameState.is_family_picnic_unlocked() else "Mục tiêu: thân thiết 50/100 và cùng ăn 3 bữa để mở chuyến dã ngoại."
+	picnic_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	picnic_status.add_theme_font_size_override("font_size", 13)
+	layout.add_child(picnic_status)
+
 	var prompt := Label.new()
 	prompt.text = "Bạn muốn nói gì?"
 	prompt.add_theme_font_size_override("font_size", 19)
@@ -689,14 +700,19 @@ func _choose_family_dialogue(member_role: String, choice: String, activity: Stri
 			match activity:
 				"Chuẩn bị bữa ăn":
 					GameState.satiety = mini(100, GameState.satiety + 5)
-					response = "Cảm ơn con đã phụ chuẩn bị bữa ăn. Cả nhà sắp có một bữa cơm ngon rồi!"
+					GameState.family_cooking_sessions += 1
+					response = "Con đã phụ chuẩn bị bữa ăn. Cả nhà sắp có một bữa cơm ngon rồi! Số lần cùng nấu: %d." % GameState.family_cooking_sessions
 				"Dọn dẹp nhà cửa":
-					response = "Hai mẹ con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!" if member_role == "mother" else "Hai bố con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!"
+					GameState.home_cleanliness = mini(100, GameState.home_cleanliness + 20)
+					response = "Hai mẹ con cùng làm nên nhà cửa gọn gàng hơn!" if member_role == "mother" else "Hai bố con cùng làm nên nhà cửa gọn gàng hơn!"
+					response += " Độ sạch sẽ: %d/100." % GameState.home_cleanliness
 				"Xem TV":
-					response = "Ngồi xem cùng gia đình nhé. Có thời gian bên nhau mới quý."
+					GameState.family_tv_sessions += 1
+					response = "Ngồi xem cùng gia đình nhé. Đây là buổi xem TV chung thứ %d." % GameState.family_tv_sessions
 				"Dùng bữa cùng gia đình":
 					GameState.satiety = mini(100, GameState.satiety + 12)
-					response = "Cả nhà cùng ăn nhé! Bữa cơm hôm nay thật ấm cúng."
+					GameState.family_meals_shared += 1
+					response = "Cả nhà cùng ăn nhé! Bữa cơm chung thứ %d thật ấm cúng." % GameState.family_meals_shared
 				_:
 					response = "Cảm ơn con đã quan tâm và giúp đỡ gia đình."
 		"advice":
@@ -705,7 +721,8 @@ func _choose_family_dialogue(member_role: String, choice: String, activity: Stri
 	if player:
 		GameState.save_game(player.global_position, player.rotation.y)
 	_close_family_dialogue()
-	_show_message("%s: %s  •  Tình cảm gia đình +%d (hiện %d/100)" % [member_name, response, affection_gain, GameState.family_affection])
+	var milestone_text := "  •  ĐÃ MỞ KHÓA CHUYẾN DÃ NGOẠI GIA ĐÌNH!" if GameState.is_family_picnic_unlocked() else ""
+	_show_message("%s: %s  •  Tình cảm gia đình +%d (hiện %d/100)%s" % [member_name, response, affection_gain, GameState.family_affection, milestone_text])
 
 
 func _close_family_dialogue() -> void:
