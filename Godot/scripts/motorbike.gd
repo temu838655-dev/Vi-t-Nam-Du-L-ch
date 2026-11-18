@@ -142,6 +142,11 @@ func _build_motorbike() -> void:
 
 
 func _load_production_model() -> bool:
+	# This GLB is an original underbone baseline, not a universal model for
+	# scooters or sport bikes. Never reuse it for unrelated motorcycle classes.
+	var normalized_display_name := display_name.to_lower()
+	if not ("wave alpha" in normalized_display_name):
+		return false
 	if not ResourceLoader.exists(PRODUCTION_MODEL_PATH):
 		return false
 	var packed_model := load(PRODUCTION_MODEL_PATH) as PackedScene
@@ -201,7 +206,7 @@ func _inspect_motorbike_parts(node: Node, parts: Dictionary) -> void:
 		"mirror": "mirror" in n or "guong" in n,
 		"exhaust": "exhaust" in n or "muffler" in n or "ongxa" in n,
 		"brake": "brake" in n or "disc" in n or "drum" in n or "phanh" in n,
-		"body_panel": "body" in n or "fairing" in n or "panel" in n or "cowling" in n or "danao" in n
+		"body_panel": "body" in n or "fairing" in n or "panel" in n or "cowling" in n or "danao" in n or "sidecover" in n or "legshield" in n or "fender" in n
 	}
 	for key in checks:
 		if bool(checks[key]):
