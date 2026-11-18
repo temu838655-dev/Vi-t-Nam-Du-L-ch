@@ -69,14 +69,18 @@ func _build_character_model() -> void:
 		if packed_model != null:
 			var imported_model := packed_model.instantiate()
 			if imported_model is Node3D:
-				player_visual = imported_model as Node3D
-				player_visual.name = "CharacterVisual"
-				add_child(player_visual)
-				using_production_model = true
-				production_animation_player = _find_animation_player(player_visual)
-				_play_production_animation("idle")
-				return
-	push_warning("Production hero GLB not found or invalid; using clearly marked prototype character.")
+				var validation := _validate_production_hero(imported_model)
+				if bool(validation.get("valid", false)):
+					player_visual = imported_model as Node3D
+					player_visual.name = "CharacterVisual"
+					add_child(player_visual)
+					using_production_model = true
+					production_animation_player = _find_animation_player(player_visual)
+					_play_production_animation("idle")
+					return
+				push_warning("Hero GLB rejected by runtime quality gate: " + str(validation.get("errors", [])))
+				imported_model.queue_free()
+	push_warning("Production hero GLB missing or failed quality gate; using clearly marked prototype character.")
 	_build_procedural_character_model()
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
@@ -87,6 +91,70 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 		if found != null:
 			return found
 	return null
+
+func _validate_production_hero(root: Node) -> Dictionary:
+	# A file existing on disk is not enough: reject generic/static meshes that
+	# cannot meet the project's articulated, facially-detailed character target.
+	var report := {
+		"valid": false,
+		"errors": [],
+		"has_skeleton": false,
+		"has_animation": false,
+		"has_facial_deformation": false,
+		"face_parts": {"eye": 0, "brow": 0, "nose": 0, "mouth": 0, "teeth": 0, "ear": 0}
+	}
+	_inspect_hero_nodes(root, report)
+	var errors: Array[String] = []
+	if not report["has_skeleton"]:
+		errors.append("missing humanoid Skeleton3D")
+	if not report["has_animation"]:
+		errors.append("missing imported AnimationPlayer clips")
+	if not report["has_facial_deformation"]:
+		errors.append("missing facial blend shapes or facial bones")
+	var parts: Dictionary = report["face_parts"]
+	for part in ["eye", "brow", "nose", "mouth", "teeth", "ear"]:
+		var minimum := 2 if part == "eye" or part == "ear" else 1
+		if int(parts.get(part, 0)) < minimum:
+			errors.append("insufficient visible face geometry: " + part)
+	report["errors"] = errors
+	report["valid"] = errors.is_empty()
+	return report
+
+
+func _inspect_hero_nodes(node: Node, report: Dictionary) -> void:
+	var normalized := node.name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+	if node is Skeleton3D:
+		report["has_skeleton"] = true
+		var skeleton := node as Skeleton3D
+		for bone_index in range(skeleton.get_bone_count()):
+			var bone_name := skeleton.get_bone_name(bone_index).to_lower()
+			if "jaw" in bone_name or "lip" in bone_name or "brow" in bone_name or "eyelid" in bone_name or "face" in bone_name:
+				report["has_facial_deformation"] = true
+	if node is AnimationPlayer:
+		if not (node as AnimationPlayer).get_animation_list().is_empty():
+			report["has_animation"] = true
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh is ArrayMesh:
+			if (mesh_instance.mesh as ArrayMesh).get_blend_shape_count() > 0:
+				report["has_facial_deformation"] = true
+		var parts: Dictionary = report["face_parts"]
+		if "eye" in normalized or "eyeball" in normalized or "iris" in normalized or "pupil" in normalized:
+			parts["eye"] = int(parts["eye"]) + (2 if "eyes" in normalized else 1)
+		if "brow" in normalized:
+			parts["brow"] = int(parts["brow"]) + 1
+		if "nose" in normalized:
+			parts["nose"] = int(parts["nose"]) + 1
+		if "mouth" in normalized or "lip" in normalized:
+			parts["mouth"] = int(parts["mouth"]) + 1
+		if "teeth" in normalized or "tooth" in normalized:
+			parts["teeth"] = int(parts["teeth"]) + 1
+		if "ear" in normalized:
+			parts["ear"] = int(parts["ear"]) + 1
+		report["face_parts"] = parts
+	for child in node.get_children():
+		_inspect_hero_nodes(child, report)
+
 
 func _normalize_animation_name(value: String) -> String:
 	var normalized := value.to_lower()
