@@ -22,6 +22,7 @@ var walk_phase := 0.0
 var fullbody_overlay: MeshInstance3D
 var helmet_node: MeshInstance3D
 var mobile_input := Vector2.ZERO
+var mobile_sprint := false
 var look_delta := Vector2.ZERO
 var current_vehicle: Node3D
 var home_action_remaining := 0.0
@@ -307,8 +308,9 @@ func _physics_process(delta: float) -> void:
 			velocity.y = 0.0
 	else:
 		var direction := (transform.basis * Vector3(input.x, 0, input.y)).normalized()
-		velocity.x = move_toward(velocity.x, direction.x * move_speed, acceleration * delta)
-		velocity.z = move_toward(velocity.z, direction.z * move_speed, acceleration * delta)
+		var effective_speed := move_speed * (1.55 if mobile_sprint else 1.0)
+		velocity.x = move_toward(velocity.x, direction.x * effective_speed, acceleration * delta)
+		velocity.z = move_toward(velocity.z, direction.z * effective_speed, acceleration * delta)
 		if not is_on_floor():
 			velocity.y -= gravity * delta
 		elif Input.is_action_just_pressed("jump"):
@@ -357,3 +359,6 @@ func _animate_character(delta: float) -> void:
 		left_arm.rotation.x = move_toward(left_arm.rotation.x, 0.0, delta * 4.0)
 		right_arm.rotation.x = move_toward(right_arm.rotation.x, 0.0, delta * 4.0)
 		player_visual.position.y = move_toward(player_visual.position.y, 0.0, delta * 0.12)
+
+func set_mobile_sprint(enabled: bool) -> void:
+	mobile_sprint = enabled
