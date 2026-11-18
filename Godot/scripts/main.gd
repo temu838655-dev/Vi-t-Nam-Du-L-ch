@@ -53,6 +53,14 @@ func _process(delta: float) -> void:
 	GameState.advance_world_clock(delta)
 	if not is_instance_valid(player):
 		return
+	if GameState.tutorial_stage == 1:
+		var landmark_distance := Vector2(player.global_position.x - 27.0, player.global_position.z - 5.1).length()
+		if landmark_distance <= 4.5:
+			if GameState.advance_tutorial("visit_ho_guom"):
+				GameState.save_game(player.global_position, player.rotation.y)
+				var hud := get_tree().get_first_node_in_group("shop_ui")
+				if is_instance_valid(hud) and hud.has_method("_show_message"):
+					hud.call("_show_message", "Nhiệm vụ hoàn thành: Bạn đã đến khu vực cầu Thê Húc. Hãy tiếp tục hành trình!")
 	autosave_elapsed += delta
 	if autosave_elapsed >= 15.0:
 		autosave_elapsed = 0.0
