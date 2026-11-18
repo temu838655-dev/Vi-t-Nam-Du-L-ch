@@ -406,7 +406,7 @@ func _open_phone() -> void:
 	header.add_child(close)
 
 	var profile := Label.new()
-	profile.text = "DU KHÁCH  •  CẤP ĐỘ 1\nVí tiền: %s VNĐ\nNghề nghiệp: %s\nĐộ no: %d/100" % [_format_money(GameState.wallet_vnd), str(GameState.selected_career), int(GameState.satiety)]
+	profile.text = "%s  •  DU KHÁCH\\nĐịa điểm: %s\\nVí tiền: %s VNĐ\\nNghề nghiệp: %s\\nĐộ no: %d/100" % [str(GameState.player_name), str(GameState.current_location), _format_money(GameState.wallet_vnd), str(GameState.selected_career), int(GameState.satiety)]
 	profile.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	profile.add_theme_font_size_override("font_size", 16)
 	profile.add_theme_color_override("font_color", Color(0.86, 0.94, 1.0))
@@ -417,6 +417,14 @@ func _open_phone() -> void:
 	family.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	family.add_theme_font_size_override("font_size", 14)
 	layout.add_child(family)
+
+	var mission_data: Dictionary = GameState.get_tutorial_mission()
+	var mission_card := Label.new()
+	mission_card.text = "NHIỆM VỤ HIỆN TẠI\\n%s\\n%s" % [str(mission_data.get("title", "Tự do khám phá")), str(mission_data.get("description", ""))]
+	mission_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mission_card.add_theme_font_size_override("font_size", 14)
+	mission_card.add_theme_color_override("font_color", Color(1.0, 0.84, 0.52))
+	layout.add_child(mission_card)
 
 	var section := Label.new()
 	section.text = "ỨNG DỤNG"
@@ -470,6 +478,11 @@ func _phone_open_settings() -> void:
 
 func _phone_cycle_career() -> void:
 	var next_career := GameState.choose_next_career()
+	if is_instance_valid(player):
+		GameState.save_game(player.global_position, player.rotation.y)
+	else:
+		GameState.save_game(GameState.last_position, GameState.last_rotation_y)
+	_update_status()
 	_show_message("Nghề nghiệp đã chuyển thành: " + next_career + ". Hãy đến điểm làm việc để nhận ca.")
 	_close_phone()
 
