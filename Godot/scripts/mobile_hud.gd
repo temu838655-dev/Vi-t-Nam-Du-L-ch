@@ -1253,7 +1253,7 @@ func _open_local_map() -> void:
 	map_canvas = LocalMapCanvas.new()
 	map_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	map_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	map_canvas.custom_minimum_size = Vector2(0, minf(360.0, viewport_size.y * 0.43))
+	map_canvas.custom_minimum_size = Vector2(0, minf(300.0, viewport_size.y * 0.32))
 	map_canvas.player_position = player.global_position if is_instance_valid(player) else Vector3.ZERO
 	map_canvas.player_rotation_y = player.rotation.y if is_instance_valid(player) else 0.0
 	map_canvas.has_waypoint = has_active_waypoint
@@ -1267,6 +1267,32 @@ func _open_local_map() -> void:
 	legend.add_theme_font_size_override("font_size", 12)
 	legend.add_theme_color_override("font_color", Color(0.82, 0.9, 0.92))
 	layout.add_child(legend)
+
+	# Named destinations make navigation usable without pixel-perfect map taps.
+	var destination_title := Label.new()
+	destination_title.text = "ĐIỂM ĐẾN NHANH"
+	destination_title.add_theme_font_size_override("font_size", 12)
+	destination_title.add_theme_color_override("font_color", Color(1.0, 0.82, 0.48))
+	layout.add_child(destination_title)
+	var destination_grid := GridContainer.new()
+	destination_grid.columns = 2
+	destination_grid.add_theme_constant_override("h_separation", 7)
+	destination_grid.add_theme_constant_override("v_separation", 6)
+	layout.add_child(destination_grid)
+	var destinations: Array[Dictionary] = [
+		{"title":"⌂  Nhà gia đình", "position":Vector3(0, 0, -8)},
+		{"title":"🌉  Cầu Thê Húc", "position":Vector3(27, 0, 5.1)},
+		{"title":"🍜  Quán ăn Việt", "position":Vector3(0, 0, 17)},
+		{"title":"🛍  Cửa hàng", "position":Vector3(10, 0, 3)}
+	]
+	for destination in destinations:
+		var destination_button := Button.new()
+		destination_button.text = str(destination["title"])
+		destination_button.custom_minimum_size = Vector2(0, 40)
+		destination_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_style_game_button(destination_button, Color(0.07, 0.22, 0.31, 0.98))
+		destination_button.pressed.connect(_set_map_waypoint.bind(destination["position"]))
+		destination_grid.add_child(destination_button)
 
 	var close := Button.new()
 	close.text = "ĐÓNG BẢN ĐỒ"
