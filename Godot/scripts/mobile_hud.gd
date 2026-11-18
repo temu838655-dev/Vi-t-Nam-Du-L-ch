@@ -122,6 +122,7 @@ var phone_overlay: Control
 var map_overlay: Control
 var map_canvas: LocalMapCanvas
 var active_waypoint := Vector3.ZERO
+var active_waypoint_name := "Điểm đánh dấu"
 var has_active_waypoint := false
 var waypoint_marker: Node3D
 var waypoint_marker_orb: MeshInstance3D
@@ -838,7 +839,7 @@ func _update_navigation_guidance() -> void:
 	var arrow_index := posmod(int(round(relative_angle / (PI / 4.0))), 8)
 	var heading_index := posmod(int(round(world_angle / (PI / 4.0))), 8)
 	var walking_minutes := maxi(1, int(ceil(distance / 1.3 / 60.0)))
-	navigation_label.text = "🧭 ĐIỂM ĐẾN\n%s  Hướng %s  •  %.0f m\nĐi bộ ước tính: %d phút" % [arrows[arrow_index], headings[heading_index], distance, walking_minutes]
+	navigation_label.text = "🧭 %s\n%s  Hướng %s  •  %.0f m\nĐi bộ ước tính: %d phút" % [active_waypoint_name.to_upper(), arrows[arrow_index], headings[heading_index], distance, walking_minutes]
 
 func _create_waypoint_marker(world_position: Vector3) -> void:
 	if not is_instance_valid(waypoint_marker):
@@ -903,6 +904,7 @@ func _create_waypoint_marker(world_position: Vector3) -> void:
 func _clear_waypoint() -> void:
 	has_active_waypoint = false
 	active_waypoint = Vector3.ZERO
+	active_waypoint_name = "Điểm đánh dấu"
 	if is_instance_valid(waypoint_marker):
 		waypoint_marker.queue_free()
 	waypoint_marker = null
@@ -1387,8 +1389,35 @@ func _open_local_map() -> void:
 	close.pressed.connect(_close_local_map)
 	layout.add_child(close)
 
+func _resolve_waypoint_name(world_position: Vector3) -> String:
+	var best_name := "Điểm đánh dấu"
+	var best_distance := 5.0
+	var named_points: Array[Dictionary] = [
+		{"name": "Nhà gia đình", "position": Vector3(0, 0, -8)},
+		{"name": "Cầu Thê Húc", "position": Vector3(27, 0, 5.1)},
+		{"name": "Quán ăn Việt", "position": Vector3(0, 0, 17)},
+		{"name": "Cửa hàng", "position": Vector3(10, 0, 3)}
+	]
+	for point in named_points:
+		var point_position: Vector3 = point["position"]
+		var distance := Vector2(world_position.x, world_position.z).distance_to(Vector2(point_position.x, point_position.z))
+		if distance < best_distance:
+			best_distance = distance
+			best_name = str(point["name"])
+	if is_instance_valid(player):
+		for candidate in get_tree().get_nodes_in_group("interactable"):
+			if not candidate is Node3D:
+				continue
+			var distance := Vector2(world_position.x, world_position.z).distance_to(Vector2(candidate.global_position.x, candidate.global_position.z))
+			if distance < best_distance:
+				best_distance = distance
+				var display_name := str(candidate.get("display_name"))
+				best_name = display_name if not display_name.is_empty() and display_name != "<null>" else str(candidate.name)
+	return best_name
+
 func _set_map_waypoint(world_position: Vector3) -> void:
 	active_waypoint = world_position
+	active_waypoint_name = _resolve_waypoint_name(world_position)
 	has_active_waypoint = true
 	_create_waypoint_marker(world_position)
 	if is_instance_valid(map_canvas):
