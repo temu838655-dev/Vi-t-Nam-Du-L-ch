@@ -1375,6 +1375,14 @@ func _open_local_map() -> void:
 	zoom_in.pressed.connect(_change_map_zoom.bind(0.2))
 	map_tools.add_child(zoom_in)
 
+	var recenter := Button.new()
+	recenter.text = "⌖  VỊ TRÍ CỦA TÔI"
+	recenter.custom_minimum_size = Vector2(0, 38)
+	recenter.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_game_button(recenter, Color(0.08, 0.29, 0.25, 1.0))
+	recenter.pressed.connect(_center_map_on_player)
+	map_tools.add_child(recenter)
+
 	var legend := Label.new()
 	legend.text = "● Bạn  •  ● Nhà  •  ● Cửa hàng  •  ● Địa danh"
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1420,6 +1428,15 @@ func _change_map_zoom(amount: float) -> void:
 		return
 	map_canvas.zoom_level = clampf(map_canvas.zoom_level + amount, 0.6, 2.0)
 	map_canvas.queue_redraw()
+
+func _center_map_on_player() -> void:
+	if not is_instance_valid(map_canvas) or not is_instance_valid(player):
+		return
+	map_canvas.map_center = player.global_position
+	map_canvas.player_position = player.global_position
+	map_canvas.player_rotation_y = player.rotation.y
+	map_canvas.queue_redraw()
+	_show_message("Đã đưa bản đồ về vị trí hiện tại của bạn.")
 
 func _resolve_waypoint_name(world_position: Vector3) -> String:
 	var best_name := "Điểm đánh dấu"
