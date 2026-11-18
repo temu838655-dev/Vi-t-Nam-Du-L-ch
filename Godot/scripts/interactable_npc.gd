@@ -180,10 +180,14 @@ func _add_sphere(part_name: String, at: Vector3, dimensions: Vector3, material: 
 func interact() -> String:
 	match role:
 		"mother":
-			GameState.family_affection = mini(100, GameState.family_affection + 5)
+			if not GameState.register_family_interaction("mother", "fallback_talk"):
+				return "Mẹ: Hôm nay mẹ con mình đã trò chuyện rồi. Con cứ tự nhiên khám phá nhé!"
+			GameState.family_affection = mini(100, GameState.family_affection + 2)
 			return "Mẹ (%s): %s" % [current_activity, _family_reply("Mẹ")]
 		"father":
-			GameState.family_affection = mini(100, GameState.family_affection + 5)
+			if not GameState.register_family_interaction("father", "fallback_talk"):
+				return "Bố: Hôm nay bố con mình đã trò chuyện rồi. Khi nào rảnh ta nói tiếp nhé!"
+			GameState.family_affection = mini(100, GameState.family_affection + 2)
 			return "Bố (%s): %s" % [current_activity, _family_reply("Bố")]
 		"job_board":
 			return "Hãy đến từng quầy tuyển dụng để chọn nghề bạn muốn làm."
