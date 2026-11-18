@@ -185,7 +185,7 @@ func _inspect_motorbike_parts(node: Node, parts: Dictionary) -> void:
 		"front_wheel": ("front" in n and "wheel" in n) or ("wheel" in n and "front" in n) or "banhtruoc" in n,
 		"rear_wheel": ("rear" in n and "wheel" in n) or ("wheel" in n and "rear" in n) or "banhsau" in n,
 		"steering": "steer" in n or "handlebar" in n or "ghidong" in n,
-		"front_suspension": ("front" in n and ("fork" in n or "suspension" in n)) or "phuoc truoc" in n,
+		"front_suspension": ("front" in n and ("fork" in n or "suspension" in n)) or "phuoctruoc" in n,
 		"rear_suspension": ("rear" in n and ("shock" in n or "suspension" in n)) or "phuocsau" in n,
 		"seat": "seat" in n or "saddle" in n or "yenxe" in n,
 		"headlight": "headlight" in n or "frontlamp" in n or "denpha" in n,
@@ -193,7 +193,7 @@ func _inspect_motorbike_parts(node: Node, parts: Dictionary) -> void:
 		"mirror": "mirror" in n or "guong" in n,
 		"exhaust": "exhaust" in n or "muffler" in n or "ongxa" in n,
 		"brake": "brake" in n or "disc" in n or "drum" in n or "phanh" in n,
-		"body_panel": "body" in n or "fairing" in n or "panel" in n or "cowling" in n or "dan ao" in n
+		"body_panel": "body" in n or "fairing" in n or "panel" in n or "cowling" in n or "danao" in n
 	}
 	for key in checks:
 		if bool(checks[key]):
