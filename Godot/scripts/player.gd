@@ -195,10 +195,10 @@ func begin_home_action(action: String) -> void:
 	if is_instance_valid(current_vehicle):
 		return
 	home_action_pose = action
-	home_action_remaining = 8.0 if action == "sofa" or action == "tv" or action == "bench" else 5.0
+	home_action_remaining = 8.0 if action == "sofa" or action == "tv" or action == "bench" or action == "cafe" else 5.0
 	velocity = Vector3.ZERO
 	mobile_input = Vector2.ZERO
-	if action == "meal":
+	if action == "meal" or action == "cafe":
 		player_visual.rotation.y = PI
 	elif action == "tv":
 		player_visual.rotation.y = PI * 0.5
