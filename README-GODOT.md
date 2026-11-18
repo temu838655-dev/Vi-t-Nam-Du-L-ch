@@ -46,3 +46,11 @@ The current CI signing key is generated for testing. It is not a persistent Play
 ## Branch safety
 
 Keep the Godot work on `godot4-port`. Do not overwrite or merge into `main` until a Godot APK has been installed and smoke-tested on a real Android device.
+
+
+## Cài đặt trong game
+
+- Chất lượng đồ họa: Tiết kiệm (30 FPS), Trung bình (45 FPS), Đẹp (tối đa 60 FPS) và Cao cấp (tối đa 60 FPS, MSAA 4x). Đây là giới hạn mục tiêu; FPS thực tế phụ thuộc thiết bị.
+- Độ nhạy xoay camera có thể điều chỉnh từ 0,5x đến 2,0x.
+- Âm lượng tổng có thanh trượt riêng.
+- Các lựa chọn được lưu cục bộ trong `user://game_settings.cfg` trên thiết bị.
