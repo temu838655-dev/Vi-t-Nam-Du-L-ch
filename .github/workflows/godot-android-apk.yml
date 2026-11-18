@@ -52,7 +52,15 @@ jobs:
           sudo apt-get install -y blender
           blender --background --python Godot/tools/generate_original_vietnamese_hero.py
           test -s Godot/assets/characters/player/player_hero.glb
+          python3 Godot/tools/validate_generated_hero_glb.py
           file Godot/assets/characters/player/player_hero.glb
+      - name: Upload generated hero GLB for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: Original-Vietnamese-Hero-GLB
+          path: Godot/assets/characters/player/player_hero.glb
+          if-no-files-found: error
+          retention-days: 30
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
