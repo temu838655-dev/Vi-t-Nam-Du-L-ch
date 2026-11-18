@@ -228,11 +228,101 @@ func _build_menu_camera() -> void:
 
 func _show_menu_settings() -> void:
 	var dialog := AcceptDialog.new()
-	dialog.title = "Cài đặt"
-	dialog.dialog_text = "Tùy chỉnh đồ họa, âm thanh và điều khiển sẽ được mở rộng trong các bản tiếp theo."
+	dialog.title = "CÀI ĐẶT TRÒ CHƠI"
+	dialog.min_size = Vector2i(460, 390)
 	add_child(dialog)
+	var config := ConfigFile.new()
+	config.load("user://game_settings.cfg")
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 12)
+	dialog.add_child(layout)
+
+	var graphics_title := Label.new()
+	graphics_title.text = "CHẤT LƯỢNG ĐỒ HỌA"
+	layout.add_child(graphics_title)
+	var presets := ["Tiết kiệm", "Trung bình", "Đẹp", "Cao cấp"]
+	var quality_picker := OptionButton.new()
+	for preset in presets:
+		quality_picker.add_item(preset)
+	var current_quality := str(config.get_value("graphics", "quality", "Trung bình"))
+	quality_picker.select(maxi(0, presets.find(current_quality)))
+	quality_picker.item_selected.connect(func(index: int) -> void:
+		var selected := presets[index]
+		_apply_menu_graphics_preset(selected)
+		config.set_value("graphics", "quality", selected)
+		config.save("user://game_settings.cfg")
+	)
+	layout.add_child(quality_picker)
+
+	var quality_note := Label.new()
+	quality_note.text = "Tiết kiệm 30 FPS • Trung bình 45 FPS • Đẹp/Cao cấp tối đa 60 FPS. Tùy thiết bị."
+	quality_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	quality_note.add_theme_font_size_override("font_size", 12)
+	layout.add_child(quality_note)
+
+	var volume_title := Label.new()
+	volume_title.text = "ÂM LƯỢNG"
+	layout.add_child(volume_title)
+	var volume := HSlider.new()
+	volume.min_value = 0.0
+	volume.max_value = 100.0
+	volume.step = 1.0
+	volume.value = float(config.get_value("audio", "master_volume", 0.8)) * 100.0
+	volume.value_changed.connect(func(value: float) -> void:
+		var linear_volume := clampf(value / 100.0, 0.0, 1.0)
+		var master_bus := AudioServer.get_bus_index("Master")
+		if master_bus >= 0:
+			AudioServer.set_bus_volume_db(master_bus, linear_to_db(maxf(0.001, linear_volume)))
+		config.set_value("audio", "master_volume", linear_volume)
+		config.save("user://game_settings.cfg")
+	)
+	layout.add_child(volume)
+
+	var sensitivity_title := Label.new()
+	sensitivity_title.text = "ĐỘ NHẠY XOAY CAMERA"
+	layout.add_child(sensitivity_title)
+	var sensitivity := HSlider.new()
+	sensitivity.min_value = 0.5
+	sensitivity.max_value = 2.0
+	sensitivity.step = 0.1
+	sensitivity.value = float(config.get_value("controls", "camera_sensitivity", 1.0))
+	sensitivity.value_changed.connect(func(value: float) -> void:
+		config.set_value("controls", "camera_sensitivity", value)
+		config.save("user://game_settings.cfg")
+	)
+	layout.add_child(sensitivity)
+
+	var reset_note := Label.new()
+	reset_note.text = "Cài đặt được lưu trên thiết bị và áp dụng khi vào trò chơi."
+	reset_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	reset_note.add_theme_font_size_override("font_size", 12)
+	layout.add_child(reset_note)
 	dialog.confirmed.connect(dialog.queue_free)
-	dialog.popup_centered(Vector2i(480, 220))
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.popup_centered(Vector2i(520, 480))
+
+func _apply_menu_graphics_preset(quality: String) -> void:
+	var target_fps := 45
+	var render_scale := 0.85
+	var antialiasing := Viewport.MSAA_DISABLED
+	match quality:
+		"Tiết kiệm":
+			target_fps = 30
+			render_scale = 0.70
+		"Trung bình":
+			target_fps = 45
+			render_scale = 0.85
+		"Đẹp":
+			target_fps = 60
+			render_scale = 1.0
+			antialiasing = Viewport.MSAA_2X
+		"Cao cấp":
+			target_fps = 60
+			render_scale = 1.0
+			antialiasing = Viewport.MSAA_4X
+	Engine.max_fps = target_fps
+	get_viewport().scaling_3d_scale = render_scale
+	get_viewport().msaa_3d = antialiasing
 
 func _menu_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
