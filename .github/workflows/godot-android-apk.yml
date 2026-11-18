@@ -45,6 +45,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Blender and generate original Vietnamese hero GLB
+        run: |
+          set -eux
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --background --python Godot/tools/generate_original_vietnamese_hero.py
+          test -s Godot/assets/characters/player/player_hero.glb
+          file Godot/assets/characters/player/player_hero.glb
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
