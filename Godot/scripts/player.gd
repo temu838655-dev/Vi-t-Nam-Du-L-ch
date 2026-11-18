@@ -33,6 +33,8 @@ var current_vehicle: Node3D
 var home_action_remaining := 0.0
 var home_action_pose := ""
 var home_action_blend := 0.0
+var talk_expression_remaining := 0.0
+var facial_meshes: Array[MeshInstance3D] = []
 
 func _ready() -> void:
 	add_to_group("player")
@@ -428,6 +430,7 @@ func interact_nearby() -> void:
 			closest = candidate
 			closest_distance = distance
 	if closest:
+		play_talk_expression(2.4)
 		var target_role := str(closest.get("role"))
 		if target_role == "mother" or target_role == "father":
 			GameState.advance_tutorial("talk_family")
@@ -474,6 +477,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_animate_character(delta)
+	_update_facial_expression(delta)
 	if home_action_remaining > 0.0:
 		home_action_remaining = maxf(0.0, home_action_remaining - delta)
 	elif home_action_pose != "":
@@ -518,6 +522,47 @@ func _animate_character(delta: float) -> void:
 	else:
 		left_leg.rotation.x = move_toward(left_leg.rotation.x, 0.0, delta * 4.0)
 		right_leg.rotation.x = move_toward(right_leg.rotation.x, 0.0, delta * 4.0)
+
+func play_talk_expression(duration: float = 2.0) -> void:
+	# Triggers the exported facial blend shapes when the production GLB provides them.
+	talk_expression_remaining = maxf(talk_expression_remaining, duration)
+
+
+func _update_facial_expression(delta: float) -> void:
+	if not using_production_model or not is_instance_valid(player_visual):
+		return
+	if facial_meshes.is_empty():
+		_collect_facial_meshes(player_visual)
+	talk_expression_remaining = maxf(0.0, talk_expression_remaining - delta)
+	var clock := float(Time.get_ticks_msec()) * 0.001
+	# A short periodic eyelid closure gives the character a natural idle blink.
+	var blink_phase := fposmod(clock, 3.7)
+	var blink := 0.0
+	if blink_phase > 3.48 and blink_phase < 3.62:
+		blink = sin((blink_phase - 3.48) / 0.14 * PI)
+	var talking := 1.0 if talk_expression_remaining > 0.0 else 0.0
+	for mesh_instance in facial_meshes:
+		if not is_instance_valid(mesh_instance) or mesh_instance.mesh == null:
+			continue
+		for shape_index in range(mesh_instance.mesh.get_blend_shape_count()):
+			var shape_name := _normalize_animation_name(str(mesh_instance.mesh.get_blend_shape_name(shape_index)))
+			var target := 0.0
+			if shape_name.contains("blinkleft") or shape_name.contains("blinkright") or shape_name == "blink":
+				target = blink
+			elif shape_name.contains("jawopen"):
+				target = talking * 0.22
+			elif shape_name.contains("smile"):
+				target = talking * 0.12
+			mesh_instance.set_blend_shape_value(shape_index, target)
+
+
+func _collect_facial_meshes(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh != null and mesh_instance.mesh.get_blend_shape_count() > 0:
+			facial_meshes.append(mesh_instance)
+	for child in node.get_children():
+		_collect_facial_meshes(child)
 		left_arm.rotation.x = move_toward(left_arm.rotation.x, 0.0, delta * 4.0)
 		right_arm.rotation.x = move_toward(right_arm.rotation.x, 0.0, delta * 4.0)
 		player_visual.position.y = move_toward(player_visual.position.y, 0.0, delta * 0.12)
