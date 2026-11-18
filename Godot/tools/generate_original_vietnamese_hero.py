@@ -158,11 +158,16 @@ for o in parts:
     vg=o.vertex_groups.new(name=bone); vg.add(list(range(len(o.data.vertices))),1.0,"REPLACE")
     mod=o.modifiers.new("Hero_Skeleton","ARMATURE"); mod.object=arm
     o.parent=arm
-# Curves and all details follow head/chest through parenting to the matching bone.
+# Convert facial/clothing curves to meshes and skin them to the intended bone.
 for o in list(bpy.context.scene.objects):
     if o.type=="CURVE":
         bone=o.get("rig_bone","head")
         if bone not in arm.data.bones: bone="head"
+        bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active=o
+        bpy.ops.object.convert(target="MESH")
+        o=bpy.context.object
+        vg=o.vertex_groups.new(name=bone); vg.add(list(range(len(o.data.vertices))),1.0,"REPLACE")
+        mod=o.modifiers.new("Hero_Skeleton","ARMATURE"); mod.object=arm
         o.parent=arm
         con=o.constraints.new("CHILD_OF"); con.target=arm; con.subtarget=bone
 # Basic authored animation actions, designed as a starting point for animator polish.
