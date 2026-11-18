@@ -1,5 +1,97 @@
 extends CanvasLayer
 
+class LocalMapCanvas:
+	extends Control
+
+	signal waypoint_selected(world_position: Vector3)
+
+	var player_position := Vector3.ZERO
+	var player_rotation_y := 0.0
+	var waypoint_position := Vector3.ZERO
+	var has_waypoint := false
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		custom_minimum_size = Vector2(0, 300)
+
+	func _world_to_canvas(world: Vector3) -> Vector2:
+		var usable := size - Vector2(28, 28)
+		return Vector2(14.0 + (world.x + 25.0) / 70.0 * usable.x, 14.0 + (world.z + 32.0) / 74.0 * usable.y)
+
+	func _canvas_to_world(point: Vector2) -> Vector3:
+		var usable := size - Vector2(28, 28)
+		return Vector3(clampf((point.x - 14.0) / maxf(1.0, usable.x) * 70.0 - 25.0, -25.0, 45.0), 0.0, clampf((point.y - 14.0) / maxf(1.0, usable.y) * 74.0 - 32.0, -32.0, 42.0))
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.12, 0.15, 1.0))
+		# Park and green-space patches.
+		draw_rect(Rect2(_world_to_canvas(Vector3(-18, 0, -18)), Vector2(size.x * 0.13, size.y * 0.12)), Color(0.08, 0.22, 0.16, 0.9))
+		# Local street network, scaled from the playable prototype coordinates.
+		var road_color := Color(0.19, 0.23, 0.25, 1.0)
+		draw_line(_world_to_canvas(Vector3(0, 0, -32)), _world_to_canvas(Vector3(0, 0, 42)), road_color, 18.0, true)
+		draw_line(_world_to_canvas(Vector3(-25, 0, 8)), _world_to_canvas(Vector3(45, 0, 8)), road_color, 13.0, true)
+		draw_line(_world_to_canvas(Vector3(-25, 0, -18)), _world_to_canvas(Vector3(17, 0, -18)), road_color, 8.0, true)
+		draw_line(_world_to_canvas(Vector3(-18, 0, -32)), _world_to_canvas(Vector3(-18, 0, 42)), road_color, 7.0, true)
+		draw_line(_world_to_canvas(Vector3(15, 0, -32)), _world_to_canvas(Vector3(15, 0, 42)), road_color, 7.0, true)
+		# Lane markings.
+		for z in range(-28, 40, 5):
+			var p := _world_to_canvas(Vector3(0, 0, float(z)))
+			draw_line(p - Vector2(0, 5), p + Vector2(0, 5), Color(0.86, 0.82, 0.67, 0.9), 1.6, true)
+		# Hoan Kiem Lake, island and Turtle Tower.
+		var lake_center := _world_to_canvas(Vector3(27, 0, -1))
+		var lake_radius := Vector2(size.x * 0.19, size.y * 0.16)
+		var lake_points := PackedVector2Array()
+		for i in range(40):
+			var angle := TAU * float(i) / 40.0
+			lake_points.append(lake_center + Vector2(cos(angle) * lake_radius.x, sin(angle) * lake_radius.y))
+		draw_colored_polygon(lake_points, Color(0.08, 0.43, 0.55, 1.0))
+		draw_arc(lake_center, lake_radius.x, 0.0, TAU, 48, Color(0.34, 0.76, 0.79, 0.9), 2.0, true)
+		draw_circle(_world_to_canvas(Vector3(27, 0, -1)), 5.0, Color(0.82, 0.72, 0.48, 1.0))
+		# Building and service markers.
+		_draw_marker(Vector3(0, 0, -8), Color(0.95, 0.72, 0.35), "NHÀ")
+		_draw_marker(Vector3(-10, 0, 3), Color(0.3, 0.72, 1.0), "XE")
+		_draw_marker(Vector3(10, 0, 3), Color(0.3, 0.72, 1.0), "SHOP")
+		_draw_marker(Vector3(0, 0, 17), Color(1.0, 0.56, 0.28), "ĂN")
+		_draw_marker(Vector3(30, 0, -1), Color(1.0, 0.84, 0.45), "ĐỀN")
+		# Waypoint line and destination.
+		if has_waypoint:
+			var target := _world_to_canvas(waypoint_position)
+			var current := _world_to_canvas(player_position)
+			draw_line(current, target, Color(1.0, 0.76, 0.22, 0.95), 2.5, true)
+			draw_circle(target, 8.0, Color(1.0, 0.75, 0.16, 1.0))
+			draw_arc(target, 12.0, 0.0, TAU, 32, Color(1.0, 0.9, 0.55, 1.0), 2.0, true)
+		# Player arrow always reflects the live world position.
+		var player_point := _world_to_canvas(player_position)
+		var direction := Vector2(sin(player_rotation_y), -cos(player_rotation_y))
+		var side := Vector2(-direction.y, direction.x)
+		var triangle := PackedVector2Array([
+			player_point + direction * 10.0,
+			player_point - direction * 7.0 + side * 6.0,
+			player_point - direction * 7.0 - side * 6.0
+		])
+		draw_colored_polygon(triangle, Color(0.24, 0.95, 0.62, 1.0))
+		draw_arc(player_point, 11.0, 0.0, TAU, 32, Color(0.24, 0.95, 0.62, 0.9), 2.0, true)
+		var font := ThemeDB.fallback_font
+		if font:
+			draw_string(font, Vector2(12, size.y - 10), "BẮC ↑  •  CHẠM BẢN ĐỒ ĐỂ ĐẶT ĐIỂM ĐẾN", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.9, 0.94, 0.9))
+
+	func _draw_marker(world: Vector3, tint: Color, label: String) -> void:
+		var point := _world_to_canvas(world)
+		draw_circle(point, 5.0, tint)
+		draw_arc(point, 7.0, 0.0, TAU, 24, Color(0.03, 0.07, 0.08, 1.0), 1.5, true)
+		var font := ThemeDB.fallback_font
+		if font:
+			draw_string(font, point + Vector2(8, 4), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.95, 0.95, 0.88))
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			waypoint_selected.emit(_canvas_to_world(event.position))
+			accept_event()
+		elif event is InputEventScreenTouch and event.pressed:
+			waypoint_selected.emit(_canvas_to_world(event.position))
+			accept_event()
+
+
 var player: CharacterBody3D
 var status_label: Label
 var clock_label: Label
@@ -22,6 +114,9 @@ var inventory_items_container: VBoxContainer
 var current_inventory_tab := "vehicle"
 var family_dialogue_overlay: Control
 var map_overlay: Control
+var map_canvas: LocalMapCanvas
+var active_waypoint := Vector3.ZERO
+var has_active_waypoint := false
 
 func _ready() -> void:
 	add_to_group("shop_ui")
@@ -220,6 +315,10 @@ func _show_hud_notice(action_name: String) -> void:
 
 func _process(_delta: float) -> void:
 	_update_status()
+	if is_instance_valid(map_canvas) and is_instance_valid(player):
+		map_canvas.player_position = player.global_position
+		map_canvas.player_rotation_y = player.rotation.y
+		map_canvas.queue_redraw()
 
 func _update_status() -> void:
 	if status_label:
@@ -599,46 +698,77 @@ func _open_local_map() -> void:
 	map_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	ui_root.add_child(map_overlay)
+
 	var shade := ColorRect.new()
 	shade.color = Color(0.008, 0.025, 0.045, 0.94)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	map_overlay.add_child(shade)
-	var panel := _make_hud_panel(Vector2.ZERO, Vector2(0, 0))
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(350.0, viewport_size.x - 24.0)
+	var panel_height := minf(570.0, viewport_size.y - 32.0)
+	var panel := _make_hud_panel(Vector2.ZERO, Vector2(panel_width, panel_height))
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -minf(330.0, get_viewport().get_visible_rect().size.x * 0.44)
-	panel.offset_right = minf(330.0, get_viewport().get_visible_rect().size.x * 0.44)
-	panel.offset_top = -250.0
-	panel.offset_bottom = 250.0
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	map_overlay.add_child(panel)
+
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 12)
+	layout.add_theme_constant_override("separation", 9)
 	panel.add_child(layout)
+
 	var heading := Label.new()
-	heading.text = "BẢN ĐỒ KHU VỰC"
+	heading.text = "BẢN ĐỒ KHU VỰC HỒ GƯƠM"
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heading.add_theme_font_size_override("font_size", 24)
+	heading.add_theme_font_size_override("font_size", 20)
 	layout.add_child(heading)
-	var map_art := ColorRect.new()
-	map_art.custom_minimum_size = Vector2(0, 300)
-	map_art.color = Color(0.08, 0.19, 0.20, 1.0)
-	layout.add_child(map_art)
-	var map_text := Label.new()
-	var pos := player.global_position if is_instance_valid(player) else Vector3.ZERO
-	map_text.text = "VỊ TRÍ CỦA BẠN\nKhu Hồ Gươm • Tọa độ khu vực: X %.1f / Z %.1f\n\nBản đồ hiện tại là bản đồ khu vực nội bộ, chưa có GPS hoặc bản đồ toàn quốc." % [pos.x, pos.z]
-	map_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	map_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	layout.add_child(map_text)
+
+	map_canvas = LocalMapCanvas.new()
+	map_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	map_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	map_canvas.custom_minimum_size = Vector2(0, minf(360.0, viewport_size.y * 0.43))
+	map_canvas.player_position = player.global_position if is_instance_valid(player) else Vector3.ZERO
+	map_canvas.player_rotation_y = player.rotation.y if is_instance_valid(player) else 0.0
+	map_canvas.has_waypoint = has_active_waypoint
+	map_canvas.waypoint_position = active_waypoint
+	map_canvas.waypoint_selected.connect(_set_map_waypoint)
+	layout.add_child(map_canvas)
+
+	var legend := Label.new()
+	legend.text = "● Bạn  •  ● Nhà  •  ● Cửa hàng  •  ● Địa danh"
+	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	legend.add_theme_font_size_override("font_size", 12)
+	legend.add_theme_color_override("font_color", Color(0.82, 0.9, 0.92))
+	layout.add_child(legend)
+
 	var close := Button.new()
 	close.text = "ĐÓNG BẢN ĐỒ"
-	close.custom_minimum_size = Vector2(0, 54)
+	close.custom_minimum_size = Vector2(0, 50)
 	_style_game_button(close, Color(0.06, 0.30, 0.48, 1.0))
 	close.pressed.connect(_close_local_map)
 	layout.add_child(close)
+
+func _set_map_waypoint(world_position: Vector3) -> void:
+	active_waypoint = world_position
+	has_active_waypoint = true
+	if is_instance_valid(map_canvas):
+		map_canvas.waypoint_position = active_waypoint
+		map_canvas.has_waypoint = true
+		map_canvas.queue_redraw()
+	var distance_text := ""
+	if is_instance_valid(player):
+		var distance := Vector2(player.global_position.x, player.global_position.z).distance_to(Vector2(world_position.x, world_position.z))
+		distance_text = " • Cách bạn %.0f m" % distance
+	_show_message("Đã đặt điểm đến trên bản đồ%s. Đường chỉ dẫn màu vàng sẽ hiển thị trên bản đồ." % distance_text)
 
 func _close_local_map() -> void:
 	if is_instance_valid(map_overlay):
 		map_overlay.queue_free()
 	map_overlay = null
+	map_canvas = null
 
 
 func open_family_dialogue(member_role: String, activity: String) -> void:
