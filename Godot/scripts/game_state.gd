@@ -297,11 +297,28 @@ func complete_work_shift() -> String:
 	completed_work_shifts += 1
 	return "Bạn hoàn thành ca làm nghề %s và nhận %s VNĐ." % [selected_career, _format_money(salary)]
 
+func has_family_interaction(member_role: String, choice: String) -> bool:
+	var key := Time.get_date_string_from_system() + "|" + member_role + "|" + choice
+	return bool(family_interaction_log.get(key, false))
+
+func get_family_relationship_title() -> String:
+	if family_affection >= 75:
+		return "Gia đình gắn bó"
+	if family_affection >= 50:
+		return "Thân thiết"
+	if family_affection >= 25:
+		return "Ấm áp"
+	return "Mới bắt đầu gắn kết"
+
 func register_family_interaction(member_role: String, choice: String) -> bool:
 	var today := Time.get_date_string_from_system()
 	var key := today + "|" + member_role + "|" + choice
 	if bool(family_interaction_log.get(key, false)):
 		return false
+	# Keep only today's entries so the save file does not grow forever.
+	for old_key in family_interaction_log.keys():
+		if not str(old_key).begins_with(today + "|"):
+			family_interaction_log.erase(old_key)
 	family_interaction_log[key] = true
 	return true
 
