@@ -73,49 +73,115 @@ func _show_main_menu() -> void:
 	menu_layer.add_child(root)
 
 	var background := ColorRect.new()
-	background.color = Color(0.035, 0.055, 0.075, 0.94)
+	background.color = Color(0.018, 0.045, 0.075, 1.0)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(background)
+	var glow := ColorRect.new()
+	glow.color = Color(0.05, 0.22, 0.31, 0.42)
+	glow.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	glow.offset_bottom = 300
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(glow)
 
-	var panel := VBoxContainer.new()
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(520.0, viewport_size.x - 32.0)
+	var panel_height := minf(510.0, viewport_size.y - 40.0)
+	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-260, -205)
-	panel.size = Vector2(520, 410)
-	panel.add_theme_constant_override("separation", 18)
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	panel.add_theme_stylebox_override("panel", _menu_panel_style())
 	root.add_child(panel)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 14)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	panel.add_child(content)
+
+	var eyebrow := Label.new()
+	eyebrow.text = "TRẢI NGHIỆM CUỘC SỐNG • TỰ DO KHÁM PHÁ"
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	eyebrow.add_theme_font_size_override("font_size", 12)
+	eyebrow.add_theme_color_override("font_color", Color(0.48, 0.82, 0.94))
+	content.add_child(eyebrow)
 
 	var title := Label.new()
 	title.text = "VIỆT NAM\nHÀNH TRÌNH BẤT TẬN"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 34)
-	panel.add_child(title)
+	title.add_theme_font_size_override("font_size", 30 if viewport_size.x < 500 else 36)
+	title.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72))
+	content.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "Sống cuộc đời của bạn • Khám phá Việt Nam"
+	subtitle.text = "Bắt đầu cuộc sống của riêng bạn.\nĐi làm, kết bạn và khám phá mọi miền đất nước."
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 18)
-	panel.add_child(subtitle)
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.add_theme_font_size_override("font_size", 15)
+	subtitle.add_theme_color_override("font_color", Color(0.78, 0.87, 0.93))
+	content.add_child(subtitle)
+
+	var divider := ColorRect.new()
+	divider.custom_minimum_size = Vector2(0, 2)
+	divider.color = Color(0.28, 0.62, 0.72, 0.8)
+	content.add_child(divider)
 
 	var google_button := Button.new()
-	google_button.text = "ĐĂNG NHẬP BẰNG GOOGLE"
-	google_button.custom_minimum_size = Vector2(480, 64)
+	google_button.text = "G  ĐĂNG NHẬP BẰNG GOOGLE"
+	google_button.custom_minimum_size = Vector2(0, 58)
+	google_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_menu_button(google_button, Color(0.13, 0.24, 0.36, 1.0))
 	google_button.pressed.connect(_show_google_sign_in_notice)
-	panel.add_child(google_button)
+	content.add_child(google_button)
 
 	var guest_button := Button.new()
 	guest_button.text = "CHƠI VỚI TƯ CÁCH KHÁCH"
-	guest_button.custom_minimum_size = Vector2(480, 64)
+	guest_button.custom_minimum_size = Vector2(0, 64)
+	guest_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_menu_button(guest_button, Color(0.78, 0.34, 0.12, 1.0))
 	guest_button.pressed.connect(_show_guest_menu)
-	panel.add_child(guest_button)
+	content.add_child(guest_button)
 
 	var note := Label.new()
-	note.text = "Đăng nhập khách lưu tiến trình trên thiết bị. Google Sign-In cần cấu hình OAuth và dịch vụ xác thực trước khi kích hoạt."
+	note.text = "Chế độ khách lưu tiến trình trên thiết bị. Đăng nhập Google chưa được kết nối ở bản thử nghiệm."
 	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.add_theme_font_size_override("font_size", 14)
-	panel.add_child(note)
+	note.add_theme_font_size_override("font_size", 12)
+	note.add_theme_color_override("font_color", Color(0.65, 0.75, 0.82))
+	content.add_child(note)
 
+func _menu_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.025, 0.075, 0.12, 0.97)
+	style.border_color = Color(0.30, 0.68, 0.78, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(26)
+	style.content_margin_left = 22
+	style.content_margin_right = 22
+	style.content_margin_top = 24
+	style.content_margin_bottom = 24
+	return style
+
+func _style_menu_button(button: Button, fill: Color) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = fill
+	normal.border_color = Color(0.65, 0.84, 0.90, 0.9)
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(18)
+	normal.content_margin_left = 12
+	normal.content_margin_right = 12
+	button.add_theme_stylebox_override("normal", normal)
+	var hover := normal.duplicate()
+	hover.bg_color = fill.lightened(0.14)
+	button.add_theme_stylebox_override("hover", hover)
+	var pressed := normal.duplicate()
+	pressed.bg_color = fill.darkened(0.16)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", Color(1, 1, 1))
+	button.add_theme_color_override("font_hover_color", Color(1, 1, 1))
+	button.add_theme_font_size_override("font_size", 16)
 func _show_google_sign_in_notice() -> void:
 	var dialog := AcceptDialog.new()
 	dialog.title = "Đăng nhập Google"
@@ -134,35 +200,56 @@ func _show_guest_menu() -> void:
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	menu_layer.add_child(root)
 	var shade := ColorRect.new()
-	shade.color = Color(0.025, 0.045, 0.07, 0.96)
+	shade.color = Color(0.018, 0.045, 0.075, 0.98)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(shade)
-	var panel := VBoxContainer.new()
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(500.0, viewport_size.x - 32.0)
+	var panel_height := minf(360.0, viewport_size.y - 40.0)
+	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-250, -150)
-	panel.size = Vector2(500, 300)
-	panel.add_theme_constant_override("separation", 16)
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	panel.add_theme_stylebox_override("panel", _menu_panel_style())
 	root.add_child(panel)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 14)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	panel.add_child(content)
 	var heading := Label.new()
-	heading.text = "CHẾ ĐỘ KHÁCH"
+	heading.text = "BẮT ĐẦU HÀNH TRÌNH"
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heading.add_theme_font_size_override("font_size", 30)
-	panel.add_child(heading)
+	heading.add_theme_font_size_override("font_size", 25)
+	heading.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72))
+	content.add_child(heading)
+	var intro := Label.new()
+	intro.text = "Bạn muốn bắt đầu cuộc sống mới hay tiếp tục chuyến đi đã lưu?"
+	intro.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(intro)
 	var start_button := Button.new()
 	start_button.text = "BẮT ĐẦU HÀNH TRÌNH MỚI"
-	start_button.custom_minimum_size = Vector2(480, 64)
+	start_button.custom_minimum_size = Vector2(0, 62)
+	start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_menu_button(start_button, Color(0.78, 0.34, 0.12, 1.0))
 	start_button.pressed.connect(_start_new_game)
-	panel.add_child(start_button)
+	content.add_child(start_button)
 	var continue_button := Button.new()
 	continue_button.text = "TIẾP TỤC HÀNH TRÌNH"
-	continue_button.custom_minimum_size = Vector2(480, 64)
+	continue_button.custom_minimum_size = Vector2(0, 58)
+	continue_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_menu_button(continue_button, Color(0.13, 0.34, 0.50, 1.0))
 	continue_button.disabled = not GameState.has_save
 	continue_button.pressed.connect(_continue_game)
-	panel.add_child(continue_button)
+	content.add_child(continue_button)
 	var back_button := Button.new()
 	back_button.text = "QUAY LẠI"
+	back_button.custom_minimum_size = Vector2(0, 46)
+	_style_menu_button(back_button, Color(0.10, 0.17, 0.25, 1.0))
 	back_button.pressed.connect(_show_main_menu)
-	panel.add_child(back_button)
+	content.add_child(back_button)
 
 func _start_new_game() -> void:
 	GameState.start_new_game()
