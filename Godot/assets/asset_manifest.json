@@ -60,9 +60,10 @@
         "collision_proxy",
         "mobile_LOD_chain"
       ],
-      "source": null,
-      "license": null,
-      "status": "blocked_no_production_model"
+      "source": "Original project-authored Blender generator: Godot/tools/generate_original_vietnamese_motorbike.py; generated during Android CI build.",
+      "license": "Original project-authored geometry and materials; no third-party motorcycle mesh used. OEM identity, trademark and final commercial rights review remain pending.",
+      "status": "in_production",
+      "production_notes": "Detailed underbone baseline includes separate body panels, front/rear wheel pivots, spokes, brake disc/drum, fork and rear shocks, seat, headlamp, tail lamp, mirrors, exhaust, engine fins and instrument cluster. It is not an OEM-verified Wave Alpha replica and requires visual review, correct variant references, UV/PBR texture polish, collision proxy, rider mount points and mobile LODs before acceptance."
     },
     {
       "id": "hanoi_family_home_v1",
