@@ -775,7 +775,12 @@ func _update_mission_ui() -> void:
 	if not is_instance_valid(mission_label):
 		return
 	var mission: Dictionary = GameState.get_tutorial_mission()
-	mission_label.text = "❗ NHIỆM VỤ %d/5\n%s\n%s" % [mini(GameState.tutorial_stage + 1, 5), str(mission.get("title", "")), str(mission.get("description", ""))]
+	if GameState.tutorial_stage >= 5:
+		mission_label.text = "✓ HƯỚNG DẪN HOÀN THÀNH\n%s\n%s" % [str(mission.get("title", "Tự do khám phá")), str(mission.get("description", ""))]
+		mission_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.72))
+	else:
+		mission_label.text = "❗ NHIỆM VỤ %d/5\n%s\n%s" % [GameState.tutorial_stage + 1, str(mission.get("title", "")), str(mission.get("description", ""))]
+		mission_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72))
 
 func _guide_current_mission() -> void:
 	var mission: Dictionary = GameState.get_tutorial_mission()
@@ -918,9 +923,11 @@ func _update_status() -> void:
 		clock_label.text = "🕒 %s  •  %s" % [GameState.get_world_clock_text(), period]
 	if compass_label and is_instance_valid(player):
 		var headings := ["BẮC", "ĐÔNG BẮC", "ĐÔNG", "ĐÔNG NAM", "NAM", "TÂY NAM", "TÂY", "TÂY BẮC"]
-		var heading_angle := -player.rotation.y
+		# In Godot, yaw 0 faces -Z (north) and positive yaw turns toward +X (east).
+		var heading_angle := player.rotation.y
 		var heading_index := posmod(int(round(wrapf(heading_angle, -PI, PI) / (PI / 4.0))), 8)
-		compass_label.text = "▲  %s  •  %03d°" % [headings[heading_index], int(round(rad_to_deg(fposmod(heading_angle, TAU))))]
+		var heading_degrees := int(round(rad_to_deg(fposmod(heading_angle, TAU))))
+		compass_label.text = "▲  %s  •  %03d°" % [headings[heading_index], heading_degrees]
 	if interact_button and player and player.has_method("is_riding_vehicle"):
 		if player.is_riding_vehicle():
 			interact_button.text = "XUỐNG XE"
