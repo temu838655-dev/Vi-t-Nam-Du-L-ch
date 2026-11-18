@@ -9,6 +9,7 @@ const MOTORBIKE_SCRIPT := preload("res://scripts/motorbike.gd")
 @export var gravity: float = 22.0
 var camera_pivot: Node3D
 var camera: Camera3D
+var camera_arm: SpringArm3D
 var player_visual: Node3D
 var upper_body: MeshInstance3D
 var lower_body: MeshInstance3D
@@ -43,11 +44,18 @@ func _ready() -> void:
 	camera_pivot = Node3D.new()
 	camera_pivot.position = Vector3(0, 1.55, 0)
 	add_child(camera_pivot)
+	camera_arm = SpringArm3D.new()
+	camera_arm.name = "CameraCollisionArm"
+	camera_arm.spring_length = 5.5
+	camera_arm.margin = 0.18
+	camera_arm.collision_mask = 1
+	camera_arm.add_excluded_object(get_rid())
+	camera_pivot.add_child(camera_arm)
 	camera = Camera3D.new()
-	camera.position = Vector3(0, 2.2, 5.5)
+	camera.position = Vector3.ZERO
 	camera.rotation_degrees = Vector3(-13, 0, 0)
 	camera.current = true
-	camera_pivot.add_child(camera)
+	camera_arm.add_child(camera)
 	apply_outfit(GameState.equipped_clothes)
 
 func _build_character_model() -> void:
@@ -221,7 +229,8 @@ func enter_vehicle(vehicle: Node3D) -> String:
 	velocity = Vector3.ZERO
 	player_visual.visible = false
 	camera_pivot.position.y = 1.4
-	camera.position = Vector3(0, 2.7, 7.0)
+	if is_instance_valid(camera_arm):
+		camera_arm.spring_length = 7.0
 	vehicle.call("set_rider", self)
 	return "Bạn đã lên xe máy. Dùng cần điều khiển bên trái để chạy, vuốt bên phải để xoay camera. Nhấn TƯƠNG TÁC để xuống xe."
 
@@ -236,7 +245,8 @@ func exit_vehicle() -> String:
 	velocity = Vector3.ZERO
 	player_visual.visible = true
 	camera_pivot.position.y = 1.55
-	camera.position = Vector3(0, 2.2, 5.5)
+	if is_instance_valid(camera_arm):
+		camera_arm.spring_length = 5.5
 	return "Bạn đã xuống xe máy. Xe được giữ lại tại vị trí này."
 
 func is_riding_vehicle() -> bool:
