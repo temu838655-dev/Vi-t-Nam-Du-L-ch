@@ -11,7 +11,7 @@ class ShopSeatInteractable:
 	func interact() -> String:
 		var player_node := get_tree().get_first_node_in_group("player")
 		if is_instance_valid(player_node) and player_node.has_method("begin_home_action"):
-			player_node.call("begin_home_action", "bench")
+			player_node.call("begin_home_action", "cafe")
 			return "Bạn ngồi nghỉ tại %s. Hãy thư giãn và ngắm không khí nhộn nhịp của quán." % display_name
 		return "Bạn tìm một chỗ ngồi trong quán."
 
