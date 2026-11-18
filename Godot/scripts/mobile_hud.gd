@@ -97,6 +97,7 @@ var status_label: Label
 var clock_label: Label
 var nearby_label: Label
 var message_label: Label
+var navigation_label: Label
 var joystick_origin := Vector2.ZERO
 var joystick_touch := -1
 var look_touch := -1
@@ -161,6 +162,24 @@ func _ready() -> void:
 	mission_text.add_theme_font_size_override("font_size", 17)
 	mission_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mission.add_child(mission_text)
+
+	var navigation_panel := _make_hud_panel(Vector2(22, 246), Vector2(310, 66))
+	navigation_panel.add_theme_stylebox_override("panel", _hud_style(Color(0.02, 0.10, 0.13, 0.84), Color(0.25, 0.82, 0.69, 0.88)))
+	ui_root.add_child(navigation_panel)
+	var navigation_row := HBoxContainer.new()
+	navigation_row.add_theme_constant_override("separation", 8)
+	navigation_panel.add_child(navigation_row)
+	navigation_label = Label.new()
+	navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
+	navigation_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	navigation_label.add_theme_font_size_override("font_size", 14)
+	navigation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	navigation_row.add_child(navigation_label)
+	var clear_route_button := Button.new()
+	clear_route_button.text = "XÓA"
+	clear_route_button.custom_minimum_size = Vector2(58, 42)
+	clear_route_button.pressed.connect(_clear_waypoint)
+	navigation_row.add_child(clear_route_button)
 
 	# Currency counters at the top center.
 	var currency := _make_hud_panel(Vector2(350, 18), Vector2(340, 54))
@@ -319,6 +338,36 @@ func _process(_delta: float) -> void:
 		map_canvas.player_position = player.global_position
 		map_canvas.player_rotation_y = player.rotation.y
 		map_canvas.queue_redraw()
+	_update_navigation_guidance()
+
+func _update_navigation_guidance() -> void:
+	if not is_instance_valid(navigation_label):
+		return
+	if not has_active_waypoint or not is_instance_valid(player):
+		navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
+		return
+	var offset := active_waypoint - player.global_position
+	var flat_offset := Vector2(offset.x, offset.z)
+	var distance := flat_offset.length()
+	if distance <= 2.5:
+		_clear_waypoint()
+		_show_message("Bạn đã đến điểm đánh dấu!")
+		return
+	var direction := flat_offset / maxf(distance, 0.001)
+	var world_angle := atan2(direction.x, -direction.y)
+	var relative_angle := wrapf(world_angle - player.rotation.y, -PI, PI)
+	var arrows := ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
+	var arrow_index := posmod(int(round(relative_angle / (PI / 4.0))), 8)
+	navigation_label.text = "🧭 ĐIỂM ĐẾN\\n%s  Còn %.0f m" % [arrows[arrow_index], distance]
+
+func _clear_waypoint() -> void:
+	has_active_waypoint = false
+	active_waypoint = Vector3.ZERO
+	if is_instance_valid(map_canvas):
+		map_canvas.has_waypoint = false
+		map_canvas.queue_redraw()
+	if is_instance_valid(navigation_label):
+		navigation_label.text = "🧭 Chưa đặt điểm đến\\nMở bản đồ để chọn nơi muốn đến"
 
 func _update_status() -> void:
 	if status_label:
@@ -762,7 +811,8 @@ func _set_map_waypoint(world_position: Vector3) -> void:
 	if is_instance_valid(player):
 		var distance := Vector2(player.global_position.x, player.global_position.z).distance_to(Vector2(world_position.x, world_position.z))
 		distance_text = " • Cách bạn %.0f m" % distance
-	_show_message("Đã đặt điểm đến trên bản đồ%s. Đường chỉ dẫn màu vàng sẽ hiển thị trên bản đồ." % distance_text)
+	_show_message("Đã đặt điểm đến%s. Mũi tên và khoảng cách sẽ cập nhật khi bạn di chuyển." % distance_text)
+	_update_navigation_guidance()
 
 func _close_local_map() -> void:
 	if is_instance_valid(map_overlay):
