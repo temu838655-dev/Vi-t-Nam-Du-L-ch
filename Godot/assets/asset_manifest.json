@@ -151,6 +151,62 @@
       "visual_style": "city_scale_models",
       "intended_use": "Nguồn tìm mô hình thành phố/địa danh; chọn từng model rồi xác minh license và quyền tải.",
       "mobile_notes": "Mô hình đô thị lớn cần decimation, chia khu, texture baking, LOD và streaming."
+    },
+    {
+      "id": "sketchfab_vietnamese_man_basic_rig",
+      "source_type": "character_model",
+      "title": "Vietnamese Man (Basic Rig)",
+      "creator": "drmanhtan21",
+      "model_url": "https://sketchfab.com/3d-models/vietnamese-man-basic-rig-7dffbc85e8044a2f9198e626ef95aa92",
+      "license": "CC BY-SA",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "download_state": "downloadable_verified",
+      "download_evidence": "The listing advertises Download 3D Model and states CC Attribution-ShareAlike; binary has not been downloaded or inspected.",
+      "visual_style": "realistic_identity_candidate_requires_review",
+      "reported_triangles": 356700,
+      "intended_use": "Reference/retopology candidate for Vietnamese male NPC; not a mobile-ready hero model.",
+      "mobile_notes": "Retopology, UV/texture audit, facial anatomy and facial animation review, rig cleanup, LOD generation; review ShareAlike obligations before project use."
+    },
+    {
+      "id": "ara_3d_gen_character_pipeline",
+      "source_type": "character_generator",
+      "title": "Ara 3D Gen",
+      "creator": "TuriaArt",
+      "model_url": "https://github.com/TuriaArt/3d-gen-TU",
+      "license": "MIT code; MakeHuman character data stated as CC0",
+      "license_url": "https://github.com/TuriaArt/3d-gen-TU",
+      "download_state": "not_verified",
+      "visual_style": "editable_realistic_base_mesh_generator",
+      "intended_use": "Evaluate as a repeatable character generation/export pipeline for original Vietnamese hero and NPC meshes; not an already-made Vietnamese character.",
+      "mobile_notes": "Generate GLB then inspect facial bones/blendshapes, Asian/Vietnamese face customization, textures, rig and triangle budgets; validate actual exported binary."
+    },
+    {
+      "id": "honda_official_creator_motorcycle_models",
+      "source_type": "official_manufacturer_asset_catalog",
+      "title": "Honda official creator 3D motorcycle models",
+      "creator": "Honda Motor Co.",
+      "model_url": "https://global.honda/en/motorcycle/3d-models/",
+      "license": "Royalty-free subject to the terms of each distribution platform",
+      "license_url": "https://global.honda/en/motorcycle/3d-models/",
+      "download_state": "not_verified",
+      "visual_style": "official_manufacturer_geometry",
+      "intended_use": "Evaluate official Super Cub C125, CT125 and CB1000F models as authentic Honda vehicle assets; none is a Honda Wave Alpha.",
+      "mobile_notes": "Acquire through the official linked platform, inspect permitted game use and export format, then decimate/LOD and create separate animation rigs."
+    },
+    {
+      "id": "sketchfab_honda_110_scan",
+      "source_type": "motorcycle_reference_model",
+      "title": "Honda 110",
+      "creator": "KR.Origin",
+      "model_url": "https://sketchfab.com/3d-models/honda-110-ad89d02d48044260a453a176d4ef5e5f",
+      "license": "CC BY",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "download_state": "downloadable_verified",
+      "download_evidence": "The listing advertises Download 3D Model and states CC Attribution; binary has not been downloaded or inspected.",
+      "visual_style": "realityscan_capture",
+      "reported_triangles": 1000000,
+      "intended_use": "Reference-only candidate; do not identify as Wave Alpha until model year, variant and geometry are independently verified.",
+      "mobile_notes": "Approximately one million triangles reported; inspect scan completeness, topology, materials and mechanical parts, then decimate and retopologize if usable."
     }
   ]
 }
