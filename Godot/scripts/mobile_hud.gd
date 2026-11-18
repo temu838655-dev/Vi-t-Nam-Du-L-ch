@@ -121,6 +121,11 @@ var active_waypoint := Vector3.ZERO
 var has_active_waypoint := false
 
 func _ready() -> void:
+	var screen_size := get_viewport().get_visible_rect().size
+	var compact_layout := screen_size.x < 700.0 or screen_size.y > screen_size.x
+	var profile_width := 196.0 if compact_layout else 310.0
+	var utility_width := 198.0 if compact_layout else 340.0
+	var mission_width := 198.0 if compact_layout else 310.0
 	add_to_group("shop_ui")
 	player = get_parent().get_node_or_null("Player")
 	ui_root = Control.new()
@@ -129,7 +134,7 @@ func _ready() -> void:
 	add_child(ui_root)
 
 	# Top-left player profile and primary objective, styled as translucent game HUD.
-	var profile := _make_hud_panel(Vector2(22, 18), Vector2(310, 104))
+	var profile := _make_hud_panel(Vector2(18, 16), Vector2(profile_width, 88 if compact_layout else 104))
 	ui_root.add_child(profile)
 	var profile_layout := HBoxContainer.new()
 	profile_layout.add_theme_constant_override("separation", 12)
@@ -156,7 +161,7 @@ func _ready() -> void:
 	xp.show_percentage = false
 	profile_text.add_child(xp)
 
-	var mission := _make_hud_panel(Vector2(22, 136), Vector2(310, 116))
+	var mission := _make_hud_panel(Vector2(18, 112 if compact_layout else 136), Vector2(mission_width, 116))
 	ui_root.add_child(mission)
 	var mission_layout := VBoxContainer.new()
 	mission_layout.add_theme_constant_override("separation", 4)
@@ -173,7 +178,7 @@ func _ready() -> void:
 	guide_button.pressed.connect(_guide_current_mission)
 	mission_layout.add_child(guide_button)
 
-	var navigation_panel := _make_hud_panel(Vector2(22, 260), Vector2(310, 66))
+	var navigation_panel := _make_hud_panel(Vector2(18, 236 if compact_layout else 260), Vector2(mission_width, 66))
 	navigation_panel.add_theme_stylebox_override("panel", _hud_style(Color(0.02, 0.10, 0.13, 0.84), Color(0.25, 0.82, 0.69, 0.88)))
 	ui_root.add_child(navigation_panel)
 	var navigation_row := HBoxContainer.new()
@@ -192,7 +197,8 @@ func _ready() -> void:
 	navigation_row.add_child(clear_route_button)
 
 	# Currency counters at the top center.
-	var currency := _make_hud_panel(Vector2(350, 18), Vector2(340, 54))
+	var currency := _make_hud_panel(Vector2(-utility_width - 18, 16), Vector2(utility_width, 48))
+	currency.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	currency.add_theme_stylebox_override("panel", _hud_style(Color(0.015, 0.07, 0.16, 0.72), Color(0.35, 0.72, 1.0, 0.8)))
 	ui_root.add_child(currency)
 	var currency_row := HBoxContainer.new()
@@ -204,7 +210,8 @@ func _ready() -> void:
 	currency_row.add_child(status_label)
 
 	clock_label = Label.new()
-	clock_label.position = Vector2(360, 78)
+	clock_label.position = Vector2(-utility_width - 18, 68)
+	clock_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	clock_label.add_theme_font_size_override("font_size", 18)
 	clock_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.62))
 	ui_root.add_child(clock_label)
@@ -212,25 +219,25 @@ func _ready() -> void:
 	# Top-right quick actions.
 	var top_actions := HBoxContainer.new()
 	top_actions.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	top_actions.position = Vector2(-350, 18)
+	top_actions.position = Vector2(-utility_width - 18, 154 if compact_layout else 18)
 	top_actions.add_theme_constant_override("separation", 8)
 	ui_root.add_child(top_actions)
 	for action in ["🎁\nQuà", "🏆\nThành tựu", "⚙\nCài đặt"]:
 		var action_button := Button.new()
 		action_button.text = action
-		action_button.custom_minimum_size = Vector2(100, 58)
+		action_button.custom_minimum_size = Vector2(60 if compact_layout else 100, 54 if compact_layout else 58)
 		action_button.add_theme_font_size_override("font_size", 14)
 		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
 	# A tappable local map replaces the old decorative placeholder.
-	var map_panel := _make_hud_panel(Vector2(-178, 88), Vector2(156, 118))
+	var map_panel := _make_hud_panel(Vector2(-100 if compact_layout else -178, 78 if compact_layout else 88), Vector2(82 if compact_layout else 156, 68 if compact_layout else 118))
 	map_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	ui_root.add_child(map_panel)
 	var map_button := Button.new()
 	map_button.text = "🧭\nBẢN ĐỒ\nXEM VỊ TRÍ"
 	map_button.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	map_button.add_theme_font_size_override("font_size", 16)
+	map_button.add_theme_font_size_override("font_size", 12 if compact_layout else 16)
 	_style_game_button(map_button, Color(0.04, 0.16, 0.25, 0.94))
 	map_button.pressed.connect(_open_local_map)
 	map_panel.add_child(map_button)
