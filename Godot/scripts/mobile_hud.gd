@@ -635,7 +635,7 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	family_progress.add_theme_font_size_override("font_size", 14)
 	layout.add_child(family_progress)
 	var picnic_status := Label.new()
-	picnic_status.text = "ĐÃ MỞ KHÓA: CHUYẾN DÃ NGOẠI GIA ĐÌNH" if GameState.is_family_picnic_unlocked() else "Mục tiêu: thân thiết 50/100 và cùng ăn 3 bữa để mở chuyến dã ngoại."
+	picnic_status.text = "ĐỦ ĐIỀU KIỆN SỰ KIỆN DÃ NGOẠI (nội dung sự kiện đang phát triển)" if GameState.is_family_picnic_unlocked() else "Mục tiêu: thân thiết 50/100 và cùng ăn 3 bữa để mở sự kiện dã ngoại."
 	picnic_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	picnic_status.add_theme_font_size_override("font_size", 13)
 	layout.add_child(picnic_status)
@@ -721,7 +721,7 @@ func _choose_family_dialogue(member_role: String, choice: String, activity: Stri
 	if player:
 		GameState.save_game(player.global_position, player.rotation.y)
 	_close_family_dialogue()
-	var milestone_text := "  •  ĐÃ MỞ KHÓA CHUYẾN DÃ NGOẠI GIA ĐÌNH!" if GameState.is_family_picnic_unlocked() else ""
+	var milestone_text := "  •  ĐÃ ĐẠT ĐIỀU KIỆN SỰ KIỆN DÃ NGOẠI!" if GameState.is_family_picnic_unlocked() else ""
 	_show_message("%s: %s  •  Tình cảm gia đình +%d (hiện %d/100)%s" % [member_name, response, affection_gain, GameState.family_affection, milestone_text])
 
 
