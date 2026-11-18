@@ -247,7 +247,7 @@ func _show_menu_settings() -> void:
 	var current_quality := str(config.get_value("graphics", "quality", "Trung bình"))
 	quality_picker.select(maxi(0, presets.find(current_quality)))
 	quality_picker.item_selected.connect(func(index: int) -> void:
-		var selected := presets[index]
+		var selected: String = str(presets[index])
 		_apply_menu_graphics_preset(selected)
 		config.set_value("graphics", "quality", selected)
 		config.save("user://game_settings.cfg")
