@@ -584,21 +584,31 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	family_dialogue_overlay.add_child(shade)
 
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(620.0, maxf(280.0, viewport_size.x - 28.0))
+	var panel_height := minf(440.0, maxf(250.0, viewport_size.y - 28.0))
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-310, -220)
-	panel.size = Vector2(620, 440)
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_bottom = panel_height * 0.5
 	family_dialogue_overlay.add_child(panel)
 
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(scroll)
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 14)
-	panel.add_child(layout)
+	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	layout.add_theme_constant_override("separation", 10)
+	scroll.add_child(layout)
 
 	var member_name := "Mẹ" if member_role == "mother" else "Bố"
 	var heading := Label.new()
 	heading.text = "TRÒ CHUYỆN CÙNG " + member_name.to_upper()
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heading.add_theme_font_size_override("font_size", 26)
+	heading.add_theme_font_size_override("font_size", clampi(int(panel_width * 0.042), 18, 26))
 	layout.add_child(heading)
 
 	var context := Label.new()
@@ -648,6 +658,10 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 
 func _choose_family_dialogue(member_role: String, choice: String, activity: String = "") -> void:
 	var member_name := "Mẹ" if member_role == "mother" else "Bố"
+	if not GameState.register_family_interaction(member_role, choice):
+		_close_family_dialogue()
+		_show_message("Hôm nay bạn đã thực hiện lựa chọn này với %s rồi. Hãy quay lại vào ngày mai để tiếp tục gắn kết nhé." % member_name)
+		return
 	var affection_gain := 5
 	var response := ""
 	match choice:
@@ -660,7 +674,7 @@ func _choose_family_dialogue(member_role: String, choice: String, activity: Stri
 					GameState.satiety = mini(100, GameState.satiety + 5)
 					response = "Cảm ơn con đã phụ chuẩn bị bữa ăn. Cả nhà sắp có một bữa cơm ngon rồi!"
 				"Dọn dẹp nhà cửa":
-					response = "Hai mẹ con/bố con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!"
+					response = "Hai mẹ con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!" if member_role == "mother" else "Hai bố con cùng làm nên nhà cửa gọn gàng nhanh hơn nhiều!"
 				"Xem TV":
 					response = "Ngồi xem cùng gia đình nhé. Có thời gian bên nhau mới quý."
 				"Dùng bữa cùng gia đình":
