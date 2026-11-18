@@ -26,6 +26,7 @@ var look_delta := Vector2.ZERO
 var current_vehicle: Node3D
 var home_action_remaining := 0.0
 var home_action_pose := ""
+var home_action_blend := 0.0
 
 func _ready() -> void:
 	add_to_group("player")
@@ -307,14 +308,16 @@ func _physics_process(delta: float) -> void:
 	_animate_character(delta)
 	if home_action_remaining > 0.0:
 		home_action_remaining = maxf(0.0, home_action_remaining - delta)
-		player_visual.position.y = -0.24
-		left_leg.rotation.x = -0.62
-		right_leg.rotation.x = -0.62
-		left_arm.rotation.x = -0.18
-		right_arm.rotation.x = -0.18
 	elif home_action_pose != "":
 		home_action_pose = ""
-		player_visual.position.y = 0.0
+	var target_pose_blend := 1.0 if home_action_remaining > 0.0 else 0.0
+	home_action_blend = move_toward(home_action_blend, target_pose_blend, delta * 3.5)
+	if home_action_blend > 0.001:
+		player_visual.position.y = lerpf(player_visual.position.y, -0.24, home_action_blend)
+		left_leg.rotation.x = lerpf(left_leg.rotation.x, -0.62, home_action_blend)
+		right_leg.rotation.x = lerpf(right_leg.rotation.x, -0.62, home_action_blend)
+		left_arm.rotation.x = lerpf(left_arm.rotation.x, -0.18, home_action_blend)
+		right_arm.rotation.x = lerpf(right_arm.rotation.x, -0.18, home_action_blend)
 	if look_delta.length() > 0.0:
 		rotate_y(-look_delta.x * 0.004)
 		camera_pivot.rotate_x(-look_delta.y * 0.004)
