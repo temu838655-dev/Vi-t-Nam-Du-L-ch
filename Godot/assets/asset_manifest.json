@@ -43,13 +43,21 @@
       ],
       "requirements": [
         "reference_verified_silhouette",
+        "model_year_and_variant_verified",
         "separate_body_panels",
         "front_rear_wheel_rigs",
         "steering_rig",
-        "suspension_rig",
+        "front_and_rear_suspension_rigs",
+        "seat_and_upholstery_geometry",
+        "headlight_and_tail_light_geometry",
+        "left_and_right_mirrors",
+        "exhaust_and_muffler_geometry",
+        "brake_disc_or_drum_details",
+        "handlebar_controls_and_instrument_cluster",
         "PBR_materials",
         "rider_mount_points",
-        "LOD"
+        "collision_proxy",
+        "mobile_LOD_chain"
       ],
       "source": null,
       "license": null,
