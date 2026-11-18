@@ -33,6 +33,12 @@ This is still an early gameplay prototype, **not** a photorealistic open-world g
 
 The asset requirements and acceptance gates are tracked in `Godot/assets/asset_manifest.json`. An asset cannot be accepted without its actual files, source and license metadata. Do not label placeholder geometry as production art.
 
+## Character GLB integration status
+
+`Godot/scripts/player.gd` now checks for `res://assets/characters/player/player_hero.glb` and instantiates it when present. It searches nested nodes for an `AnimationPlayer` and maps common imported clip names (Idle/Standing, Walk/Walking, Run/Sprint), including names prefixed by an armature or Mixamo track label.
+
+The loader is only an integration path: **the production hero GLB is not yet present in this repository**, so the game still falls back to its clearly identified procedural prototype. The fallback is not a final character asset. The GLB must pass the asset manifest checks, license review, scale/orientation inspection and Android device testing before it can be called production-ready.
+
 ## Android builds
 
 The GitHub Actions workflow validates the project, imports and runs Godot headlessly, exports an ARM64 debug APK, verifies the package ID, uploads a 14-day Actions artifact, and publishes a prerelease to GitHub Releases.
