@@ -80,6 +80,10 @@ var food_history: Array = []
 var owned_specialties: Array = []
 var world_time_seconds: float = 8.0 * 60.0
 var family_interaction_log: Dictionary = {}
+var home_cleanliness: int = 50
+var family_cooking_sessions: int = 0
+var family_meals_shared: int = 0
+var family_tv_sessions: int = 0
 
 func advance_world_clock(delta: float) -> void:
 	world_time_seconds = fposmod(world_time_seconds + delta, 240.0)
@@ -112,6 +116,10 @@ func start_new_game() -> void:
 	owned_specialties = []
 	world_time_seconds = 8.0 * 60.0
 	family_interaction_log = {}
+	home_cleanliness = 50
+	family_cooking_sessions = 0
+	family_meals_shared = 0
+	family_tv_sessions = 0
 	has_save = false
 
 func load_game() -> bool:
@@ -166,6 +174,10 @@ func load_game() -> bool:
 	world_time_seconds = fposmod(float(data.get("world_time_seconds", 8.0 * 60.0)), 240.0)
 	var family_log_value: Variant = data.get("family_interaction_log", {})
 	family_interaction_log = family_log_value.duplicate(true) if family_log_value is Dictionary else {}
+	home_cleanliness = clampi(int(data.get("home_cleanliness", 50)), 0, 100)
+	family_cooking_sessions = maxi(0, int(data.get("family_cooking_sessions", 0)))
+	family_meals_shared = maxi(0, int(data.get("family_meals_shared", 0)))
+	family_tv_sessions = maxi(0, int(data.get("family_tv_sessions", 0)))
 	has_save = true
 	return true
 
@@ -173,7 +185,7 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 	last_position = player_position if _is_valid_saved_position(player_position) else START_POSITION
 	last_rotation_y = rotation_y if is_finite(rotation_y) else 0.0
 	var data := {
-		"version": 3,
+		"version": 4,
 		"player_name": player_name,
 		"selected_career": selected_career,
 		"wallet_vnd": wallet_vnd,
@@ -190,6 +202,10 @@ func save_game(player_position: Vector3, rotation_y: float) -> bool:
 		"owned_specialties": owned_specialties,
 		"world_time_seconds": world_time_seconds,
 		"family_interaction_log": family_interaction_log,
+		"home_cleanliness": home_cleanliness,
+		"family_cooking_sessions": family_cooking_sessions,
+		"family_meals_shared": family_meals_shared,
+		"family_tv_sessions": family_tv_sessions,
 		"position": [last_position.x, last_position.y, last_position.z],
 		"rotation_y": last_rotation_y,
 		"saved_at_unix": int(Time.get_unix_time_from_system())
@@ -309,6 +325,13 @@ func get_family_relationship_title() -> String:
 	if family_affection >= 25:
 		return "Ấm áp"
 	return "Mới bắt đầu gắn kết"
+
+
+func is_family_picnic_unlocked() -> bool:
+	return family_affection >= 50 and family_meals_shared >= 3
+
+func get_family_progress_text() -> String:
+	return "Nhà cửa %d/100  •  Bữa cơm chung %d/3  •  Nấu ăn %d  •  Xem TV %d" % [home_cleanliness, family_meals_shared, family_cooking_sessions, family_tv_sessions]
 
 func register_family_interaction(member_role: String, choice: String) -> bool:
 	var today := Time.get_date_string_from_system()
