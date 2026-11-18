@@ -233,7 +233,10 @@ func _ready() -> void:
 		action_button.add_theme_font_size_override("font_size", 12 if compact_layout else 14)
 		if action.begins_with("📱"):
 			action_button.pressed.connect(_open_phone)
+		elif action.begins_with("🏆"):
+			action_button.pressed.connect(_open_achievements)
 		else:
+			action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 			action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
@@ -279,7 +282,7 @@ func _ready() -> void:
 	ui_root.add_child(jump_button)
 
 	sprint_button = Button.new()
-	sprint_button.text = "⚡\\nCHẠY"
+	sprint_button.text = "⚡\nCHẠY"
 	sprint_button.size = Vector2(92, 66) * action_scale
 	sprint_button.position = Vector2(-126, -286) * action_scale
 	sprint_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -406,7 +409,7 @@ func _open_phone() -> void:
 	header.add_child(close)
 
 	var profile := Label.new()
-	profile.text = "%s  •  DU KHÁCH\\nĐịa điểm: %s\\nVí tiền: %s VNĐ\\nNghề nghiệp: %s\\nĐộ no: %d/100" % [str(GameState.player_name), str(GameState.current_location), _format_money(GameState.wallet_vnd), str(GameState.selected_career), int(GameState.satiety)]
+	profile.text = "%s  •  DU KHÁCH\nĐịa điểm: %s\nVí tiền: %s VNĐ\nNghề nghiệp: %s\nĐộ no: %d/100" % [str(GameState.player_name), str(GameState.current_location), _format_money(GameState.wallet_vnd), str(GameState.selected_career), int(GameState.satiety)]
 	profile.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	profile.add_theme_font_size_override("font_size", 16)
 	profile.add_theme_color_override("font_color", Color(0.86, 0.94, 1.0))
@@ -420,7 +423,7 @@ func _open_phone() -> void:
 
 	var mission_data: Dictionary = GameState.get_tutorial_mission()
 	var mission_card := Label.new()
-	mission_card.text = "NHIỆM VỤ HIỆN TẠI\\n%s\\n%s" % [str(mission_data.get("title", "Tự do khám phá")), str(mission_data.get("description", ""))]
+	mission_card.text = "NHIỆM VỤ HIỆN TẠI\n%s\n%s" % [str(mission_data.get("title", "Tự do khám phá")), str(mission_data.get("description", ""))]
 	mission_card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mission_card.add_theme_font_size_override("font_size", 14)
 	mission_card.add_theme_color_override("font_color", Color(1.0, 0.84, 0.52))
@@ -491,6 +494,92 @@ func _show_hud_notice(action_name: String) -> void:
 		open_game_settings()
 	else:
 		_show_message(action_name + " sẽ được mở khi hệ thống phần thưởng và thành tựu hoàn thiện.")
+
+func _open_achievements() -> void:
+	var achievements := [
+		{"title":"Bước chân đầu tiên","description":"Hoàn thành hướng dẫn nhập môn.","unlocked":GameState.tutorial_stage >= 5},
+		{"title":"Tình thân gia đình","description":"Đạt 50 điểm gắn kết với bố mẹ.","unlocked":GameState.family_affection >= 50},
+		{"title":"Người lao động chăm chỉ","description":"Hoàn thành ca làm việc đầu tiên.","unlocked":GameState.completed_work_shifts >= 1},
+		{"title":"Tín đồ ẩm thực Việt","description":"Thưởng thức món ăn hoặc sở hữu đặc sản Việt Nam.","unlocked":not GameState.food_history.is_empty() or not GameState.owned_specialties.is_empty()},
+		{"title":"Xế mới xuống phố","description":"Mua chiếc xe máy đầu tiên.","unlocked":not GameState.owned_vehicles.is_empty()}
+	]
+	var unlocked_count := 0
+	for achievement in achievements:
+		if bool(achievement.unlocked):
+			unlocked_count += 1
+	if is_instance_valid(settings_overlay):
+		settings_overlay.queue_free()
+	settings_overlay = Control.new()
+	settings_overlay.name = "AchievementsOverlay"
+	settings_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	settings_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(settings_overlay)
+	var shade := ColorRect.new()
+	shade.color = Color(0.004, 0.014, 0.028, 0.94)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	settings_overlay.add_child(shade)
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(520.0, viewport_size.x - 28.0)
+	var panel_height := minf(520.0, viewport_size.y - 28.0)
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	panel.add_theme_stylebox_override("panel", _hud_style(Color(0.025, 0.055, 0.09, 0.99), Color(0.88, 0.68, 0.28, 0.95), 24))
+	settings_overlay.add_child(panel)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 10)
+	panel.add_child(layout)
+	var heading := Label.new()
+	heading.text = "🏆 THÀNH TỰU  •  %d/%d" % [unlocked_count, achievements.size()]
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 22)
+	layout.add_child(heading)
+	var progress := ProgressBar.new()
+	progress.max_value = achievements.size()
+	progress.value = unlocked_count
+	progress.custom_minimum_size = Vector2(0, 12)
+	progress.show_percentage = false
+	layout.add_child(progress)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	layout.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 8)
+	scroll.add_child(rows)
+	for achievement in achievements:
+		var unlocked := bool(achievement.unlocked)
+		var card := PanelContainer.new()
+		var fill := Color(0.08, 0.15, 0.19, 0.96) if unlocked else Color(0.045, 0.07, 0.09, 0.96)
+		var outline := Color(0.82, 0.65, 0.28, 0.85) if unlocked else Color(0.28, 0.38, 0.42, 0.65)
+		card.add_theme_stylebox_override("panel", _hud_style(fill, outline, 12))
+		rows.add_child(card)
+		var row := VBoxContainer.new()
+		row.add_theme_constant_override("separation", 3)
+		card.add_child(row)
+		var title := Label.new()
+		title.text = ("★  " if unlocked else "🔒  ") + str(achievement.title)
+		title.add_theme_font_size_override("font_size", 17)
+		row.add_child(title)
+		var description := Label.new()
+		description.text = str(achievement.description) + ("  •  ĐÃ MỞ" if unlocked else "  •  CHƯA MỞ")
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.add_theme_font_size_override("font_size", 13)
+		row.add_child(description)
+	var close := Button.new()
+	close.text = "ĐÓNG"
+	close.custom_minimum_size = Vector2(0, 46)
+	_style_game_button(close, Color(0.10, 0.30, 0.42, 0.98))
+	close.pressed.connect(func() -> void:
+		if is_instance_valid(settings_overlay):
+			settings_overlay.queue_free()
+		settings_overlay = null
+	)
+	layout.add_child(close)
+
 
 func _load_game_settings() -> void:
 	var config := ConfigFile.new()
