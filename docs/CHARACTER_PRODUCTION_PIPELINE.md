@@ -98,3 +98,14 @@ Required clips: Idle, Walk, Run, Jump, Land, Talk, Interact, Sit, Stand, RideMou
 ## Current blocker
 
 The GitHub text-file integration can update GDScript and documentation, but it has not downloaded or committed a real GLB binary in this project. No placeholder text file may be renamed to .glb. A real binary-capable upload path and a verified source download are required before replacing the procedural player.
+
+## Runtime quality gate
+
+The Godot player loader does not accept a hero GLB merely because the file exists or opens.
+Before treating an imported scene as the production player, it checks for:
+
+- A `Skeleton3D` and at least one imported `AnimationPlayer` clip.
+- Separate visible eye geometry (two eyes), eyebrows, nose, mouth/lips, teeth and both ears.
+- Facial deformation evidence through blend shapes on an `ArrayMesh` or facial bones such as jaw, lip, brow, eyelid or face bones.
+
+A model that fails this gate is rejected and the clearly labelled prototype fallback remains active. This is a structural import gate, not an artistic realism certification: human review is still required for anatomy, topology, skin shading, facial expressions, lip-sync quality, Vietnamese appearance, rig deformation and mobile performance. For blend-shape exports from Blender, enable the glTF deformation/shape-key export options and verify the imported mesh in Godot.
