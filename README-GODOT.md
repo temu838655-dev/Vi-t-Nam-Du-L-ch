@@ -1,32 +1,48 @@
-# Việt Nam – Hành Trình Bất Tận (Godot 4 port)
+# Việt Nam – Hành Trình Bất Tận (Godot 4)
 
-The Godot 4 migration is developed on branch `godot4-port`. The Unreal Engine 5.8 project remains preserved on `main`.
+## Repository and engine
 
-## Current playable prototype
+- Active Godot development branch: `godot4-port`.
+- Engine: Godot 4.4.1, GDScript, Compatibility renderer (mobile-oriented).
+- Android package: `com.bovietnam.hanhtrinh`.
+- The previous Unreal Engine project on `main` is preserved and is not part of the Godot Android build.
 
-Open `Godot/project.godot` with Godot 4.4.1 or compatible Godot 4.x.
+## Existing playable prototype
 
-- Main menu: start a new journey or continue the last saved session.
-- New game begins outside the player's family home.
-- Continue restores the last saved player position and facing direction.
-- Mobile third-person controls: visible left-side touch joystick, right-side camera drag, jump and interaction buttons. The joystick relocates to the initial touch point on the left side.
-- Motorbike prototype: approach the parked test bike, tap TƯƠNG TÁC to mount, steer and accelerate with the left joystick, then tap XUỐNG XE to dismount. The rider camera pulls back while driving.
-- Three interactive shops: a motorcycle dealer, a Vietnamese clothing shop and a food/specialty stall. The catalogs include popular models such as Wave Alpha, Vision, Air Blade, SH160i, Sirius FI, Exciter 155, LEAD and Janus; everyday clothes and traditional outfits; and dishes/specialties from multiple regions.
-- Vehicle purchases are saved as owned vehicles and spawn a rideable bike near the player. Clothing purchases are saved and immediately equip the selected outfit. Prepared dishes deduct money and increase the character satiety meter; packaged regional specialties are stored in the player inventory.
-- Character prototype now uses separate head, hair, face, torso, arms, legs and shoes meshes. Outfit slots update the visible colors and traditional outfit/helmet overlays.
-- Family prototype: talk to mother and father; family affection is tracked.
-- Career prototype: interact with the job board to choose one of four careers, then complete one paid shift per real-world date.
-- Wallet and career status are displayed in the mobile HUD.
-- Local JSON save file stores player profile, wallet, career, family progress, work history and world position. Autosave runs every 15 seconds and when the app is paused or closed.
+Open `Godot/project.godot` in Godot 4.4.1.
 
-## Prototype limitations
+- New journey starts outside the family home; Continue restores the saved player position.
+- Guest/local save, autosave, wallet, career selection and work-shift prototype.
+- Third-person mobile movement, fixed bottom-left joystick, right-side camera drag, jump and interaction.
+- Local map overlay (local prototype coordinates only; not GPS or a complete Vietnam map).
+- Family NPCs, daily resident routines, contextual dialogue and family progress.
+- Motorcycle, clothing and food shops; purchases, inventory and basic vehicle mounting.
+- Hồ Gươm prototype district, family home/interior and several shop interiors.
+- Basic procedural traffic and pedestrian routines.
 
-The house, street, shops, NPCs, character and motorcycles are still procedural prototype geometry. The listed vehicle names are game catalog entries; current bike meshes are not manufacturer-accurate licensed models. Character proportions, face, clothes and movement are early placeholders, not photorealistic scans or motion-captured animation. Shop prices are balancing values, not official retail quotations. Production-quality character/vehicle assets, traffic, detailed interiors, full regional maps, quests, cloud accounts and final sound design remain future work.
+## Honest production status
 
-## Android build
+This is still an early gameplay prototype, **not** a photorealistic open-world game.
 
-The GitHub Actions workflow `.github/workflows/godot-android-apk.yml` validates the project and exports an ARM64 debug APK. A build is considered available only after the workflow succeeds and uploads the artifact named `VietNamHanhTrinh-Godot-Android-ARM64`.
+- The current player is assembled from primitive meshes; it does not yet use a production humanoid GLB, facial rig or motion-captured animation.
+- Current motorcycles and traffic are procedural prototypes, not manufacturer-accurate licensed vehicle models.
+- Buildings, roads, shops and landmarks are partly procedural/greybox. They are not yet a finished photogrammetry/PBR city.
+- Google sign-in is a UI stub. OAuth, backend identity and cloud saves are not configured.
+- The map is local and does not yet contain connected, streamed regions of Vietnam.
+- Some gameplay systems are prototypes; mission progression, advanced vehicle physics, audio and production QA remain incomplete.
 
-## Branch policy
+The asset requirements and acceptance gates are tracked in `Godot/assets/asset_manifest.json`. An asset cannot be accepted without its actual files, source and license metadata. Do not label placeholder geometry as production art.
 
-Keep Unreal Engine 5.8 source on `main` intact until the Godot APK has been installed and smoke-tested on a real Android device. Do not merge the Godot port into `main` before that verification.
+## Android builds
+
+The GitHub Actions workflow validates the project, imports and runs Godot headlessly, exports an ARM64 debug APK, verifies the package ID, uploads a 14-day Actions artifact, and publishes a prerelease to GitHub Releases.
+
+- Workflow: [Godot Android APK](https://github.com/temu838655-dev/Vi-t-Nam-Du-L-ch/actions/workflows/godot-android-apk.yml)
+- Releases: [Godot Android test builds](https://github.com/temu838655-dev/Vi-t-Nam-Du-L-ch/releases)
+- APK filename: `VietNamHanhTrinh-Android-ARM64.apk`
+
+The current CI signing key is generated for testing. It is not a persistent Play Store signing key. AAB/production signing and iOS Xcode export still require dedicated release configuration and credentials.
+
+## Branch safety
+
+Keep the Godot work on `godot4-port`. Do not overwrite or merge into `main` until a Godot APK has been installed and smoke-tested on a real Android device.
