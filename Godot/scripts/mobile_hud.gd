@@ -8,6 +8,7 @@ class LocalMapCanvas:
 	var player_position := Vector3.ZERO
 	var player_rotation_y := 0.0
 	var map_center := Vector3.ZERO
+	var zoom_level := 1.0
 	var waypoint_position := Vector3.ZERO
 	var has_waypoint := false
 
@@ -19,12 +20,12 @@ class LocalMapCanvas:
 		# North-up, player-centred map: the player stays visible while the
 		# streets and landmarks move relative to their live world position.
 		var usable := size - Vector2(28, 28)
-		var scale := Vector2(usable.x / 70.0, usable.y / 74.0)
+		var scale := Vector2(usable.x / 70.0, usable.y / 74.0) * zoom_level
 		return size * 0.5 + Vector2((world.x - map_center.x) * scale.x, (world.z - map_center.z) * scale.y)
 
 	func _canvas_to_world(point: Vector2) -> Vector3:
 		var usable := size - Vector2(28, 28)
-		var scale := Vector2(maxf(1.0, usable.x) / 70.0, maxf(1.0, usable.y) / 74.0)
+		var scale := Vector2(maxf(1.0, usable.x) / 70.0, maxf(1.0, usable.y) / 74.0) * zoom_level
 		var offset := (point - size * 0.5) / scale
 		return Vector3(clampf(map_center.x + offset.x, -25.0, 45.0), 0.0, clampf(map_center.z + offset.y, -32.0, 42.0))
 
@@ -1357,6 +1358,23 @@ func _open_local_map() -> void:
 	map_canvas.waypoint_selected.connect(_set_map_waypoint)
 	layout.add_child(map_canvas)
 
+	var map_tools := HBoxContainer.new()
+	map_tools.alignment = BoxContainer.ALIGNMENT_CENTER
+	map_tools.add_theme_constant_override("separation", 10)
+	layout.add_child(map_tools)
+	var zoom_out := Button.new()
+	zoom_out.text = "−  THU NHỎ"
+	zoom_out.custom_minimum_size = Vector2(112, 38)
+	_style_game_button(zoom_out, Color(0.08, 0.19, 0.25, 1.0))
+	zoom_out.pressed.connect(_change_map_zoom.bind(-0.2))
+	map_tools.add_child(zoom_out)
+	var zoom_in := Button.new()
+	zoom_in.text = "+  PHÓNG TO"
+	zoom_in.custom_minimum_size = Vector2(112, 38)
+	_style_game_button(zoom_in, Color(0.08, 0.25, 0.32, 1.0))
+	zoom_in.pressed.connect(_change_map_zoom.bind(0.2))
+	map_tools.add_child(zoom_in)
+
 	var legend := Label.new()
 	legend.text = "● Bạn  •  ● Nhà  •  ● Cửa hàng  •  ● Địa danh"
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1396,6 +1414,12 @@ func _open_local_map() -> void:
 	_style_game_button(close, Color(0.06, 0.30, 0.48, 1.0))
 	close.pressed.connect(_close_local_map)
 	layout.add_child(close)
+
+func _change_map_zoom(amount: float) -> void:
+	if not is_instance_valid(map_canvas):
+		return
+	map_canvas.zoom_level = clampf(map_canvas.zoom_level + amount, 0.6, 2.0)
+	map_canvas.queue_redraw()
 
 func _resolve_waypoint_name(world_position: Vector3) -> String:
 	var best_name := "Điểm đánh dấu"
