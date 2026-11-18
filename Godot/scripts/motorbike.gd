@@ -9,6 +9,10 @@ var speed_label: Label3D
 var wheel_nodes: Array[Node3D] = []
 var front_wheel: Node3D
 var wheel_rotation := 0.0
+const PRODUCTION_MODEL_PATH := "res://assets/vehicles/motorbikes/honda_wave_alpha_110.glb"
+var using_production_model := false
+var production_model: Node3D
+var steering_pivot: Node3D
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -36,7 +40,9 @@ func _process(delta: float) -> void:
 		wheel_rotation += speed_mps * delta / 0.38
 		for wheel in wheel_nodes:
 			wheel.rotation.x = wheel_rotation
-		if front_wheel:
+		if is_instance_valid(steering_pivot):
+			steering_pivot.rotation.y = clampf(-rider.velocity.dot(global_transform.basis.x) * 0.035, -0.32, 0.32)
+		elif is_instance_valid(front_wheel):
 			front_wheel.rotation.y = clampf(-rider.velocity.dot(global_transform.basis.x) * 0.035, -0.32, 0.32)
 		rotation.z = lerpf(rotation.z, clampf(-rider.velocity.dot(global_transform.basis.x) * 0.018, -0.12, 0.12), delta * 5.0)
 		if label:
@@ -72,6 +78,10 @@ func clear_rider() -> void:
 		label.text = display_name + "\nNHẤN TƯƠNG TÁC"
 
 func _build_motorbike() -> void:
+	if _load_production_model():
+		return
+
+	# Clearly identified prototype fallback. It is not production vehicle art.
 	var lower_name := display_name.to_lower()
 	var is_scooter := "vision" in lower_name or "air blade" in lower_name or "sh" in lower_name or "lead" in lower_name or "janus" in lower_name
 	var is_sport := "exciter" in lower_name
@@ -121,6 +131,50 @@ func _build_motorbike() -> void:
 	var wheel_radius := 0.36 if is_scooter else 0.39
 	front_wheel = _add_wheel("Bánh trước", Vector3(0, 0.43, -1.02), wheel_radius, rubber, metal)
 	_add_wheel("Bánh sau", Vector3(0, 0.43, 0.95), wheel_radius, rubber, metal)
+
+
+func _load_production_model() -> bool:
+	if not ResourceLoader.exists(PRODUCTION_MODEL_PATH):
+		return false
+	var packed_model := load(PRODUCTION_MODEL_PATH) as PackedScene
+	if packed_model == null:
+		push_warning("Motorbike GLB exists but could not be loaded: " + PRODUCTION_MODEL_PATH)
+		return false
+	var instance := packed_model.instantiate()
+	if not instance is Node3D:
+		push_warning("Motorbike GLB root must be Node3D.")
+		instance.queue_free()
+		return false
+	production_model = instance as Node3D
+	production_model.name = "ProductionMotorbikeModel"
+	add_child(production_model)
+	using_production_model = true
+	_collect_production_rigs(production_model)
+	if wheel_nodes.size() < 2:
+		push_warning("Production motorbike must expose named front and rear wheel pivot nodes.")
+	return true
+
+
+func _collect_production_rigs(root: Node) -> void:
+	wheel_nodes.clear()
+	front_wheel = null
+	steering_pivot = null
+	_find_rig_nodes(root)
+
+
+func _find_rig_nodes(node: Node) -> void:
+	var node_name := node.name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+	if node is Node3D:
+		var node_3d := node as Node3D
+		if ("front" in node_name and "wheel" in node_name) or ("wheel" in node_name and "front" in node_name):
+			front_wheel = node_3d
+			wheel_nodes.append(node_3d)
+		elif "rear" in node_name and "wheel" in node_name:
+			wheel_nodes.append(node_3d)
+		if ("steer" in node_name or "handlebar" in node_name) and steering_pivot == null:
+			steering_pivot = node_3d
+	for child in node.get_children():
+		_find_rig_nodes(child)
 
 func _add_mirror(at: Vector3, material: StandardMaterial3D) -> void:
 	_add_box("Cần gương", at + Vector3(0, -0.13, 0.03), Vector3(0.035, 0.28, 0.035), material)
