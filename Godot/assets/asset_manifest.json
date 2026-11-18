@@ -1,15 +1,26 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "units": "metres",
-  "quality_policy": "No primitive placeholder may be marked production_ready.",
+  "quality_policy": "No primitive placeholder may be marked production_ready. Imported GLB files are structurally checked; accepted assets require source, license, PBR textures and profile-specific geometry.",
+  "import_standard": "glTF 2.0 binary (.glb), metres, Y-up conversion handled by Godot importer, embedded textures, named nodes, mobile LODs, collision meshes separated from render meshes.",
   "assets": [
     {
       "id": "player_hero_v1",
       "category": "character",
+      "validation_profile": "character",
       "display_name": "Nhân vật chính Việt Nam",
       "target": "Android first; iPhone later",
-      "required_files": ["characters/player/player_hero.glb"],
-      "requirements": ["humanoid_skeleton", "facial_geometry", "separate_hair", "PBR_materials", "idle_walk_run_talk_interaction_animations", "LOD"],
+      "required_files": [
+        "characters/player/player_hero.glb"
+      ],
+      "requirements": [
+        "humanoid_skeleton",
+        "facial_geometry",
+        "separate_hair",
+        "PBR_materials",
+        "idle_walk_run_talk_interaction_animations",
+        "LOD"
+      ],
       "source": null,
       "license": null,
       "status": "blocked_no_production_model"
@@ -17,10 +28,22 @@
     {
       "id": "honda_wave_alpha_110_v1",
       "category": "motorbike",
+      "validation_profile": "motorbike",
       "display_name": "Honda Wave Alpha 110",
       "target": "Android first; iPhone later",
-      "required_files": ["vehicles/motorbikes/honda_wave_alpha_110.glb"],
-      "requirements": ["reference_verified_silhouette", "separate_body_panels", "front_rear_wheel_rigs", "steering_rig", "suspension_rig", "PBR_materials", "rider_mount_points", "LOD"],
+      "required_files": [
+        "vehicles/motorbikes/honda_wave_alpha_110.glb"
+      ],
+      "requirements": [
+        "reference_verified_silhouette",
+        "separate_body_panels",
+        "front_rear_wheel_rigs",
+        "steering_rig",
+        "suspension_rig",
+        "PBR_materials",
+        "rider_mount_points",
+        "LOD"
+      ],
       "source": null,
       "license": null,
       "status": "blocked_no_production_model"
@@ -28,14 +51,29 @@
     {
       "id": "hanoi_family_home_v1",
       "category": "environment",
+      "validation_profile": "environment",
       "display_name": "Nhà gia đình và nội thất Việt Nam",
       "target": "Android first; iPhone later",
-      "required_files": ["environment/family_home/family_home.glb"],
-      "requirements": ["photo_reference_set", "Vietnamese_architecture_review", "PBR_materials", "separate_collision_meshes", "interior_exterior_detail", "mobile_LODs"],
+      "required_files": [
+        "environment/family_home/family_home.glb"
+      ],
+      "requirements": [
+        "photo_reference_set",
+        "Vietnamese_architecture_review",
+        "PBR_materials",
+        "separate_collision_meshes",
+        "interior_exterior_detail",
+        "mobile_LODs"
+      ],
       "source": null,
       "license": null,
       "status": "blocked_no_production_model"
     }
   ],
-  "status_values": ["blocked_no_production_model", "in_production", "needs_review", "accepted"]
+  "status_values": [
+    "blocked_no_production_model",
+    "in_production",
+    "needs_review",
+    "accepted"
+  ]
 }
