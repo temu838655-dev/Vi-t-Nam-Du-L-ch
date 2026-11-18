@@ -41,6 +41,21 @@ The target is a realistic, game-ready Vietnamese hero and a reusable NPC family,
 - Keep clothing as swappable meshes for the in-game wardrobe.
 - Make a clean humanoid skeleton with consistent naming and skin weights.
 
+### B1. Facial anatomy and performance standard (mandatory)
+
+The hero and close-up NPCs must have a readable, fully modeled face. A blank mask, featureless head, painted-on features or simple dots are not acceptable.
+
+- Eyes: separate left/right eye geometry with visible iris and pupil, believable sclera, eyelid geometry and blink capability. Eye gaze should track conversation targets where supported.
+- Eyebrows: separate geometry or groom cards with enough control for expression.
+- Nose: modeled bridge, tip, alar wings and nostrils; not a single floating cone.
+- Mouth: upper/lower lip volume, mouth opening/cavity and teeth; tongue is desirable for close-up dialogue. Provide visemes or phoneme shapes for speech.
+- Other anatomy: ears, cheek volume, jawline and chin must deform naturally with expressions.
+- Facial rig: facial bones and/or blendshape morph targets for blink, brow raise/frown, smile, anger, sadness, surprise and mouth/viseme shapes. At minimum, implement eye blink, jaw open and several visemes for dialogue.
+- Performance: animate faces for the player and nearby speaking NPCs; disable or simplify facial animation for distant crowds to protect mobile frame time.
+- QA: inspect front, profile and three-quarter views in daylight and night lighting; test blink, eye direction, lip-sync and expression transitions. Check for crossed-looking eyes and clipping around lips/teeth.
+
+The intended quality bar is detailed facial readability and animation ambition comparable to high-end open-world games such as GTA V, with an original Vietnamese character design. This is a visual target, not a claim of identical asset fidelity or production budget.
+
 ### C. Materials
 - Use physically based materials: base color, roughness, normal and metallic only where physically appropriate.
 - Avoid plastic-looking skin. Use subtle roughness variation and restrained subsurface scattering only on supported renderer/device tiers.
