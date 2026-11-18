@@ -62,8 +62,6 @@ func _update_schedule(delta: float) -> void:
 	if walking and delta > 0.0:
 		walk_phase += delta * 8.0
 		var swing := sin(walk_phase) * 0.42
-		left_leg.rotation.x = swing
-		right_leg.rotation.x = -swing
 		var movement := position - previous_position
 		if movement.length_squared() > 0.0001:
 			rotation.y = atan2(movement.x, movement.z)
