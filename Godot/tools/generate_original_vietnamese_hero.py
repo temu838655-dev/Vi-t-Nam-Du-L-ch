@@ -170,9 +170,11 @@ for o in list(bpy.context.scene.objects):
         vg=o.vertex_groups.new(name=bone); vg.add(list(range(len(o.data.vertices))),1.0,"REPLACE")
         mod=o.modifiers.new("Hero_Skeleton","ARMATURE"); mod.object=arm
         o.parent=arm
-        con=o.constraints.new("CHILD_OF"); con.target=arm; con.subtarget=bone
 # Basic authored animation actions, designed as a starting point for animator polish.
 def action(name, frames):
+    arm.animation_data_create()
+    act=bpy.data.actions.new(name)
+    arm.animation_data.action=act
     bpy.context.view_layer.objects.active=arm
     bpy.ops.object.mode_set(mode="POSE")
     for bone_name, keys in frames.items():
@@ -180,12 +182,15 @@ def action(name, frames):
         if not pb: continue
         pb.rotation_mode="XYZ"
         for frame,rot in keys:
-            pb.rotation_euler=rot; pb.keyframe_insert(data_path="rotation_euler",frame=frame,group=bone_name)
+            pb.rotation_euler=rot
+            pb.keyframe_insert(data_path="rotation_euler",frame=frame,group=bone_name)
     bpy.ops.object.mode_set(mode="OBJECT")
-    act=bpy.data.actions.get(name) or bpy.data.actions.new(name); arm.animation_data_create(); arm.animation_data.action=act
-    act.name=name
     act["clip_type"]=name.lower()
     act.use_fake_user=True
+    track=arm.animation_data.nla_tracks.new()
+    track.name=name
+    track.strips.new(name, 1, act)
+    arm.animation_data.action=None
 action("Idle",{"spine":[(1,(0,0,0)),(24,(.015,0,0)),(48,(0,0,0))],"head":[(1,(0,0,0)),(24,(0,.015,0)),(48,(0,0,0))]})
 action("Walk",{"upper_arm.L":[(1,(.35,0,0)),(13,(-.35,0,0)),(25,(.35,0,0))],"upper_arm.R":[(1,(-.35,0,0)),(13,(.35,0,0)),(25,(-.35,0,0))],"thigh.L":[(1,(-.45,0,0)),(13,(.45,0,0)),(25,(-.45,0,0))],"thigh.R":[(1,(.45,0,0)),(13,(-.45,0,0)),(25,(.45,0,0))]})
 action("Run",{"upper_arm.L":[(1,(.7,0,0)),(10,(-.7,0,0)),(19,(.7,0,0))],"upper_arm.R":[(1,(-.7,0,0)),(10,(.7,0,0)),(19,(-.7,0,0))],"thigh.L":[(1,(-.8,0,0)),(10,(.8,0,0)),(19,(-.8,0,0))],"thigh.R":[(1,(.8,0,0)),(10,(-.8,0,0)),(19,(.8,0,0))]})
