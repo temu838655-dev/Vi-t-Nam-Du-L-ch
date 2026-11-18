@@ -1,0 +1,38 @@
+# Vietnam 3D asset sourcing shortlist
+
+This catalog is a research shortlist, not a claim that the models have been downloaded or integrated. Before adding any binary to the game, verify the live download button, license text, attribution requirements, source file, texture embedding, scale, topology, and mobile performance.
+
+## Candidate assets
+
+| Asset | Source | Format / technical notes | License / integration decision |
+|---|---|---|---|
+| Vietnamese House in 2000s | https://sketchfab.com/3d-models/vietnamese-house-in-2000s-582936c8eac641a885343e91766e71b1 | 8.5k triangles; family home from southern Vietnam, late 1990s/early 2000s | CC BY; credit creator Khoa Nguyen. Strong candidate for family-home art pass after download and GLB inspection. |
+| BanhMi Cart | https://sketchfab.com/3d-models/banhmi-cart-f45b8dfd3a874779ac18323399a10258 | 7.1k triangles; Vietnamese street-food cart | CC BY; credit Khoa Nguyen. Candidate for street-food vendor. |
+| Vietnamese Vegetable Market | https://sketchfab.com/3d-models/vietnamese-vegetable-market-a3c935d758624c8f866bc27776f86712 | 6.7k triangles; low-poly market scene | CC BY; credit Khoa Nguyen. Useful as a layout/reference asset, but stylized rather than photoreal. |
+| Vietnamese Meat Market stall | https://sketchfab.com/3d-models/vietnamese-meat-market-stall-0cd04f3c727347d9899b52b9b88be871 | 3.7k triangles; stall prop | CC BY; credit Khoa Nguyen. Candidate for market props. |
+| Vietnamese streets | https://sketchfab.com/3d-models/vietnamese-streets-e2ce91e4d7d349c7912a0ad065ceec56 | 6.9k triangles; creator points to an external Google Drive download | CC BY; creator asks for attribution. Verify external archive and contents before use. |
+| Vietnamese Man (Basic Rig) | https://sketchfab.com/3d-models/vietnamese-man-basic-rig-7dffbc85e8044a2f9198e626ef95aa92 | 356.7k triangles; basic rig | CC BY-SA; credit and share-alike obligations apply. Too heavy for direct mobile use; retopology, rig inspection and LOD required. |
+| Traditional Vietnamese Clothes Ao Dai | https://sketchfab.com/3d-models/traditional-vietnamese-clothes-ao-dai-861b18ca3b954fad9b0b3d84f6a81fc0 | 37.6k triangles; clothing model | Search result did not expose a clear license/download confirmation. Hold until the model page's current license and download permission are checked. |
+| Vietnamese nón lá | https://sketchfab.com/3d-models/vietnamese---non-la-abd86436d03344b9a40c82e127fb6252 | 1.5k triangles | CC BY; credit creator NNgan. Good small wearable prop candidate. |
+| Vietnamese traditional house (North) | https://3dwarehouse.sketchup.com/model/da8d410f-af22-49cd-9f7b-08bd8e16a6fe/Vietnamese-Traditional-House-model-3 | 16,291 polygons; 105 materials; SketchUp model | Download shown, but verify SketchUp model terms and convert SKP to GLB in Blender. Inspect material cleanup and collision. |
+| Traditional Vietnamese thatched-roof house | https://3dlabtools.com/resources/traditional-vietnamese-thatched-roof-house-historical-3d-game-asset-f0da80eb | GLB, 486,124 triangles, 15.4 MB | 3DLabTools Original Content License: commercial use and modification allowed; no standalone redistribution. Far too dense for direct mobile use; retopology/LOD and texture optimization required. |
+| Vietnamese red plastic stool | https://saigonsidewalk.itch.io/vietnamese-plastic-stool | GLB/FBX/OBJ/Blend; 1,500 triangles; PBR 1K | Free for personal and commercial projects; do not resell or redistribute raw files. Excellent small street-life prop candidate. |
+| Pho dining set | https://alleybits.itch.io/pho-dining-set-free-low-poly-asian-street-food | GLB/FBX/OBJ; 42 meshes, 10,018 triangles | Personal and commercial use allowed; no royalty/attribution; do not redistribute source assets. Stylized/low-poly, useful as temporary prop kit, not final photoreal art. |
+| Traditional Vietnamese temple | https://3dlabtools.com/resources/traditional-vietnamese-ancient-temple-historical-3d-game-asset-1ae90d74 | GLB, 929,006 triangles, 28.7 MB | 3DLabTools Original Content License; optimize heavily before mobile use. |
+| Vietnamese old town scan | https://sketchfab.com/3d-models/vietnams-old-town-c1251dd5edfb4f73ab6ac98ca3e3a188 | 2.2M triangles | CC BY. Photogrammetry-scale candidate only; decimate, split into modular chunks, bake textures and create LODs. |
+
+## Vehicle sourcing
+
+- TurboSquid motor-scooter catalog: https://www.turbosquid.com/Search/3D-Models/motor-scooter
+- TurboSquid lists FBX, GLTF/GLB and OBJ among exchange formats. Filter for downloadable, game-ready models and verify each product license.
+- Do not substitute a generic scooter for Honda Wave Alpha, Vision, Air Blade, SH, Lead, Future, Winner X, Yamaha Sirius, Exciter, Janus or Grande. Exact model/year, body panels, wheelbase, headlamp, tail lamp, mirrors, seat and control rig must be checked against reference photos.
+- No verified downloadable Honda Wave Alpha model was found in this search pass.
+
+## Important platform and license notes
+
+- Sketchfab's Download API requires an authenticated Sketchfab account; its API supports GLB/glTF/USDZ and only allows downloads for models whose creator enabled downloads. See https://sketchfab.com/developers/download-api.
+- A visible Sketchfab viewer or a search result is not proof that the binary can be downloaded without login.
+- CC BY assets need creator attribution in the game's credits and asset manifest. CC BY-SA assets need a separate compatibility review before inclusion in a closed-source/commercial distribution.
+- Never commit a model until its original archive is downloaded, inspected, converted if needed, and the license/provenance recorded.
+- For Android, make mobile LODs, reduce draw calls, atlas materials, compress textures, create collision proxies, and test memory/GPU cost on low-end devices.
+- Do not place HTML pages, download links, or text placeholders under a .glb filename. A real GLB binary must pass the project's GLB validator before status changes from blocked.
