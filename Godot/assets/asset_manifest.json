@@ -28,9 +28,10 @@
         "idle_walk_run_jump_talk_interaction_animations",
         "LOD"
       ],
-      "source": null,
-      "license": null,
-      "status": "blocked_no_production_model"
+      "source": "Original project-authored Blender procedural mesh generator: Godot/tools/generate_original_vietnamese_hero.py; generated during Android CI build.",
+      "license": "Original geometry authored for this project; no third-party character mesh or ripped game assets used. Final commercial rights review remains pending.",
+      "status": "in_production",
+      "production_notes": "First authored baseline, not final photorealistic art. Includes separate anatomical face feature meshes, editable facial shape keys, humanoid skeleton and starter animation clips. Requires visual review, retopology/UV/PBR texture polish and device profiling before accepted status."
     },
     {
       "id": "honda_wave_alpha_110_v1",
