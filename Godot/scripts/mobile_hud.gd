@@ -355,7 +355,7 @@ func _update_mission_ui() -> void:
 	if not is_instance_valid(mission_label):
 		return
 	var mission: Dictionary = GameState.get_tutorial_mission()
-	mission_label.text = "❗ NHIỆM VỤ %d/5\\n%s\\n%s" % [mini(GameState.tutorial_stage + 1, 5), str(mission.get("title", "")), str(mission.get("description", ""))]
+	mission_label.text = "❗ NHIỆM VỤ %d/5\n%s\n%s" % [mini(GameState.tutorial_stage + 1, 5), str(mission.get("title", "")), str(mission.get("description", ""))]
 
 func _guide_current_mission() -> void:
 	var mission: Dictionary = GameState.get_tutorial_mission()
