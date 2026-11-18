@@ -1,5 +1,8 @@
 extends Node3D
 
+const MALE_NPC_MODEL_PATH := "res://assets/characters/player/player_hero.glb"
+const FEMALE_NPC_MODEL_PATH := "res://assets/characters/npc/vietnamese_woman.glb"
+
 @export var display_name := "Mẹ"
 @export var role := "mother"
 @export var body_color := Color(0.72, 0.18, 0.22)
@@ -11,6 +14,9 @@ var idle_phase := 0.0
 var left_arm: MeshInstance3D
 var right_arm: MeshInstance3D
 var torso: MeshInstance3D
+var production_visual: Node3D
+var production_animation_player: AnimationPlayer
+var using_production_visual := false
 
 const CAREER_BY_ROLE := {
 	"career_driver": "Tài xế công nghệ",
@@ -42,16 +48,22 @@ func _process(delta: float) -> void:
 			rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), minf(1.0, delta * 4.0))
 		position = position.move_toward(routine_target, delta * 1.25)
 		idle_phase += delta * 7.0
-		if is_instance_valid(left_arm):
-			left_arm.rotation.x = sin(idle_phase) * 0.18
-		if is_instance_valid(right_arm):
-			right_arm.rotation.x = -sin(idle_phase) * 0.18
+		if using_production_visual:
+			_play_npc_animation("walk")
+		else:
+			if is_instance_valid(left_arm):
+				left_arm.rotation.x = sin(idle_phase) * 0.18
+			if is_instance_valid(right_arm):
+				right_arm.rotation.x = -sin(idle_phase) * 0.18
 	else:
-		idle_phase += delta
-		if is_instance_valid(left_arm):
-			left_arm.rotation.x = sin(idle_phase * 1.2) * 0.035
-		if is_instance_valid(right_arm):
-			right_arm.rotation.x = sin(idle_phase * 1.2 + 1.0) * 0.035
+		if using_production_visual:
+			_play_npc_animation("idle")
+		else:
+			idle_phase += delta
+			if is_instance_valid(left_arm):
+				left_arm.rotation.x = sin(idle_phase * 1.2) * 0.035
+			if is_instance_valid(right_arm):
+				right_arm.rotation.x = sin(idle_phase * 1.2 + 1.0) * 0.035
 
 func _update_family_routine(initial: bool) -> void:
 	var clock := fposmod(GameState.world_time_seconds, 240.0)
@@ -75,6 +87,11 @@ func _update_family_routine(initial: bool) -> void:
 		position = routine_target
 
 func _build_person() -> void:
+	if _try_build_production_person():
+		_add_name_label()
+		return
+	# Fallback remains a prototype, not production character art.
+	push_warning("NPC production model missing or failed quality gate for role: " + role)
 	var skin_color := Color(0.72, 0.49, 0.36)
 	var hair_color := Color(0.055, 0.045, 0.04)
 	var skin := _material(skin_color)
@@ -128,12 +145,84 @@ func _build_person() -> void:
 		_add_sphere("Eye", Vector3(eye_x, 1.77, -0.2), Vector3(0.045, 0.05, 0.025), eyes)
 	_add_sphere("Nose", Vector3(0, 1.72, -0.22), Vector3(0.055, 0.065, 0.06), skin)
 
+	_add_name_label()
+
+
+func _try_build_production_person() -> bool:
+	var model_path := FEMALE_NPC_MODEL_PATH if role == "mother" else MALE_NPC_MODEL_PATH
+	if not ResourceLoader.exists(model_path):
+		return false
+	var packed := load(model_path) as PackedScene
+	if packed == null:
+		return false
+	var instance := packed.instantiate()
+	if not instance is Node3D:
+		instance.queue_free()
+		return false
+	var report := {"skeleton": false, "animation": false, "eyes": 0, "nose": 0, "mouth": 0, "brows": 0}
+	_inspect_npc_model(instance, report)
+	if not report.skeleton or not report.animation or int(report.eyes) < 2 or int(report.nose) < 1 or int(report.mouth) < 1 or int(report.brows) < 1:
+		instance.queue_free()
+		return false
+	production_visual = instance as Node3D
+	production_visual.name = "ProductionNPCVisual"
+	add_child(production_visual)
+	production_animation_player = _find_npc_animation_player(production_visual)
+	using_production_visual = true
+	_play_npc_animation("idle")
+	return true
+
+
+func _inspect_npc_model(node: Node, report: Dictionary) -> void:
+	var node_name := node.name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+	if node is Skeleton3D:
+		report.skeleton = true
+	if node is AnimationPlayer and not (node as AnimationPlayer).get_animation_list().is_empty():
+		report.animation = true
+	if node is MeshInstance3D:
+		if "eye" in node_name or "iris" in node_name or "pupil" in node_name:
+			report.eyes = int(report.eyes) + 1
+		if "nose" in node_name:
+			report.nose = int(report.nose) + 1
+		if "mouth" in node_name or "lip" in node_name:
+			report.mouth = int(report.mouth) + 1
+		if "brow" in node_name:
+			report.brows = int(report.brows) + 1
+	for child in node.get_children():
+		_inspect_npc_model(child, report)
+
+
+func _find_npc_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child in node.get_children():
+		var found := _find_npc_animation_player(child)
+		if found != null:
+			return found
+	return null
+
+
+func _play_npc_animation(state: String) -> void:
+	if not is_instance_valid(production_animation_player):
+		return
+	var aliases := [state, "walking" if state == "walk" else "standingidle"]
+	for animation_name in production_animation_player.get_animation_list():
+		var normalized := animation_name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+		for alias in aliases:
+			if normalized == str(alias).to_lower().replace("_", "").replace("-", "").replace(" ", ""):
+				if production_animation_player.current_animation != animation_name:
+					production_animation_player.play(animation_name)
+				return
+
+
+func _add_name_label() -> void:
 	var label := Label3D.new()
 	label.text = display_name
 	label.position = Vector3(0, 2.18, 0)
 	label.font_size = 26
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(label)
+
 
 func _material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
