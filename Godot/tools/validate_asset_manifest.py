@@ -179,7 +179,38 @@ except (OSError, json.JSONDecodeError) as exc:
     raise SystemExit(1)
 
 assets = manifest.get("assets")
+source_candidates = manifest.get("asset_sources", [])
 errors = []
+
+# Candidate links are discovery records, never proof of download rights or
+# evidence that a model has been integrated into the game.
+if not isinstance(source_candidates, list):
+    errors.append("'asset_sources' must be an array")
+    source_candidates = []
+
+source_ids = set()
+for source in source_candidates:
+    if not isinstance(source, dict):
+        errors.append("each asset_sources entry must be an object")
+        continue
+    source_id = source.get("id")
+    if not source_id or source_id in source_ids:
+        errors.append(f"missing or duplicate asset source id: {source_id!r}")
+        continue
+    source_ids.add(source_id)
+    for field in ("title", "creator", "model_url", "license", "download_state", "visual_style", "intended_use"):
+        if not source.get(field):
+            errors.append(f"{source_id}: missing required source field {field!r}")
+    if not str(source.get("model_url", "")).startswith("https://"):
+        errors.append(f"{source_id}: model_url must use HTTPS")
+    if source.get("download_state") not in {"not_verified", "downloadable_verified", "downloaded"}:
+        errors.append(f"{source_id}: unsupported download_state {source.get('download_state')!r}")
+    if source.get("download_state") == "downloaded":
+        if not source.get("local_asset_id") or not source.get("download_evidence"):
+            errors.append(f"{source_id}: downloaded sources require local_asset_id and download_evidence")
+    if source.get("download_state") == "downloadable_verified" and not source.get("download_evidence"):
+        errors.append(f"{source_id}: downloadable_verified requires download_evidence")
+
 if not isinstance(assets, list):
     errors.append("'assets' must be an array")
     assets = []
