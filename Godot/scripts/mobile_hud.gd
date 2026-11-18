@@ -117,6 +117,7 @@ var inventory_items_container: VBoxContainer
 var current_inventory_tab := "vehicle"
 var family_dialogue_overlay: Control
 var settings_overlay: Control
+var phone_overlay: Control
 var map_overlay: Control
 var map_canvas: LocalMapCanvas
 var active_waypoint := Vector3.ZERO
@@ -225,12 +226,15 @@ func _ready() -> void:
 	top_actions.position = Vector2(-utility_width - 18, 154 if compact_layout else 18)
 	top_actions.add_theme_constant_override("separation", 8)
 	ui_root.add_child(top_actions)
-	for action in ["🎁\nQuà", "🏆\nThành tựu", "⚙\nCài đặt"]:
+	for action in ["📱\nĐIỆN THOẠI", "🏆\nTHÀNH TỰU", "⚙\nCÀI ĐẶT"]:
 		var action_button := Button.new()
 		action_button.text = action
 		action_button.custom_minimum_size = Vector2(60 if compact_layout else 100, 54 if compact_layout else 58)
-		action_button.add_theme_font_size_override("font_size", 14)
-		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
+		action_button.add_theme_font_size_override("font_size", 12 if compact_layout else 14)
+		if action.begins_with("📱"):
+			action_button.pressed.connect(_open_phone)
+		else:
+			action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
 	# A tappable local map replaces the old decorative placeholder.
@@ -352,6 +356,122 @@ func _make_hud_panel(at: Vector2, dimensions: Vector2) -> PanelContainer:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _hud_style(Color(0.015, 0.055, 0.12, 0.78), Color(0.32, 0.68, 0.96, 0.82)))
 	return panel
+
+func _open_phone() -> void:
+	if is_instance_valid(phone_overlay):
+		phone_overlay.queue_free()
+	phone_overlay = Control.new()
+	phone_overlay.name = "InGamePhoneOverlay"
+	phone_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	phone_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(phone_overlay)
+
+	var shade := ColorRect.new()
+	shade.color = Color(0.003, 0.012, 0.025, 0.88)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	phone_overlay.add_child(shade)
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(430.0, viewport_size.x - 24.0)
+	var panel_height := minf(620.0, viewport_size.y - 24.0)
+	var shell := PanelContainer.new()
+	shell.set_anchors_preset(Control.PRESET_CENTER)
+	shell.offset_left = -panel_width * 0.5
+	shell.offset_right = panel_width * 0.5
+	shell.offset_top = -panel_height * 0.5
+	shell.offset_bottom = panel_height * 0.5
+	shell.add_theme_stylebox_override("panel", _hud_style(Color(0.025, 0.055, 0.09, 0.99), Color(0.24, 0.72, 0.9, 0.95), 28))
+	phone_overlay.add_child(shell)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	shell.add_child(scroll)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 12)
+	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(layout)
+
+	var header := HBoxContainer.new()
+	layout.add_child(header)
+	var title := Label.new()
+	title.text = "📱 ĐIỆN THOẠI CỦA BẠN"
+	title.add_theme_font_size_override("font_size", 21)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	var close := Button.new()
+	close.text = "ĐÓNG"
+	close.custom_minimum_size = Vector2(76, 44)
+	close.pressed.connect(_close_phone)
+	header.add_child(close)
+
+	var profile := Label.new()
+	profile.text = "DU KHÁCH  •  CẤP ĐỘ 1\nVí tiền: %s VNĐ\nNghề nghiệp: %s\nĐộ no: %d/100" % [_format_money(GameState.wallet_vnd), str(GameState.selected_career), int(GameState.satiety)]
+	profile.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	profile.add_theme_font_size_override("font_size", 16)
+	profile.add_theme_color_override("font_color", Color(0.86, 0.94, 1.0))
+	layout.add_child(profile)
+
+	var family := Label.new()
+	family.text = "GIA ĐÌNH: %s\n%s" % [str(GameState.get_family_relationship_title()), str(GameState.get_family_progress_text())]
+	family.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	family.add_theme_font_size_override("font_size", 14)
+	layout.add_child(family)
+
+	var section := Label.new()
+	section.text = "ỨNG DỤNG"
+	section.add_theme_font_size_override("font_size", 15)
+	section.add_theme_color_override("font_color", Color(0.48, 0.83, 1.0))
+	layout.add_child(section)
+
+	_add_phone_action(layout, "🗺  Bản đồ khu vực", _phone_open_map)
+	_add_phone_action(layout, "🎒  Tài sản & hành trang", _phone_open_inventory)
+	_add_phone_action(layout, "🛍  Cửa hàng đặc sản", _phone_open_food_shop)
+	_add_phone_action(layout, "💼  Nghề nghiệp", _phone_cycle_career)
+	_add_phone_action(layout, "⚙  Cài đặt trò chơi", _phone_open_settings)
+
+	var note := Label.new()
+	note.text = "Các ứng dụng bản đồ hiện hiển thị khu vực Hồ Gươm thử nghiệm. Bản đồ toàn quốc, gọi điện và mạng xã hội trong game chưa được triển khai."
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.add_theme_font_size_override("font_size", 12)
+	note.add_theme_color_override("font_color", Color(0.66, 0.76, 0.82))
+	layout.add_child(note)
+
+func _add_phone_action(parent: VBoxContainer, caption: String, callback: Callable) -> void:
+	var action := Button.new()
+	action.text = caption
+	action.custom_minimum_size = Vector2(0, 52)
+	action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action.add_theme_font_size_override("font_size", 16)
+	_style_game_button(action, Color(0.055, 0.19, 0.29, 0.98))
+	action.pressed.connect(callback)
+	parent.add_child(action)
+
+func _close_phone() -> void:
+	if is_instance_valid(phone_overlay):
+		phone_overlay.queue_free()
+	phone_overlay = null
+
+func _phone_open_map() -> void:
+	_close_phone()
+	_open_local_map()
+
+func _phone_open_inventory() -> void:
+	_close_phone()
+	open_inventory()
+
+func _phone_open_food_shop() -> void:
+	_close_phone()
+	open_shop("food", "CỬA HÀNG ĐẶC SẢN")
+
+func _phone_open_settings() -> void:
+	_close_phone()
+	open_game_settings()
+
+func _phone_cycle_career() -> void:
+	var next_career := GameState.choose_next_career()
+	_show_message("Nghề nghiệp đã chuyển thành: " + next_career + ". Hãy đến điểm làm việc để nhận ca.")
+	_close_phone()
 
 func _show_hud_notice(action_name: String) -> void:
 	if action_name.contains("Cài đặt"):
