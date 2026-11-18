@@ -35,7 +35,8 @@ jobs:
           test -f Godot/scripts/civilian_routine.gd
           test -f Godot/export_presets.cfg
           grep -q 'config/name="Việt Nam' Godot/project.godot
-          echo "Godot project structure validated"
+          python3 Godot/tools/validate_asset_manifest.py
+          echo "Godot project structure and production 3D asset manifest validated"
 
   android-apk:
     name: Export Android ARM64 APK
