@@ -123,6 +123,9 @@ var map_overlay: Control
 var map_canvas: LocalMapCanvas
 var active_waypoint := Vector3.ZERO
 var has_active_waypoint := false
+var waypoint_marker: Node3D
+var waypoint_marker_orb: MeshInstance3D
+var waypoint_animation_time := 0.0
 
 func _ready() -> void:
 	var screen_size := get_viewport().get_visible_rect().size
@@ -751,13 +754,21 @@ func _close_game_settings() -> void:
 		settings_overlay.queue_free()
 	settings_overlay = null
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_update_status()
 	_update_mission_ui()
 	if is_instance_valid(map_canvas) and is_instance_valid(player):
 		map_canvas.player_position = player.global_position
 		map_canvas.player_rotation_y = player.rotation.y
 		map_canvas.queue_redraw()
+	if is_instance_valid(waypoint_marker):
+		waypoint_animation_time += delta
+		waypoint_marker.rotation.y += delta * 0.55
+		if is_instance_valid(waypoint_marker_orb):
+			var pulse := sin(waypoint_animation_time * 2.8)
+			waypoint_marker_orb.position.y = 3.25 + pulse * 0.20
+			var orb_scale := 1.0 + pulse * 0.07
+			waypoint_marker_orb.scale = Vector3.ONE * orb_scale
 	_update_navigation_guidance()
 
 func _update_mission_ui() -> void:
@@ -821,9 +832,74 @@ func _update_navigation_guidance() -> void:
 	var arrow_index := posmod(int(round(relative_angle / (PI / 4.0))), 8)
 	navigation_label.text = "🧭 ĐIỂM ĐẾN\n%s  Còn %.0f m" % [arrows[arrow_index], distance]
 
+func _create_waypoint_marker(world_position: Vector3) -> void:
+	if not is_instance_valid(waypoint_marker):
+		waypoint_marker = Node3D.new()
+		waypoint_marker.name = "NavigationWaypoint3D"
+		get_parent().add_child(waypoint_marker)
+
+		var beacon := MeshInstance3D.new()
+		beacon.name = "GoldenNavigationBeacon"
+		var beacon_mesh := CylinderMesh.new()
+		beacon_mesh.top_radius = 0.045
+		beacon_mesh.bottom_radius = 0.16
+		beacon_mesh.height = 3.0
+		beacon.mesh = beacon_mesh
+		beacon.position.y = 1.5
+		var beacon_material := StandardMaterial3D.new()
+		beacon_material.albedo_color = Color(1.0, 0.62, 0.12, 0.48)
+		beacon_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		beacon_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		beacon_material.emission_enabled = true
+		beacon_material.emission = Color(1.0, 0.38, 0.06)
+		beacon_material.emission_energy_multiplier = 1.35
+		beacon.material_override = beacon_material
+		waypoint_marker.add_child(beacon)
+
+		waypoint_marker_orb = MeshInstance3D.new()
+		waypoint_marker_orb.name = "PulsingWaypointOrb"
+		var orb_mesh := SphereMesh.new()
+		orb_mesh.radius = 0.30
+		orb_mesh.height = 0.60
+		waypoint_marker_orb.mesh = orb_mesh
+		waypoint_marker_orb.position.y = 3.25
+		var orb_material := StandardMaterial3D.new()
+		orb_material.albedo_color = Color(1.0, 0.78, 0.24)
+		orb_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		orb_material.emission_enabled = true
+		orb_material.emission = Color(1.0, 0.48, 0.08)
+		orb_material.emission_energy_multiplier = 2.0
+		waypoint_marker_orb.material_override = orb_material
+		waypoint_marker.add_child(waypoint_marker_orb)
+
+		var ground_ring := MeshInstance3D.new()
+		ground_ring.name = "WaypointGroundRing"
+		var ring_mesh := TorusMesh.new()
+		ring_mesh.inner_radius = 0.62
+		ring_mesh.outer_radius = 0.78
+		ground_ring.mesh = ring_mesh
+		ground_ring.position.y = 0.06
+		var ring_material := StandardMaterial3D.new()
+		ring_material.albedo_color = Color(1.0, 0.68, 0.16, 0.88)
+		ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		ring_material.emission_enabled = true
+		ring_material.emission = Color(1.0, 0.48, 0.08)
+		ring_material.emission_energy_multiplier = 1.1
+		ground_ring.material_override = ring_material
+		waypoint_marker.add_child(ground_ring)
+
+	waypoint_marker.global_position = Vector3(world_position.x, 0.0, world_position.z)
+	waypoint_animation_time = 0.0
+
 func _clear_waypoint() -> void:
 	has_active_waypoint = false
 	active_waypoint = Vector3.ZERO
+	if is_instance_valid(waypoint_marker):
+		waypoint_marker.queue_free()
+	waypoint_marker = null
+	waypoint_marker_orb = null
+	waypoint_animation_time = 0.0
 	if is_instance_valid(map_canvas):
 		map_canvas.has_waypoint = false
 		map_canvas.queue_redraw()
@@ -1304,6 +1380,7 @@ func _open_local_map() -> void:
 func _set_map_waypoint(world_position: Vector3) -> void:
 	active_waypoint = world_position
 	has_active_waypoint = true
+	_create_waypoint_marker(world_position)
 	if is_instance_valid(map_canvas):
 		map_canvas.waypoint_position = active_waypoint
 		map_canvas.has_waypoint = true
