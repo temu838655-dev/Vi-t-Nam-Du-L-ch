@@ -632,8 +632,13 @@ func _open_local_map() -> void:
 	close.text = "ĐÓNG BẢN ĐỒ"
 	close.custom_minimum_size = Vector2(0, 54)
 	_style_game_button(close, Color(0.06, 0.30, 0.48, 1.0))
-	close.pressed.connect(func(): map_overlay.queue_free(); map_overlay = null)
+	close.pressed.connect(_close_local_map)
 	layout.add_child(close)
+
+func _close_local_map() -> void:
+	if is_instance_valid(map_overlay):
+		map_overlay.queue_free()
+	map_overlay = null
 
 
 func open_family_dialogue(member_role: String, activity: String) -> void:
