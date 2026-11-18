@@ -59,3 +59,9 @@ These are authoring targets, not measured performance guarantees. Use GPU/CPU pr
 ## Current status
 
 The project currently has procedural motorcycle prototypes. This specification does not mean a production Honda Wave Alpha model has been downloaded or integrated. The Wave-family CGTrader listing remains a candidate until its downloadable file is inspected against exact model-year references and license terms.
+
+## Runtime quality gate
+
+The runtime loader rejects a candidate GLB unless it exposes discoverable named nodes for front/rear wheel pivots, steering, front/rear suspension, seat, headlight, tail light, mirrors, exhaust, brake detail and body panels. Rejected candidates do not replace the explicitly labelled prototype fallback.
+
+This gate verifies only the minimum scene structure and rig discoverability. It does not prove that the model is a particular Honda model year/variant, has mechanically correct dimensions, has realistic materials, or has physically correct suspension and wheel alignment. Those still require reference-photo comparison and hands-on review in Godot.
