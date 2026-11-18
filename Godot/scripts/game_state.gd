@@ -346,8 +346,11 @@ func complete_work_shift() -> String:
 	earn_money(salary)
 	last_work_day = today
 	completed_work_shifts += 1
-	advance_tutorial("complete_work")
-	return "Bạn hoàn thành ca làm nghề %s và nhận %s VNĐ." % [selected_career, _format_money(salary)]
+	var tutorial_finished := advance_tutorial("complete_work")
+	var work_message := "Bạn hoàn thành ca làm nghề %s và nhận %s VNĐ." % [selected_career, _format_money(salary)]
+	if tutorial_finished and tutorial_stage == TUTORIAL_MISSIONS.size() - 1:
+		work_message += " Thưởng hoàn thành hướng dẫn: 100.000 VNĐ!"
+	return work_message
 
 func has_family_interaction(member_role: String, choice: String) -> bool:
 	var key := Time.get_date_string_from_system() + "|" + member_role + "|" + choice
