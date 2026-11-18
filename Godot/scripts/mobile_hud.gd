@@ -839,8 +839,9 @@ func _update_status() -> void:
 		clock_label.text = "🕒 %s  •  %s" % [GameState.get_world_clock_text(), period]
 	if compass_label and is_instance_valid(player):
 		var headings := ["BẮC", "ĐÔNG BẮC", "ĐÔNG", "ĐÔNG NAM", "NAM", "TÂY NAM", "TÂY", "TÂY BẮC"]
-		var heading_index := posmod(int(round(wrapf(player.rotation.y, -PI, PI) / (PI / 4.0))), 8)
-		compass_label.text = "▲  %s  •  %03d°" % [headings[heading_index], int(round(rad_to_deg(fposmod(player.rotation.y, TAU))))]
+		var heading_angle := -player.rotation.y
+		var heading_index := posmod(int(round(wrapf(heading_angle, -PI, PI) / (PI / 4.0))), 8)
+		compass_label.text = "▲  %s  •  %03d°" % [headings[heading_index], int(round(rad_to_deg(fposmod(heading_angle, TAU))))]
 	if interact_button and player and player.has_method("is_riding_vehicle"):
 		if player.is_riding_vehicle():
 			interact_button.text = "XUỐNG XE"
