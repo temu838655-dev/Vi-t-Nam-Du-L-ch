@@ -21,6 +21,7 @@ var inventory_overlay: Control
 var inventory_items_container: VBoxContainer
 var current_inventory_tab := "vehicle"
 var family_dialogue_overlay: Control
+var map_overlay: Control
 
 func _ready() -> void:
 	add_to_group("shop_ui")
@@ -98,26 +99,27 @@ func _ready() -> void:
 		action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
-	# Location card / minimap placeholder. Replace with a real map texture when map tiles are integrated.
+	# A tappable local map replaces the old decorative placeholder.
 	var map_panel := _make_hud_panel(Vector2(-178, 88), Vector2(156, 118))
 	map_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	ui_root.add_child(map_panel)
-	var map_label := Label.new()
-	map_label.text = "🧭\nBẢN ĐỒ\nKhu dân cư"
-	map_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	map_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	map_label.add_theme_font_size_override("font_size", 17)
-	map_panel.add_child(map_label)
+	var map_button := Button.new()
+	map_button.text = "🧭\nBẢN ĐỒ\nXEM VỊ TRÍ"
+	map_button.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	map_button.add_theme_font_size_override("font_size", 16)
+	_style_game_button(map_button, Color(0.04, 0.16, 0.25, 0.94))
+	map_button.pressed.connect(_open_local_map)
+	map_panel.add_child(map_button)
 
-	# Bottom-left virtual joystick. It can be repositioned by touching the left half of the screen.
+	# Fixed bottom-left joystick: the base never follows the finger.
 	joystick_base = Panel.new()
 	joystick_base.name = "JoystickBase"
 	joystick_base.size = Vector2(164, 164)
+	joystick_base.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	joystick_base.position = Vector2(28.0, -190.0)
 	joystick_base.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	joystick_base.add_theme_stylebox_override("panel", _hud_style(Color(0.04, 0.14, 0.28, 0.34), Color(0.28, 0.78, 1.0, 0.85), 82))
+	joystick_base.add_theme_stylebox_override("panel", _hud_style(Color(0.025, 0.10, 0.20, 0.62), Color(0.28, 0.78, 1.0, 0.95), 82))
 	ui_root.add_child(joystick_base)
-	var initial_viewport_size := get_viewport().get_visible_rect().size
-	joystick_base.position = Vector2(34.0, maxf(8.0, initial_viewport_size.y - 198.0))
 
 	joystick_knob = Panel.new()
 	joystick_knob.name = "JoystickKnob"
@@ -134,6 +136,7 @@ func _ready() -> void:
 	jump_button.position = Vector2(-128, -196)
 	jump_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	jump_button.add_theme_font_size_override("font_size", 17)
+	_style_game_button(jump_button, Color(0.05, 0.28, 0.48, 0.96))
 	jump_button.pressed.connect(_jump)
 	ui_root.add_child(jump_button)
 
@@ -143,6 +146,7 @@ func _ready() -> void:
 	interact_button.position = Vector2(-278, -112)
 	interact_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	interact_button.add_theme_font_size_override("font_size", 16)
+	_style_game_button(interact_button, Color(0.55, 0.22, 0.06, 0.98))
 	interact_button.pressed.connect(_interact)
 	ui_root.add_child(interact_button)
 
@@ -152,6 +156,7 @@ func _ready() -> void:
 	inventory_button.position = Vector2(-132, -104)
 	inventory_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	inventory_button.add_theme_font_size_override("font_size", 16)
+	_style_game_button(inventory_button, Color(0.12, 0.22, 0.42, 0.98))
 	inventory_button.pressed.connect(open_inventory)
 	ui_root.add_child(inventory_button)
 
@@ -538,36 +543,97 @@ func _close_inventory() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			if event.position.x < get_viewport().get_visible_rect().size.x * 0.45 and joystick_touch == -1:
+			var base_rect := joystick_base.get_global_rect().grow(22.0)
+			if base_rect.has_point(event.position) and joystick_touch == -1:
 				joystick_touch = event.index
-				var viewport_size := get_viewport().get_visible_rect().size
-				var base_position: Vector2 = event.position - joystick_base.size * 0.5
-				base_position.x = clampf(base_position.x, 8.0, viewport_size.x - joystick_base.size.x - 8.0)
-				base_position.y = clampf(base_position.y, 8.0, viewport_size.y - joystick_base.size.y - 8.0)
-				joystick_base.position = base_position
-				joystick_origin = event.position
-				joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
-			elif look_touch == -1:
+				joystick_origin = joystick_base.global_position + joystick_base.size * 0.5
+				_update_joystick_from_position(event.position)
+			elif event.position.x > get_viewport().get_visible_rect().size.x * 0.48 and look_touch == -1:
 				look_touch = event.index
 		else:
 			if event.index == joystick_touch:
 				joystick_touch = -1
+				move_vector = Vector2.ZERO
 				if player:
 					player.set_mobile_move(Vector2.ZERO)
-				move_vector = Vector2.ZERO
 				if is_instance_valid(joystick_knob):
 					joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5
 			if event.index == look_touch:
 				look_touch = -1
 	elif event is InputEventScreenDrag:
 		if event.index == joystick_touch:
-			move_vector = (event.position - joystick_origin).limit_length(58.0) / 58.0
-			joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5 + move_vector * 46.0
-			if player:
-				player.set_mobile_move(move_vector)
+			_update_joystick_from_position(event.position)
 		elif event.index == look_touch:
 			if player:
 				player.add_mobile_look(event.relative)
+
+func _update_joystick_from_position(touch_position: Vector2) -> void:
+	move_vector = ((touch_position - joystick_origin) / 58.0).limit_length(1.0)
+	if is_instance_valid(joystick_knob):
+		joystick_knob.position = (joystick_base.size - joystick_knob.size) * 0.5 + move_vector * 46.0
+	if player:
+		player.set_mobile_move(move_vector)
+
+func _style_game_button(button: Button, fill: Color) -> void:
+	var normal := _hud_style(fill, Color(0.58, 0.84, 1.0, 0.95), 20)
+	normal.set_border_width_all(2)
+	button.add_theme_stylebox_override("normal", normal)
+	var hover := normal.duplicate()
+	hover.bg_color = fill.lightened(0.16)
+	button.add_theme_stylebox_override("hover", hover)
+	var pressed := normal.duplicate()
+	pressed.bg_color = fill.darkened(0.18)
+	pressed.border_color = Color(1.0, 0.82, 0.38, 1.0)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", Color(1, 1, 1))
+	button.add_theme_color_override("font_hover_color", Color(1, 1, 1))
+	button.add_theme_color_override("font_pressed_color", Color(1, 0.94, 0.78))
+	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	button.add_theme_constant_override("outline_size", 2)
+
+func _open_local_map() -> void:
+	if is_instance_valid(map_overlay):
+		map_overlay.queue_free()
+	map_overlay = Control.new()
+	map_overlay.name = "LocalMapOverlay"
+	map_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	map_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(map_overlay)
+	var shade := ColorRect.new()
+	shade.color = Color(0.008, 0.025, 0.045, 0.94)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	map_overlay.add_child(shade)
+	var panel := _make_hud_panel(Vector2.ZERO, Vector2(0, 0))
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.offset_left = -minf(330.0, get_viewport().get_visible_rect().size.x * 0.44)
+	panel.offset_right = minf(330.0, get_viewport().get_visible_rect().size.x * 0.44)
+	panel.offset_top = -250.0
+	panel.offset_bottom = 250.0
+	map_overlay.add_child(panel)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 12)
+	panel.add_child(layout)
+	var heading := Label.new()
+	heading.text = "BẢN ĐỒ KHU VỰC"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 24)
+	layout.add_child(heading)
+	var map_art := ColorRect.new()
+	map_art.custom_minimum_size = Vector2(0, 300)
+	map_art.color = Color(0.08, 0.19, 0.20, 1.0)
+	layout.add_child(map_art)
+	var map_text := Label.new()
+	var pos := player.global_position if is_instance_valid(player) else Vector3.ZERO
+	map_text.text = "VỊ TRÍ CỦA BẠN\nKhu Hồ Gươm • Tọa độ khu vực: X %.1f / Z %.1f\n\nBản đồ hiện tại là bản đồ khu vực nội bộ, chưa có GPS hoặc bản đồ toàn quốc." % [pos.x, pos.z]
+	map_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	map_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	layout.add_child(map_text)
+	var close := Button.new()
+	close.text = "ĐÓNG BẢN ĐỒ"
+	close.custom_minimum_size = Vector2(0, 54)
+	_style_game_button(close, Color(0.06, 0.30, 0.48, 1.0))
+	close.pressed.connect(func(): map_overlay.queue_free(); map_overlay = null)
+	layout.add_child(close)
 
 
 func open_family_dialogue(member_role: String, activity: String) -> void:
