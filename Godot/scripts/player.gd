@@ -273,12 +273,15 @@ func interact_nearby() -> void:
 	if closest:
 		var target_role := str(closest.get("role"))
 		if target_role == "mother" or target_role == "father":
+			GameState.advance_tutorial("talk_family")
 			var hud := get_tree().get_first_node_in_group("shop_ui")
 			if is_instance_valid(hud) and hud.has_method("open_family_dialogue"):
 				hud.call("open_family_dialogue", target_role, str(closest.get("current_activity")))
 				GameState.save_game(global_position, rotation.y)
 				return
 		var message := str(closest.call("interact"))
+		if target_role.begins_with("career_"):
+			GameState.advance_tutorial("choose_career")
 		GameState.save_game(global_position, rotation.y)
 		interaction_message.emit(message)
 	else:
