@@ -237,7 +237,6 @@ func _ready() -> void:
 			action_button.pressed.connect(_open_achievements)
 		else:
 			action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
-			action_button.pressed.connect(_show_hud_notice.bind(action.replace("\n", " ")))
 		top_actions.add_child(action_button)
 
 	# A tappable local map replaces the old decorative placeholder.
