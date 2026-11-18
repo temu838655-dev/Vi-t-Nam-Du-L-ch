@@ -44,14 +44,24 @@ var player: CharacterBody3D
 var autosave_elapsed := 0.0
 var menu_layer: CanvasLayer
 var menu_camera: Camera3D
+var world_environment: WorldEnvironment
+var sun_light: DirectionalLight3D
+var lighting_update_elapsed := 0.0
 
 func _ready() -> void:
+	world_environment = get_node_or_null("WorldEnvironment") as WorldEnvironment
+	sun_light = get_node_or_null("DirectionalLight3D") as DirectionalLight3D
 	_build_prototype_world()
+	_update_day_night()
 	_spawn_family_and_career_board()
 	_show_main_menu()
 
 func _process(delta: float) -> void:
 	GameState.advance_world_clock(delta)
+	lighting_update_elapsed += delta
+	if lighting_update_elapsed >= 0.5:
+		lighting_update_elapsed = 0.0
+		_update_day_night()
 	if not is_instance_valid(player):
 		return
 	if GameState.tutorial_stage == 1:
@@ -66,6 +76,30 @@ func _process(delta: float) -> void:
 	if autosave_elapsed >= 15.0:
 		autosave_elapsed = 0.0
 		_save_current_game()
+
+
+func _update_day_night() -> void:
+	if not is_instance_valid(world_environment) or world_environment.environment == null:
+		return
+	var hour := fposmod(GameState.world_time_seconds, 240.0) / 10.0
+	var sun_height := sin((hour - 6.0) / 12.0 * PI)
+	var daylight := smoothstep(-0.12, 0.18, sun_height)
+	var dawn := clampf(1.0 - absf(hour - 6.0) / 2.2, 0.0, 1.0)
+	var dusk := clampf(1.0 - absf(hour - 18.0) / 2.2, 0.0, 1.0)
+	var warm_horizon := maxf(dawn, dusk)
+	var environment: Environment = world_environment.environment
+	var night_sky := Color(0.018, 0.035, 0.085)
+	var day_sky := Color(0.48, 0.68, 0.82)
+	var horizon_sky := Color(0.92, 0.42, 0.24)
+	environment.background_color = night_sky.lerp(day_sky, daylight).lerp(horizon_sky, warm_horizon * 0.62)
+	environment.ambient_light_color = Color(0.12, 0.16, 0.27).lerp(Color(0.78, 0.82, 0.86), daylight)
+	environment.ambient_light_energy = lerpf(0.28, 0.82, daylight)
+	if is_instance_valid(sun_light):
+		var daylight_color := Color(1.0, 0.97, 0.88)
+		var sunset_color := Color(1.0, 0.58, 0.34)
+		sun_light.light_color = daylight_color.lerp(sunset_color, warm_horizon * 0.78)
+		sun_light.light_energy = lerpf(0.025, 1.15, daylight)
+		sun_light.rotation = Vector3(deg_to_rad(-10.0 - daylight * 68.0), deg_to_rad(hour * 15.0 - 90.0), 0.0)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
