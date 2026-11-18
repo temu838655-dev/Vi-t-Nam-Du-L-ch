@@ -617,13 +617,26 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 	context.add_theme_font_size_override("font_size", 18)
 	layout.add_child(context)
 
+	var relationship := Label.new()
+	relationship.text = "TÌNH CẢM GIA ĐÌNH: %s  •  %d/100" % [GameState.get_family_relationship_title(), GameState.family_affection]
+	relationship.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	relationship.add_theme_font_size_override("font_size", 16)
+	layout.add_child(relationship)
+	var affection_bar := ProgressBar.new()
+	affection_bar.max_value = 100
+	affection_bar.value = GameState.family_affection
+	affection_bar.show_percentage = false
+	affection_bar.custom_minimum_size = Vector2(0, 12)
+	layout.add_child(affection_bar)
+
 	var prompt := Label.new()
 	prompt.text = "Bạn muốn nói gì?"
 	prompt.add_theme_font_size_override("font_size", 19)
 	layout.add_child(prompt)
 
 	var greeting := Button.new()
-	greeting.text = "HỎI THĂM SỨC KHỎE"
+	greeting.text = "HỎI THĂM SỨC KHỎE" + ("  •  ĐÃ HỎI HÔM NAY" if GameState.has_family_interaction(member_role, "greeting") else "")
+	greeting.disabled = GameState.has_family_interaction(member_role, "greeting")
 	greeting.custom_minimum_size = Vector2(0, 58)
 	greeting.pressed.connect(_choose_family_dialogue.bind(member_role, "greeting", activity))
 	layout.add_child(greeting)
@@ -639,12 +652,16 @@ func open_family_dialogue(member_role: String, activity: String) -> void:
 		help.text = "MỜI CẢ NHÀ DÙNG BỮA"
 	else:
 		help.text = "GIÚP ĐỠ BỐ MẸ"
+	if GameState.has_family_interaction(member_role, "help"):
+		help.text += "  •  ĐÃ GIÚP HÔM NAY"
+	help.disabled = GameState.has_family_interaction(member_role, "help")
 	help.custom_minimum_size = Vector2(0, 58)
 	help.pressed.connect(_choose_family_dialogue.bind(member_role, "help", activity))
 	layout.add_child(help)
 
 	var advice := Button.new()
-	advice.text = "XIN LỜI KHUYÊN CHO CHUYẾN ĐI"
+	advice.text = "XIN LỜI KHUYÊN CHO CHUYẾN ĐI" + ("  •  ĐÃ HỎI HÔM NAY" if GameState.has_family_interaction(member_role, "advice") else "")
+	advice.disabled = GameState.has_family_interaction(member_role, "advice")
 	advice.custom_minimum_size = Vector2(0, 58)
 	advice.pressed.connect(_choose_family_dialogue.bind(member_role, "advice", activity))
 	layout.add_child(advice)
