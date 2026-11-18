@@ -21,6 +21,17 @@ This catalog is a research shortlist, not a claim that the models have been down
 | Traditional Vietnamese temple | https://3dlabtools.com/resources/traditional-vietnamese-ancient-temple-historical-3d-game-asset-1ae90d74 | GLB, 929,006 triangles, 28.7 MB | 3DLabTools Original Content License; optimize heavily before mobile use. |
 | Vietnamese old town scan | https://sketchfab.com/3d-models/vietnams-old-town-c1251dd5edfb4f73ab6ac98ca3e3a188 | 2.2M triangles | CC BY. Photogrammetry-scale candidate only; decimate, split into modular chunks, bake textures and create LODs. |
 
+## Character pipeline candidates
+
+| Candidate | Source | Technical notes | Decision |
+|---|---|---|---|
+| Vietnamese Man (Basic Rig) | https://sketchfab.com/3d-models/vietnamese-man-basic-rig-7dffbc85e8044a2f9198e626ef95aa92 | The model is explicitly presented as Vietnamese and has a basic rig, but is about 356.7k triangles and carries CC BY-SA terms. | Best identity-specific reference candidate found so far. Do not ship directly; obtain creator-enabled download, inspect the rig and license compatibility, retopologize, bake textures and create mobile LODs. |
+| Ara 3D Gen | https://github.com/TuriaArt/3d-gen-TU | Open-source MIT generator; exports GLB/FBX/OBJ and includes 48 animation options. Character data is MakeHuman CC0. Can generate editable base bodies, hair and clothing. | Useful for generating a custom base and testing a production pipeline. It does not automatically guarantee a recognizably Vietnamese face or wardrobe; art direction and reference-based sculpting remain necessary. |
+| 3D Character Rigged (EMA) | https://theunseenvulga.itch.io/3d-character-riggedema | GLB 7.8 MB / FBX 5.3 MB; approximately 76k triangles; rigged for Mixamo; hand-painted textures. | CC0 personal/commercial use. Generic female character, not Vietnamese-specific. Keep only as a rig/import pipeline test candidate, not the final hero. |
+| Grab3D Character Mixer | https://grab3d.com/tools/character-mixer/ | Modular character creator with rigged GLB export and selectable animations. | CC0, but its available styles are stylized/low-poly. Useful for prototyping NPC variety, not the photoreal hero target. |
+
+Character acceptance requirements remain: Vietnamese visual references reviewed by an art lead; facial proportions, skin/hair materials, hairstyle, realistic hands and shoes; separate clothing meshes; humanoid skeleton; idle/walk/run/talk/interact animations; mobile LODs; PBR materials; and a clear redistribution/commercial license. Generic low-poly models must not be represented as finished Vietnamese people.
+
 ## Vehicle sourcing
 
 | Asset | Source | Format / technical notes | License / integration decision |
