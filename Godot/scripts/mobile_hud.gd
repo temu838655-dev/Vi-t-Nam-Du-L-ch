@@ -106,6 +106,7 @@ var move_vector := Vector2.ZERO
 var joystick_base: Panel
 var joystick_knob: Panel
 var interact_button: Button
+var sprint_button: Button
 var ui_root: Control
 var shop_overlay: Control
 var shop_items_container: VBoxContainer
@@ -123,6 +124,7 @@ var has_active_waypoint := false
 func _ready() -> void:
 	var screen_size := get_viewport().get_visible_rect().size
 	var compact_layout := screen_size.x < 700.0 or screen_size.y > screen_size.x
+	var action_scale := 0.78 if compact_layout else 1.0
 	var profile_width := 196.0 if compact_layout else 310.0
 	var utility_width := 198.0 if compact_layout else 340.0
 	var mission_width := 198.0 if compact_layout else 310.0
@@ -263,18 +265,29 @@ func _ready() -> void:
 	# Bottom-right action cluster.
 	var jump_button := Button.new()
 	jump_button.text = "🏃\nNHẢY"
-	jump_button.size = Vector2(104, 78)
-	jump_button.position = Vector2(-128, -196)
+	jump_button.size = Vector2(104, 78) * action_scale
+	jump_button.position = Vector2(-128, -196) * action_scale
 	jump_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	jump_button.add_theme_font_size_override("font_size", 17)
 	_style_game_button(jump_button, Color(0.05, 0.28, 0.48, 0.96))
 	jump_button.pressed.connect(_jump)
 	ui_root.add_child(jump_button)
 
+	sprint_button = Button.new()
+	sprint_button.text = "⚡\\nCHẠY"
+	sprint_button.size = Vector2(92, 66) * action_scale
+	sprint_button.position = Vector2(-126, -286) * action_scale
+	sprint_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	sprint_button.add_theme_font_size_override("font_size", 15 if compact_layout else 17)
+	_style_game_button(sprint_button, Color(0.58, 0.30, 0.05, 0.96))
+	sprint_button.button_down.connect(_set_sprint.bind(true))
+	sprint_button.button_up.connect(_set_sprint.bind(false))
+	ui_root.add_child(sprint_button)
+
 	interact_button = Button.new()
 	interact_button.text = "💬\nTƯƠNG TÁC"
-	interact_button.size = Vector2(132, 78)
-	interact_button.position = Vector2(-278, -112)
+	interact_button.size = Vector2(132, 78) * action_scale
+	interact_button.position = Vector2(-278, -112) * action_scale
 	interact_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	interact_button.add_theme_font_size_override("font_size", 16)
 	_style_game_button(interact_button, Color(0.55, 0.22, 0.06, 0.98))
@@ -283,8 +296,8 @@ func _ready() -> void:
 
 	var inventory_button := Button.new()
 	inventory_button.text = "🎒\nTÚI ĐỒ"
-	inventory_button.size = Vector2(112, 78)
-	inventory_button.position = Vector2(-132, -104)
+	inventory_button.size = Vector2(112, 78) * action_scale
+	inventory_button.position = Vector2(-132, -104) * action_scale
 	inventory_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	inventory_button.add_theme_font_size_override("font_size", 16)
 	_style_game_button(inventory_button, Color(0.12, 0.22, 0.42, 0.98))
@@ -456,6 +469,10 @@ func _show_message(message: String) -> void:
 	if message_label:
 		message_label.text = message
 	_update_status()
+
+func _set_sprint(enabled: bool) -> void:
+	if player and player.has_method("set_mobile_sprint"):
+		player.set_mobile_sprint(enabled)
 
 func _jump() -> void:
 	if player and player.is_on_floor() and not player.is_riding_vehicle():
