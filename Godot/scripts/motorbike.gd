@@ -146,13 +146,60 @@ func _load_production_model() -> bool:
 		instance.queue_free()
 		return false
 	production_model = instance as Node3D
+	_collect_production_rigs(production_model)
+	var validation := _validate_production_motorbike(production_model)
+	if not bool(validation.get("valid", false)):
+		push_warning("Production motorbike GLB rejected by runtime quality gate: " + str(validation.get("errors", [])))
+		production_model.queue_free()
+		production_model = null
+		wheel_nodes.clear()
+		front_wheel = null
+		steering_pivot = null
+		return false
 	production_model.name = "ProductionMotorbikeModel"
 	add_child(production_model)
 	using_production_model = true
-	_collect_production_rigs(production_model)
-	if wheel_nodes.size() < 2:
-		push_warning("Production motorbike must expose named front and rear wheel pivot nodes.")
 	return true
+
+
+func _validate_production_motorbike(root: Node) -> Dictionary:
+	var report := {"valid": false, "errors": [], "parts": {}}
+	_inspect_motorbike_parts(root, report["parts"])
+	var parts: Dictionary = report["parts"]
+	var errors: Array[String] = []
+	for part in ["front_wheel", "rear_wheel", "steering", "front_suspension", "rear_suspension", "seat", "headlight", "tail_light", "mirror", "exhaust", "brake", "body_panel"]:
+		if not bool(parts.get(part, false)):
+			errors.append("missing named production component: " + part)
+	if wheel_nodes.size() < 2:
+		errors.append("front and rear wheel pivot nodes must both be discoverable")
+	if steering_pivot == null:
+		errors.append("steering pivot node is missing")
+	report["errors"] = errors
+	report["valid"] = errors.is_empty()
+	return report
+
+
+func _inspect_motorbike_parts(node: Node, parts: Dictionary) -> void:
+	var n := node.name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+	var checks := {
+		"front_wheel": ("front" in n and "wheel" in n) or ("wheel" in n and "front" in n) or "banhtruoc" in n,
+		"rear_wheel": ("rear" in n and "wheel" in n) or ("wheel" in n and "rear" in n) or "banhsau" in n,
+		"steering": "steer" in n or "handlebar" in n or "ghidong" in n,
+		"front_suspension": ("front" in n and ("fork" in n or "suspension" in n)) or "phuoc truoc" in n,
+		"rear_suspension": ("rear" in n and ("shock" in n or "suspension" in n)) or "phuocsau" in n,
+		"seat": "seat" in n or "saddle" in n or "yenxe" in n,
+		"headlight": "headlight" in n or "frontlamp" in n or "denpha" in n,
+		"tail_light": "taillight" in n or "rearlamp" in n or "denhau" in n,
+		"mirror": "mirror" in n or "guong" in n,
+		"exhaust": "exhaust" in n or "muffler" in n or "ongxa" in n,
+		"brake": "brake" in n or "disc" in n or "drum" in n or "phanh" in n,
+		"body_panel": "body" in n or "fairing" in n or "panel" in n or "cowling" in n or "dan ao" in n
+	}
+	for key in checks:
+		if bool(checks[key]):
+			parts[key] = true
+	for child in node.get_children():
+		_inspect_motorbike_parts(child, parts)
 
 
 func _collect_production_rigs(root: Node) -> void:
