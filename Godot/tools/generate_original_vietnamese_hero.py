@@ -106,6 +106,7 @@ for side in (-1,1):
 for side in (-1,1):
     s="Left" if side<0 else "Right"; x=side*.078
     parts.append(uv("EyeSocket_"+s,(x,-.168,1.855),(.061,.025,.039),skin_lite,28,18,"head"))
+    parts.append(uv("Eye_"+s,(x,-.188,1.855),(.047,.025,.027),eye_white,32,20,"head"))
     parts.append(uv("EyeBall_"+s,(x,-.188,1.855),(.047,.025,.027),eye_white,32,20,"head"))
     parts.append(uv("Eye_Iris_"+s,(x,-.210,1.854),(.020,.009,.021),iris,24,16,"head"))
     parts.append(uv("Eye_Pupil_"+s,(x,-.218,1.854),(.010,.006,.013),pupil,20,12,"head"))
@@ -134,7 +135,7 @@ bones={
 "spine":((0,0,1.02),(0,0,1.34),"pelvis"),
 "chest":((0,0,1.34),(0,0,1.52),"spine"),
 "neck":((0,0,1.52),(0,0,1.68),"chest"),
-"head":((0,0,1.68),(0,0,1.98),"neck")}
+"head":((0,0,1.68),(0,0,1.98),"neck"),\n"jaw":((0,0,1.69),(0,-.04,1.62),"head")}
 for side in ("L","R"):
     x=-1 if side=="L" else 1
     bones["upper_arm."+side]=((x*.22,0,1.45),(x*.37,0,1.12),"chest")
@@ -188,5 +189,5 @@ bpy.ops.object.select_all(action="DESELECT")
 for o in bpy.context.scene.objects:
     if o.type in {"MESH","ARMATURE","EMPTY","CURVE"}: o.select_set(True)
 bpy.context.view_layer.objects.active=arm
-bpy.ops.export_scene.gltf(filepath=OUT,export_format="GLB",use_selection=True,export_apply=True,export_animations=True,export_skins=True,export_morph=True,export_materials="EXPORT",export_yup=True)
+bpy.ops.export_scene.gltf(filepath=OUT,export_format="GLB",use_selection=True,export_apply=True,export_animations=True,export_skins=True,export_morph=True,export_materials="EXPORT",export_yup=True,export_nla_strips=True)
 print("Generated original Vietnamese hero GLB:",OUT)
