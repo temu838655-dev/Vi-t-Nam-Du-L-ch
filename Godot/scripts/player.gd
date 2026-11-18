@@ -3,6 +3,7 @@ extends CharacterBody3D
 signal interaction_message(message: String)
 
 const MOTORBIKE_SCRIPT := preload("res://scripts/motorbike.gd")
+const HERO_MODEL_PATH := "res://assets/characters/player/player_hero.glb"
 
 @export var move_speed: float = 5.0
 @export var acceleration: float = 18.0
@@ -11,6 +12,8 @@ var camera_pivot: Node3D
 var camera: Camera3D
 var camera_arm: SpringArm3D
 var player_visual: Node3D
+var using_production_model := false
+var production_animation_player: AnimationPlayer
 var upper_body: MeshInstance3D
 var lower_body: MeshInstance3D
 var shoe_left: MeshInstance3D
@@ -59,6 +62,42 @@ func _ready() -> void:
 	apply_outfit(GameState.equipped_clothes)
 
 func _build_character_model() -> void:
+	# Prefer a real, reviewed GLB when one is supplied. Keep the prototype fallback
+	# until the binary asset exists; never disguise the fallback as production art.
+	if ResourceLoader.exists(HERO_MODEL_PATH):
+		var packed_model := load(HERO_MODEL_PATH) as PackedScene
+		if packed_model != null:
+			var imported_model := packed_model.instantiate()
+			if imported_model is Node3D:
+				player_visual = imported_model as Node3D
+				player_visual.name = "CharacterVisual"
+				add_child(player_visual)
+				using_production_model = true
+				production_animation_player = _find_animation_player(player_visual)
+				_play_production_animation("idle")
+				return
+	push_warning("Production hero GLB not found or invalid; using clearly marked prototype character.")
+	_build_procedural_character_model()
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child in node.get_children():
+		var found := _find_animation_player(child)
+		if found != null:
+			return found
+	return null
+
+func _play_production_animation(state_name: String) -> void:
+	if not is_instance_valid(production_animation_player):
+		return
+	for animation_name in production_animation_player.get_animation_list():
+		if animation_name.to_lower() == state_name.to_lower():
+			if production_animation_player.current_animation != animation_name:
+				production_animation_player.play(animation_name)
+			return
+
+func _build_procedural_character_model() -> void:
 	player_visual = Node3D.new()
 	player_visual.name = "CharacterVisual"
 	add_child(player_visual)
@@ -176,20 +215,22 @@ func apply_outfit(outfit: Dictionary) -> void:
 	var shoes_item: Dictionary = GameState.get_item("clothing", str(outfit.get("shoes", "")))
 	var fullbody_item: Dictionary = GameState.get_item("clothing", str(outfit.get("fullbody", "")))
 	var headwear_item: Dictionary = GameState.get_item("clothing", str(outfit.get("headwear", "")))
-	if not top_item.is_empty():
+	if is_instance_valid(upper_body) and not top_item.is_empty():
 		upper_body.material_override = _make_material(top_item.get("color", Color(0.12, 0.32, 0.72)))
-	if not bottom_item.is_empty():
+	if is_instance_valid(lower_body) and not bottom_item.is_empty():
 		lower_body.material_override = _make_material(bottom_item.get("color", Color(0.12, 0.22, 0.48)))
-	if not shoes_item.is_empty():
+	if is_instance_valid(shoe_left) and is_instance_valid(shoe_right) and not shoes_item.is_empty():
 		var shoe_material := _make_material(shoes_item.get("color", Color(0.16, 0.15, 0.14)))
 		shoe_left.material_override = shoe_material
 		shoe_right.material_override = shoe_material
-	fullbody_overlay.visible = not fullbody_item.is_empty()
-	if not fullbody_item.is_empty():
-		fullbody_overlay.material_override = _make_material(fullbody_item.get("color", Color(0.72, 0.12, 0.2)))
-	helmet_node.visible = not headwear_item.is_empty()
-	if not headwear_item.is_empty():
-		helmet_node.material_override = _make_material(headwear_item.get("color", Color(0.86, 0.12, 0.08)))
+	if is_instance_valid(fullbody_overlay):
+		fullbody_overlay.visible = not fullbody_item.is_empty()
+		if not fullbody_item.is_empty():
+			fullbody_overlay.material_override = _make_material(fullbody_item.get("color", Color(0.72, 0.12, 0.2)))
+	if is_instance_valid(helmet_node):
+		helmet_node.visible = not headwear_item.is_empty()
+		if not headwear_item.is_empty():
+			helmet_node.material_override = _make_material(headwear_item.get("color", Color(0.86, 0.12, 0.08)))
 
 func spawn_owned_vehicle(vehicle_name: String, vehicle_color: Color) -> void:
 	var vehicle := Node3D.new()
@@ -335,7 +376,7 @@ func _physics_process(delta: float) -> void:
 		home_action_pose = ""
 	var target_pose_blend := 1.0 if home_action_remaining > 0.0 else 0.0
 	home_action_blend = move_toward(home_action_blend, target_pose_blend, delta * 3.5)
-	if home_action_blend > 0.001:
+	if home_action_blend > 0.001 and not using_production_model:
 		player_visual.position.y = lerpf(player_visual.position.y, -0.24, home_action_blend)
 		left_leg.rotation.x = lerpf(left_leg.rotation.x, -0.62, home_action_blend)
 		right_leg.rotation.x = lerpf(right_leg.rotation.x, -0.62, home_action_blend)
@@ -353,6 +394,12 @@ func _animate_character(delta: float) -> void:
 		return
 	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
 	var moving := horizontal_speed > 0.18 and not is_instance_valid(current_vehicle)
+	if using_production_model:
+		var animation_state := "idle"
+		if moving:
+			animation_state = "run" if mobile_sprint else "walk"
+		_play_production_animation(animation_state)
+		return
 	if moving:
 		walk_phase += delta * clampf(horizontal_speed * 2.6, 5.0, 13.0)
 		var swing := sin(walk_phase) * 0.48
