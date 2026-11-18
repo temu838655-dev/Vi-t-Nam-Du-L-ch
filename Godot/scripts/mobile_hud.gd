@@ -385,7 +385,7 @@ func _guide_current_mission() -> void:
 					found = true
 					break
 			if not found:
-				target_position = Vector3(6, 0, 1)
+				target_position = Vector3(-6, 0, 1)
 		_:
 			_show_message("Bạn đã hoàn thành phần hướng dẫn nhập môn. Hãy tự do khám phá!")
 			return
