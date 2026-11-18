@@ -523,6 +523,10 @@ func _animate_character(delta: float) -> void:
 		left_leg.rotation.x = move_toward(left_leg.rotation.x, 0.0, delta * 4.0)
 		right_leg.rotation.x = move_toward(right_leg.rotation.x, 0.0, delta * 4.0)
 
+		left_arm.rotation.x = move_toward(left_arm.rotation.x, 0.0, delta * 4.0)
+		right_arm.rotation.x = move_toward(right_arm.rotation.x, 0.0, delta * 4.0)
+		player_visual.position.y = move_toward(player_visual.position.y, 0.0, delta * 0.12)
+
 func play_talk_expression(duration: float = 2.0) -> void:
 	# Triggers the exported facial blend shapes when the production GLB provides them.
 	talk_expression_remaining = maxf(talk_expression_remaining, duration)
@@ -563,9 +567,6 @@ func _collect_facial_meshes(node: Node) -> void:
 			facial_meshes.append(mesh_instance)
 	for child in node.get_children():
 		_collect_facial_meshes(child)
-		left_arm.rotation.x = move_toward(left_arm.rotation.x, 0.0, delta * 4.0)
-		right_arm.rotation.x = move_toward(right_arm.rotation.x, 0.0, delta * 4.0)
-		player_visual.position.y = move_toward(player_visual.position.y, 0.0, delta * 0.12)
 
 func set_mobile_sprint(enabled: bool) -> void:
 	mobile_sprint = enabled
