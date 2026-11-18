@@ -20,6 +20,7 @@ var current_shop_name := ""
 var inventory_overlay: Control
 var inventory_items_container: VBoxContainer
 var current_inventory_tab := "vehicle"
+var family_dialogue_overlay: Control
 
 func _ready() -> void:
 	add_to_group("shop_ui")
@@ -567,3 +568,99 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.index == look_touch:
 			if player:
 				player.add_mobile_look(event.relative)
+
+
+func open_family_dialogue(member_role: String, activity: String) -> void:
+	if is_instance_valid(family_dialogue_overlay):
+		family_dialogue_overlay.queue_free()
+	family_dialogue_overlay = Control.new()
+	family_dialogue_overlay.name = "FamilyDialogue"
+	family_dialogue_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	family_dialogue_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(family_dialogue_overlay)
+
+	var shade := ColorRect.new()
+	shade.color = Color(0.01, 0.025, 0.045, 0.82)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	family_dialogue_overlay.add_child(shade)
+
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.position = Vector2(-310, -220)
+	panel.size = Vector2(620, 440)
+	family_dialogue_overlay.add_child(panel)
+
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 14)
+	panel.add_child(layout)
+
+	var member_name := "Mẹ" if member_role == "mother" else "Bố"
+	var heading := Label.new()
+	heading.text = "TRÒ CHUYỆN CÙNG " + member_name.to_upper()
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 26)
+	layout.add_child(heading)
+
+	var context := Label.new()
+	context.text = member_name + " hiện đang: " + (activity if not activity.is_empty() else "ở nhà cùng gia đình") + "."
+	context.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	context.add_theme_font_size_override("font_size", 18)
+	layout.add_child(context)
+
+	var prompt := Label.new()
+	prompt.text = "Bạn muốn nói gì?"
+	prompt.add_theme_font_size_override("font_size", 19)
+	layout.add_child(prompt)
+
+	var greeting := Button.new()
+	greeting.text = "HỎI THĂM SỨC KHỎE"
+	greeting.custom_minimum_size = Vector2(0, 58)
+	greeting.pressed.connect(_choose_family_dialogue.bind(member_role, "greeting"))
+	layout.add_child(greeting)
+
+	var help := Button.new()
+	help.text = "GIÚP " + ("MẸ NẤU ĂN" if member_role == "mother" else "BỐ SỬA SANG NHÀ")
+	help.custom_minimum_size = Vector2(0, 58)
+	help.pressed.connect(_choose_family_dialogue.bind(member_role, "help"))
+	layout.add_child(help)
+
+	var advice := Button.new()
+	advice.text = "XIN LỜI KHUYÊN CHO CHUYẾN ĐI"
+	advice.custom_minimum_size = Vector2(0, 58)
+	advice.pressed.connect(_choose_family_dialogue.bind(member_role, "advice"))
+	layout.add_child(advice)
+
+	var close := Button.new()
+	close.text = "ĐỂ LÁT NÓI CHUYỆN TIẾP"
+	close.custom_minimum_size = Vector2(0, 48)
+	close.pressed.connect(_close_family_dialogue)
+	layout.add_child(close)
+
+
+func _choose_family_dialogue(member_role: String, choice: String) -> void:
+	var member_name := "Mẹ" if member_role == "mother" else "Bố"
+	var affection_gain := 5
+	var response := ""
+	match choice:
+		"greeting":
+			response = "Mẹ vui vì con vẫn quan tâm đến gia đình." if member_role == "mother" else "Bố khỏe, cảm ơn con đã hỏi thăm. Nhớ giữ an toàn khi đi đường nhé."
+		"help":
+			affection_gain = 8
+			if member_role == "mother":
+				GameState.satiety = mini(100, GameState.satiety + 5)
+				response = "Cảm ơn con đã phụ mẹ chuẩn bị bữa ăn. Cả nhà cùng cố gắng nhé!"
+			else:
+				response = "Có con phụ một tay, công việc sửa sang nhà cửa nhẹ nhàng hơn nhiều."
+		"advice":
+			response = "Con hãy tìm hiểu đường đi, chuẩn bị đủ tiền và luôn đội mũ bảo hiểm khi đi xe máy nhé."
+	GameState.family_affection = mini(100, GameState.family_affection + affection_gain)
+	if player:
+		GameState.save_game(player.global_position, player.rotation.y)
+	_close_family_dialogue()
+	_show_message("%s: %s  •  Tình cảm gia đình +%d (hiện %d/100)" % [member_name, response, affection_gain, GameState.family_affection])
+
+
+func _close_family_dialogue() -> void:
+	if is_instance_valid(family_dialogue_overlay):
+		family_dialogue_overlay.queue_free()
+	family_dialogue_overlay = null
