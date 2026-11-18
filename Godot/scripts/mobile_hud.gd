@@ -829,8 +829,11 @@ func _update_navigation_guidance() -> void:
 	var world_angle := atan2(direction.x, -direction.y)
 	var relative_angle := wrapf(world_angle - player.rotation.y, -PI, PI)
 	var arrows := ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
+	var headings := ["BẮC", "ĐÔNG BẮC", "ĐÔNG", "ĐÔNG NAM", "NAM", "TÂY NAM", "TÂY", "TÂY BẮC"]
 	var arrow_index := posmod(int(round(relative_angle / (PI / 4.0))), 8)
-	navigation_label.text = "🧭 ĐIỂM ĐẾN\n%s  Còn %.0f m" % [arrows[arrow_index], distance]
+	var heading_index := posmod(int(round(world_angle / (PI / 4.0))), 8)
+	var walking_minutes := maxi(1, int(ceil(distance / 1.3 / 60.0)))
+	navigation_label.text = "🧭 ĐIỂM ĐẾN\n%s  Hướng %s  •  %.0f m\nĐi bộ ước tính: %d phút" % [arrows[arrow_index], headings[heading_index], distance, walking_minutes]
 
 func _create_waypoint_marker(world_position: Vector3) -> void:
 	if not is_instance_valid(waypoint_marker):
