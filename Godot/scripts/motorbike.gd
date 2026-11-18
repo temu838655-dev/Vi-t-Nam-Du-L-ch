@@ -18,7 +18,7 @@ func _ready() -> void:
 	add_to_group("interactable")
 	_build_motorbike()
 	label = Label3D.new()
-	label.text = display_name + "\nNHẤN TƯƠNG TÁC"
+	_refresh_label()
 	label.position = Vector3(0, 2.0, 0)
 	label.font_size = 24
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -69,13 +69,21 @@ func interact() -> String:
 
 func set_rider(value: CharacterBody3D) -> void:
 	rider = value
-	if label:
-		label.text = display_name + "\nĐANG SỬ DỤNG"
+	_refresh_label()
 
 func clear_rider() -> void:
 	rider = null
-	if label:
+	_refresh_label()
+
+func _refresh_label() -> void:
+	if not is_instance_valid(label):
+		return
+	if is_instance_valid(rider):
+		label.text = display_name + "\nĐANG SỬ DỤNG"
+	elif using_production_model:
 		label.text = display_name + "\nNHẤN TƯƠNG TÁC"
+	else:
+		label.text = display_name + "\nMÔ HÌNH THỬ NGHIỆM"
 
 func _build_motorbike() -> void:
 	if _load_production_model():
