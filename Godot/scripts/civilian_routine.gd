@@ -1,5 +1,7 @@
 extends Node3D
 
+const RESIDENT_MODEL_PATH := "res://assets/characters/player/player_hero.glb"
+
 # Mobile-friendly daily routine for a small number of sidewalk residents.
 # Residents share the same accelerated world clock as the player.
 @export var resident_name := "Cư dân"
@@ -16,6 +18,9 @@ var walk_phase := 0.0
 var previous_position := Vector3.ZERO
 var conversation_count := 0
 var current_activity := "Ở nhà"
+var production_visual: Node3D
+var production_animation_player: AnimationPlayer
+var using_production_visual := false
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -62,9 +67,17 @@ func _update_schedule(delta: float) -> void:
 		var movement := position - previous_position
 		if movement.length_squared() > 0.0001:
 			rotation.y = atan2(movement.x, movement.z)
+		if using_production_visual:
+			_play_resident_animation("walk")
+		else:
+			left_leg.rotation.x = swing
+			right_leg.rotation.x = -swing
 	else:
-		left_leg.rotation.x = 0.0
-		right_leg.rotation.x = 0.0
+		if using_production_visual:
+			_play_resident_animation("idle")
+		else:
+			left_leg.rotation.x = 0.0
+			right_leg.rotation.x = 0.0
 	current_activity = state
 	status_label.text = "%s\n%s" % [resident_name, state]
 
@@ -89,6 +102,10 @@ func interact() -> String:
 	return "%s: %s" % [resident_name, replies[index]]
 
 func _build_resident() -> void:
+	if _try_build_production_resident():
+		_add_status_label()
+		return
+	push_warning("Resident production GLB missing or failed quality gate; using prototype: " + resident_name)
 	var skin := _material(Color(0.69, 0.49, 0.36))
 	var hair := _material(Color(0.045, 0.035, 0.03))
 	var shirt := _material(shirt_color)
@@ -98,11 +115,82 @@ func _build_resident() -> void:
 	_add_sphere("Hair", Vector3(0, 1.77, 0.015), Vector3(0.2, 0.11, 0.2), hair)
 	left_leg = _add_capsule("LeftLeg", 0.095, 0.55, Vector3(-0.12, 0.38, 0), trousers)
 	right_leg = _add_capsule("RightLeg", 0.095, 0.55, Vector3(0.12, 0.38, 0), trousers)
+	_add_status_label()
+
+
+func _try_build_production_resident() -> bool:
+	if not ResourceLoader.exists(RESIDENT_MODEL_PATH):
+		return false
+	var packed := load(RESIDENT_MODEL_PATH) as PackedScene
+	if packed == null:
+		return false
+	var instance := packed.instantiate()
+	if not instance is Node3D:
+		instance.queue_free()
+		return false
+	var report := {"skeleton": false, "animation": false, "eyes": 0, "nose": false, "mouth": false, "brows": false}
+	_inspect_resident_model(instance, report)
+	if not report.skeleton or not report.animation or int(report.eyes) < 2 or not report.nose or not report.mouth or not report.brows:
+		instance.queue_free()
+		return false
+	production_visual = instance as Node3D
+	production_visual.name = "ProductionResidentVisual"
+	add_child(production_visual)
+	production_animation_player = _find_resident_animation_player(production_visual)
+	using_production_visual = true
+	_play_resident_animation("idle")
+	return true
+
+
+func _inspect_resident_model(node: Node, report: Dictionary) -> void:
+	var node_name := node.name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+	if node is Skeleton3D:
+		report.skeleton = true
+	if node is AnimationPlayer and not (node as AnimationPlayer).get_animation_list().is_empty():
+		report.animation = true
+	if node is MeshInstance3D:
+		if "eye" in node_name or "iris" in node_name or "pupil" in node_name:
+			report.eyes = int(report.eyes) + 1
+		if "nose" in node_name:
+			report.nose = true
+		if "mouth" in node_name or "lip" in node_name:
+			report.mouth = true
+		if "brow" in node_name:
+			report.brows = true
+	for child in node.get_children():
+		_inspect_resident_model(child, report)
+
+
+func _find_resident_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node as AnimationPlayer
+	for child in node.get_children():
+		var found := _find_resident_animation_player(child)
+		if found != null:
+			return found
+	return null
+
+
+func _play_resident_animation(state: String) -> void:
+	if not is_instance_valid(production_animation_player):
+		return
+	var aliases := [state, "walking" if state == "walk" else "standingidle"]
+	for animation_name in production_animation_player.get_animation_list():
+		var normalized := animation_name.to_lower().replace("_", "").replace("-", "").replace(" ", "")
+		for alias in aliases:
+			if normalized == str(alias).to_lower().replace("_", "").replace("-", "").replace(" ", ""):
+				if production_animation_player.current_animation != animation_name:
+					production_animation_player.play(animation_name)
+				return
+
+
+func _add_status_label() -> void:
 	status_label = Label3D.new()
 	status_label.position = Vector3(0, 2.05, 0)
 	status_label.font_size = 18
 	status_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(status_label)
+
 
 func _material(tint: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
