@@ -90,5 +90,67 @@
     "in_production",
     "needs_review",
     "accepted"
+  ],
+  "asset_sources": [
+    {
+      "id": "sketchfab_vietnamese_vegetable_market",
+      "title": "Vietnamese Vegetable Market",
+      "creator": "Khoa Nguyen",
+      "model_url": "https://sketchfab.com/3d-models/vietnamese-vegetable-market-a3c935d758624c8f866bc27776f86712",
+      "license": "CC BY",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "download_state": "not_verified",
+      "visual_style": "low_poly",
+      "intended_use": "Tham khảo bố cục quầy chợ và props phụ; không dùng làm chuẩn đồ họa chân thực cuối cùng.",
+      "mobile_notes": "Kiểm tra texture, số vật liệu, mesh count và giảm draw calls trước khi tích hợp."
+    },
+    {
+      "id": "sketchfab_modularkit_vietnam",
+      "title": "ModularKit Vietnam",
+      "creator": "Khoa Nguyen",
+      "model_url": "https://sketchfab.com/3d-models/modularkit-vietnam-40c57d9e7d944ee5a0524f0677349c04",
+      "license": "CC BY",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "download_state": "not_verified",
+      "visual_style": "modular_environment",
+      "intended_use": "Tham khảo/kitbash kiến trúc phố Việt sau khi kiểm tra tỷ lệ và độ chân thực.",
+      "mobile_notes": "Tách block theo chunk, tạo LOD và collision proxy."
+    },
+    {
+      "id": "sketchfab_vietnamese_streets",
+      "title": "Vietnamese Streets",
+      "creator": "NGUYENNGHIAKK",
+      "model_url": "https://sketchfab.com/3d-models/vietnamese-streets-e2ce91e4d7d349c7912a0ad065ceec56",
+      "license": "CC BY",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "download_state": "not_verified",
+      "visual_style": "stylized_or_low_poly",
+      "intended_use": "Tham khảo bố cục đường phố; chỉ dùng làm blockout nếu không đạt chuẩn PBR chân thực.",
+      "mobile_notes": "Nguồn tải ngoài Sketchfab từng được ghi nhận; chỉ dùng luồng tải do tác giả cung cấp và kiểm tra file."
+    },
+    {
+      "id": "sketchfab_hanoi_tube_houses",
+      "title": "Low Poly Hanoi Vietnamese Tube Houses Block",
+      "creator": "Creator listed on Sketchfab model page; verify before use",
+      "model_url": "https://sketchfab.com/3d-models/low-poly-hanoi-vietnamese-tube-houses-block-e900c122f3b3491d98349385e04c700c",
+      "license": "CC BY (recheck current model page before download)",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "download_state": "not_verified",
+      "visual_style": "low_poly",
+      "intended_use": "Tham khảo hình khối nhà ống Hà Nội; không được coi là tài sản photorealistic.",
+      "mobile_notes": "Nếu dùng, chia từng căn nhà và bake texture atlas; không giữ nguyên cả block lớn."
+    },
+    {
+      "id": "sketchfab_saigon3dcity_catalog",
+      "title": "Saigon 3D City creator catalog",
+      "creator": "Saigon 3D City",
+      "model_url": "https://sketchfab.com/saigon3dcity/models",
+      "license": "unknown_per_model",
+      "license_url": "https://sketchfab.com/developers/download-api/guidelines",
+      "download_state": "not_verified",
+      "visual_style": "city_scale_models",
+      "intended_use": "Nguồn tìm mô hình thành phố/địa danh; chọn từng model rồi xác minh license và quyền tải.",
+      "mobile_notes": "Mô hình đô thị lớn cần decimation, chia khu, texture baking, LOD và streaming."
+    }
   ]
 }
