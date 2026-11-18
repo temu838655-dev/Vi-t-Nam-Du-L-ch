@@ -53,3 +53,28 @@ Character acceptance requirements remain: Vietnamese visual references reviewed 
 - Never commit a model until its original archive is downloaded, inspected, converted if needed, and the license/provenance recorded.
 - For Android, make mobile LODs, reduce draw calls, atlas materials, compress textures, create collision proxies, and test memory/GPU cost on low-end devices.
 - Do not place HTML pages, download links, or text placeholders under a .glb filename. A real GLB binary must pass the project's GLB validator before status changes from blocked.
+
+## Newly identified Sketchfab Vietnam catalog and collections
+
+The user's Vietnam search link is a useful discovery entry point, not a single downloadable asset pack. Search results mix downloadable and view-only models, photogrammetry scans, low-poly/stylized props, and city-scale scenes. Review each model page individually and filter for downloadable models before production use.
+
+- Vietnam search: https://sketchfab.com/search?q=vi%E1%BB%87t+nam&type=models
+- Vietnam tag catalog: https://sketchfab.com/tags/vietnam
+- Khoa Nguyen's Vietnam collection (16 models): https://sketchfab.com/ngdkh/collections/vietnam-f6280289e8054cc08c31891fced8d623. Listed examples include Vietnamese House in 2000s, Vietnamese Vegetable Market, Vietnamese Meat Market stall, ModularKit Vietnam, Vietnamese lantern, altar, bed and street props. Treat each item as a separate asset with its own license/download verification.
+- Saigon 3D City creator page: https://sketchfab.com/saigon3dcity/models. Listed scenes include Hanoi 3D City (9/2025), Ho Chi Minh City 2025, Chợ Lớn, Nguyễn Huệ walking street and District 1 test. City-scale scenes may be heavy and should be split/optimized into streamed chunks; inspect coverage and source accuracy before use.
+- Saigon tag: https://sketchfab.com/tags/saigon. Search result examples include Independence Palace, Saigon Notre-Dame Cathedral, Bưu Điện Thành Phố, Landmark 81, Vietnamese hat and street-food carts.
+- Vietnamese streets by NGUYENNGHIAKK: https://sketchfab.com/3d-models/vietnamese-streets-e2ce91e4d7d349c7912a0ad065ceec56 — 6.9k triangles, CC BY; creator's page points to an external Google Drive archive, so inspect the archive and retain attribution.
+- Vietnamese old town scan: https://sketchfab.com/3d-models/vietnams-old-town-c1251dd5edfb4f73ab6ac98ca3e3a188 — 2.2M triangles, CC BY; scan source requires decimation, texture baking, modular splitting and LODs.
+- Vietnamese Vegetable Market: https://sketchfab.com/3d-models/vietnamese-vegetable-market-a3c935d758624c8f866bc27776f86712 — 6.7k triangles, low-poly, CC BY; useful as a market layout/prop candidate but not photoreal final art.
+- ModularKit Vietnam: https://sketchfab.com/3d-models/modularkit-vietnam-40c57d9e7d944ee5a0524f0677349c04 — 24.2k triangles, CC BY; modular street/environment parts candidate.
+- Vietnamese nón lá: https://sketchfab.com/3d-models/vietnamese---non-la-abd86436d03344b9a40c82e127fb6252 — 1.5k triangles, CC BY; wearable prop candidate.
+
+### Collection triage rules
+
+1. Prioritize downloadable CC BY/CC0 assets with clear creator attribution and embedded textures.
+2. Use accurate Vietnamese architecture, markets, street props and landmarks as environment assets; do not assume every result is realistic or game-ready.
+3. Treat city scans as source geometry/reference. Split by blocks, decimate, rebake normals/AO, create collision proxies and LODs before mobile import.
+4. Human models must pass the project's face anatomy, skeleton, animation and mobile LOD checks. A Vietnam tag alone does not establish facial authenticity.
+5. Vehicle models must match exact make/model/year and have separate named mechanical parts and wheel/steering pivots. Generic scooters are not acceptable as named Honda/Yamaha models.
+6. Record exact model URL, creator, license, download date, original archive checksum, conversion steps and in-game credit in the asset manifest.
+7. Search results and collections are discovery indexes only. Do not mark an asset downloaded, integrated or accepted until the actual binary has been obtained and inspected.
