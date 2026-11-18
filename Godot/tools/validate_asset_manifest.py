@@ -101,17 +101,28 @@ def inspect_asset(asset, asset_root):
             if not has_name(nodes, [r"hair"]):
                 problems.append(f"{asset_id}: no clearly named hair node for art review")
             facial_parts = {
-                "eyes": [r"eye", r"iris", r"pupil"],
-                "eyebrows": [r"brow", r"eyebrow"],
-                "nose": [r"nose", r"nostril"],
-                "mouth/lips": [r"mouth", r"lip"],
+                "left eye": [r"eye[_ .-]?l(eft)?", r"l[_ .-]?eye"],
+                "right eye": [r"eye[_ .-]?r(ight)?", r"r[_ .-]?eye"],
+                "iris": [r"iris"],
+                "pupil": [r"pupil"],
+                "eyelid": [r"eyelid", r"eye[_ .-]?lid"],
+                "eyebrow": [r"brow", r"eyebrow"],
+                "nose bridge/tip": [r"nose"],
+                "nostril": [r"nostril"],
+                "upper/lower lips": [r"lip"],
+                "mouth cavity": [r"mouth", r"oral"],
                 "teeth": [r"teeth", r"tooth"],
-                "ears": [r"ear"],
-                "jaw": [r"jaw", r"chin"]
+                "left/right ears": [r"ear"],
+                "jaw/chin": [r"jaw", r"chin"]
             }
             for part, patterns in facial_parts.items():
                 if not has_name(nodes, patterns):
                     problems.append(f"{asset_id}: missing clearly named facial feature node: {part}")
+            # Require distinct left and right eye nodes rather than one generic eye mesh.
+            left_eye = has_name(nodes, [r"eye[_ .-]?l(eft)?", r"l[_ .-]?eye"])
+            right_eye = has_name(nodes, [r"eye[_ .-]?r(ight)?", r"r[_ .-]?eye"])
+            if not left_eye or not right_eye:
+                problems.append(f"{asset_id}: eyes must be separate named left/right nodes")
             # Facial movement may be authored as glTF morph targets or facial bones.
             morph_targets = any(
                 isinstance(primitive, dict) and bool(primitive.get("targets"))
@@ -125,14 +136,25 @@ def inspect_asset(asset, asset_root):
             if not morph_targets and not facial_bones:
                 problems.append(f"{asset_id}: no facial morph targets or facial rig bones for expressions/lip sync")
         elif profile == "motorbike":
-            if len(meshes) < 5:
-                problems.append(f"{asset_id}: motorbike needs at least 5 distinct mesh parts (found {len(meshes)})")
-            if not has_name(nodes, [r"wheel.*front", r"front.*wheel", r"banh.*truoc"]):
-                problems.append(f"{asset_id}: missing named front wheel node")
-            if not has_name(nodes, [r"wheel.*rear", r"rear.*wheel", r"banh.*sau"]):
-                problems.append(f"{asset_id}: missing named rear wheel node")
-            if not has_name(nodes, [r"steer", r"handlebar", r"ghi.?dong"]):
-                problems.append(f"{asset_id}: missing steering/handlebar node")
+            if len(meshes) < 10:
+                problems.append(f"{asset_id}: production motorbike needs at least 10 distinct mesh parts (found {len(meshes)})")
+            motorbike_parts = {
+                "front wheel": [r"wheel.*front", r"front.*wheel", r"banh.*truoc"],
+                "rear wheel": [r"wheel.*rear", r"rear.*wheel", r"banh.*sau"],
+                "steering/handlebar": [r"steer", r"handlebar", r"ghi.?dong"],
+                "front suspension/fork": [r"fork", r"suspension.*front", r"front.*suspension"],
+                "rear suspension": [r"suspension.*rear", r"rear.*suspension", r"shock"],
+                "seat": [r"seat", r"saddle", r"yen"],
+                "headlight": [r"head.?light", r"front.?lamp", r"den.?pha"],
+                "tail light": [r"tail.?light", r"rear.?lamp", r"den.?hau"],
+                "mirror": [r"mirror", r"guong"],
+                "exhaust/muffler": [r"exhaust", r"muffler", r"ong.?xa"],
+                "brake detail": [r"brake", r"disc", r"drum"],
+                "body panels": [r"body", r"fairing", r"panel", r"cowling"]
+            }
+            for part, patterns in motorbike_parts.items():
+                if not has_name(nodes, patterns):
+                    problems.append(f"{asset_id}: missing separately named production part: {part}")
         elif profile == "environment":
             if len(meshes) < 8:
                 problems.append(f"{asset_id}: environment needs at least 8 mesh parts for detail review (found {len(meshes)})")
