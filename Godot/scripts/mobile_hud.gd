@@ -98,6 +98,7 @@ var clock_label: Label
 var nearby_label: Label
 var message_label: Label
 var navigation_label: Label
+var mission_label: Label
 var joystick_origin := Vector2.ZERO
 var joystick_touch := -1
 var look_touch := -1
@@ -155,15 +156,24 @@ func _ready() -> void:
 	xp.show_percentage = false
 	profile_text.add_child(xp)
 
-	var mission := _make_hud_panel(Vector2(22, 136), Vector2(310, 100))
+	var mission := _make_hud_panel(Vector2(22, 136), Vector2(310, 116))
 	ui_root.add_child(mission)
-	var mission_text := Label.new()
-	mission_text.text = "❗ NHIỆM VỤ\nKhám phá khu phố\nTìm người dân và trò chuyện"
-	mission_text.add_theme_font_size_override("font_size", 17)
-	mission_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mission.add_child(mission_text)
+	var mission_layout := VBoxContainer.new()
+	mission_layout.add_theme_constant_override("separation", 4)
+	mission.add_child(mission_layout)
+	mission_label = Label.new()
+	mission_label.add_theme_font_size_override("font_size", 15)
+	mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mission_layout.add_child(mission_label)
+	var guide_button := Button.new()
+	guide_button.text = "DẪN ĐƯỜNG ĐẾN NHIỆM VỤ"
+	guide_button.custom_minimum_size = Vector2(0, 34)
+	guide_button.add_theme_font_size_override("font_size", 12)
+	_style_game_button(guide_button, Color(0.10, 0.34, 0.34, 0.96))
+	guide_button.pressed.connect(_guide_current_mission)
+	mission_layout.add_child(guide_button)
 
-	var navigation_panel := _make_hud_panel(Vector2(22, 246), Vector2(310, 66))
+	var navigation_panel := _make_hud_panel(Vector2(22, 260), Vector2(310, 66))
 	navigation_panel.add_theme_stylebox_override("panel", _hud_style(Color(0.02, 0.10, 0.13, 0.84), Color(0.25, 0.82, 0.69, 0.88)))
 	ui_root.add_child(navigation_panel)
 	var navigation_row := HBoxContainer.new()
@@ -334,11 +344,53 @@ func _show_hud_notice(action_name: String) -> void:
 
 func _process(_delta: float) -> void:
 	_update_status()
+	_update_mission_ui()
 	if is_instance_valid(map_canvas) and is_instance_valid(player):
 		map_canvas.player_position = player.global_position
 		map_canvas.player_rotation_y = player.rotation.y
 		map_canvas.queue_redraw()
 	_update_navigation_guidance()
+
+func _update_mission_ui() -> void:
+	if not is_instance_valid(mission_label):
+		return
+	var mission: Dictionary = GameState.get_tutorial_mission()
+	mission_label.text = "❗ NHIỆM VỤ %d/5\\n%s\\n%s" % [mini(GameState.tutorial_stage + 1, 5), str(mission.get("title", "")), str(mission.get("description", ""))]
+
+func _guide_current_mission() -> void:
+	var mission: Dictionary = GameState.get_tutorial_mission()
+	var target_type := str(mission.get("target", "none"))
+	var target_position := Vector3.ZERO
+	match target_type:
+		"family":
+			for candidate in get_tree().get_nodes_in_group("interactable"):
+				if candidate is Node3D and (str(candidate.get("role")) == "mother" or str(candidate.get("role")) == "father"):
+					target_position = candidate.global_position
+					break
+		"ho_guom":
+			target_position = Vector3(27, 0, 5.1)
+		"food_shop":
+			target_position = Vector3(0, 0, 17)
+		"career":
+			var desired_role := "career_driver"
+			match GameState.selected_career:
+				"Tài xế công nghệ": desired_role = "career_driver"
+				"Nhân viên du lịch": desired_role = "career_tourism"
+				"Đầu bếp": desired_role = "career_chef"
+				"Nhiếp ảnh gia": desired_role = "career_photographer"
+			var found := false
+			for candidate in get_tree().get_nodes_in_group("interactable"):
+				if candidate is Node3D and str(candidate.get("role")) == desired_role:
+					target_position = candidate.global_position
+					found = true
+					break
+			if not found:
+				target_position = Vector3(6, 0, 1)
+		_:
+			_show_message("Bạn đã hoàn thành phần hướng dẫn nhập môn. Hãy tự do khám phá!")
+			return
+	_set_map_waypoint(target_position)
+	_show_message("Đã đặt đường dẫn cho nhiệm vụ: " + str(mission.get("title", "")))
 
 func _update_navigation_guidance() -> void:
 	if not is_instance_valid(navigation_label):
@@ -518,6 +570,9 @@ func _purchase_shop_item(shop_type: String, item_id: String) -> void:
 	var result: Dictionary = GameState.purchase_item(shop_type, item_id)
 	_show_message(str(result.get("message", "Giao dịch hoàn tất.")))
 	if bool(result.get("ok", false)):
+		if shop_type == "food" and not bool(result.get("already_owned", false)):
+			GameState.advance_tutorial("buy_food")
+			_update_mission_ui()
 		var item: Dictionary = result.get("item", {})
 		if shop_type == "vehicle" and player and player.has_method("spawn_owned_vehicle"):
 			player.spawn_owned_vehicle(str(item.get("name", "Xe máy")), item.get("color", Color(0.8, 0.1, 0.1)))
