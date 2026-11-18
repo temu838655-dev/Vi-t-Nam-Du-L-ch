@@ -95,6 +95,7 @@ class LocalMapCanvas:
 var player: CharacterBody3D
 var status_label: Label
 var clock_label: Label
+var compass_label: Label
 var nearby_label: Label
 var message_label: Label
 var navigation_label: Label
@@ -219,6 +220,26 @@ func _ready() -> void:
 	clock_label.add_theme_font_size_override("font_size", 18)
 	clock_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.62))
 	ui_root.add_child(clock_label)
+
+	var compass_panel := Panel.new()
+	compass_panel.name = "CompassPanel"
+	compass_panel.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	compass_panel.anchor_left = 0.5
+	compass_panel.anchor_right = 0.5
+	compass_panel.offset_left = -86.0
+	compass_panel.offset_right = 86.0
+	compass_panel.offset_top = 12.0
+	compass_panel.offset_bottom = 52.0
+	compass_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	compass_panel.add_theme_stylebox_override("panel", _hud_style(Color(0.015, 0.055, 0.09, 0.78), Color(0.36, 0.7, 0.88, 0.7)))
+	ui_root.add_child(compass_panel)
+	compass_label = Label.new()
+	compass_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	compass_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	compass_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	compass_label.add_theme_font_size_override("font_size", 17)
+	compass_label.add_theme_color_override("font_color", Color(0.91, 0.96, 1.0))
+	compass_panel.add_child(compass_label)
 
 	# Top-right quick actions.
 	var top_actions := HBoxContainer.new()
@@ -813,7 +834,13 @@ func _update_status() -> void:
 	if status_label:
 		status_label.text = "🪙 %s VNĐ   💎 0" % _format_money(GameState.wallet_vnd)
 	if clock_label:
-		clock_label.text = "🕒 " + GameState.get_world_clock_text() + "  •  Ngày mới"
+		var game_hour := int(floor(fposmod(GameState.world_time_seconds, 240.0) / 10.0))
+		var period := "BAN ĐÊM" if game_hour < 5 or game_hour >= 20 else ("BÌNH MINH" if game_hour < 7 else ("BUỔI SÁNG" if game_hour < 11 else ("BUỔI TRƯA" if game_hour < 14 else ("BUỔI CHIỀU" if game_hour < 18 else "HOÀNG HÔN"))))
+		clock_label.text = "🕒 %s  •  %s" % [GameState.get_world_clock_text(), period]
+	if compass_label and is_instance_valid(player):
+		var headings := ["BẮC", "ĐÔNG BẮC", "ĐÔNG", "ĐÔNG NAM", "NAM", "TÂY NAM", "TÂY", "TÂY BẮC"]
+		var heading_index := posmod(int(round(wrapf(player.rotation.y, -PI, PI) / (PI / 4.0))), 8)
+		compass_label.text = "▲  %s  •  %03d°" % [headings[heading_index], int(round(rad_to_deg(fposmod(player.rotation.y, TAU))))]
 	if interact_button and player and player.has_method("is_riding_vehicle"):
 		if player.is_riding_vehicle():
 			interact_button.text = "XUỐNG XE"
