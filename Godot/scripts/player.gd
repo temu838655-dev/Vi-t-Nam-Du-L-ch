@@ -23,6 +23,7 @@ var fullbody_overlay: MeshInstance3D
 var helmet_node: MeshInstance3D
 var mobile_input := Vector2.ZERO
 var mobile_sprint := false
+var camera_sensitivity := 1.0
 var look_delta := Vector2.ZERO
 var current_vehicle: Node3D
 var home_action_remaining := 0.0
@@ -331,8 +332,8 @@ func _physics_process(delta: float) -> void:
 		left_arm.rotation.x = lerpf(left_arm.rotation.x, -0.18, home_action_blend)
 		right_arm.rotation.x = lerpf(right_arm.rotation.x, -0.18, home_action_blend)
 	if look_delta.length() > 0.0:
-		rotate_y(-look_delta.x * 0.004)
-		camera_pivot.rotate_x(-look_delta.y * 0.004)
+		rotate_y(-look_delta.x * 0.004 * camera_sensitivity)
+		camera_pivot.rotate_x(-look_delta.y * 0.004 * camera_sensitivity)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, deg_to_rad(-55), deg_to_rad(35))
 		look_delta = Vector2.ZERO
 
@@ -362,3 +363,6 @@ func _animate_character(delta: float) -> void:
 
 func set_mobile_sprint(enabled: bool) -> void:
 	mobile_sprint = enabled
+
+func set_camera_sensitivity(value: float) -> void:
+	camera_sensitivity = clampf(value, 0.5, 2.0)

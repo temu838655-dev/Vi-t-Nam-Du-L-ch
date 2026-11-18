@@ -116,6 +116,7 @@ var inventory_overlay: Control
 var inventory_items_container: VBoxContainer
 var current_inventory_tab := "vehicle"
 var family_dialogue_overlay: Control
+var settings_overlay: Control
 var map_overlay: Control
 var map_canvas: LocalMapCanvas
 var active_waypoint := Vector3.ZERO
@@ -330,6 +331,7 @@ func _ready() -> void:
 	if player and player.has_signal("interaction_message"):
 		player.interaction_message.connect(_show_message)
 	_update_status()
+	_load_game_settings()
 
 func _hud_style(fill: Color, outline: Color, corner_radius: int = 14) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -353,14 +355,159 @@ func _make_hud_panel(at: Vector2, dimensions: Vector2) -> PanelContainer:
 
 func _show_hud_notice(action_name: String) -> void:
 	if action_name.contains("Cài đặt"):
-		var dialog := AcceptDialog.new()
-		dialog.title = "Cài đặt"
-		dialog.dialog_text = "Cài đặt đồ họa, âm thanh và điều khiển sẽ được mở rộng ở bản tiếp theo."
-		add_child(dialog)
-		dialog.confirmed.connect(dialog.queue_free)
-		dialog.popup_centered(Vector2i(480, 220))
+		open_game_settings()
 	else:
 		_show_message(action_name + " sẽ được mở khi hệ thống phần thưởng và thành tựu hoàn thiện.")
+
+func _load_game_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load("user://game_settings.cfg") != OK:
+		return
+	var quality := str(config.get_value("graphics", "quality", "Trung bình"))
+	var sensitivity := float(config.get_value("controls", "camera_sensitivity", 1.0))
+	var volume := float(config.get_value("audio", "master_volume", 0.8))
+	_apply_graphics_preset(quality)
+	if is_instance_valid(player) and player.has_method("set_camera_sensitivity"):
+		player.set_camera_sensitivity(sensitivity)
+	var master_bus := AudioServer.get_bus_index("Master")
+	if master_bus >= 0:
+		AudioServer.set_bus_volume_db(master_bus, linear_to_db(maxf(0.001, volume)))
+
+func _save_game_setting(section: String, key: String, value: Variant) -> void:
+	var config := ConfigFile.new()
+	config.load("user://game_settings.cfg")
+	config.set_value(section, key, value)
+	config.save("user://game_settings.cfg")
+
+func _apply_graphics_preset(quality: String) -> void:
+	var target_fps := 45
+	var render_scale := 0.85
+	var antialiasing := Viewport.MSAA_DISABLED
+	match quality:
+		"Tiết kiệm":
+			target_fps = 30
+			render_scale = 0.70
+		"Trung bình":
+			target_fps = 45
+			render_scale = 0.85
+		"Đẹp":
+			target_fps = 60
+			render_scale = 1.0
+			antialiasing = Viewport.MSAA_2X
+		"Cao cấp":
+			target_fps = 60
+			render_scale = 1.0
+			antialiasing = Viewport.MSAA_4X
+	Engine.max_fps = target_fps
+	get_viewport().scaling_3d_scale = render_scale
+	get_viewport().msaa_3d = antialiasing
+
+func open_game_settings() -> void:
+	if is_instance_valid(settings_overlay):
+		settings_overlay.queue_free()
+	settings_overlay = Control.new()
+	settings_overlay.name = "GameSettingsOverlay"
+	settings_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	settings_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui_root.add_child(settings_overlay)
+	var shade := ColorRect.new()
+	shade.color = Color(0.005, 0.018, 0.035, 0.92)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	settings_overlay.add_child(shade)
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_width := minf(560.0, viewport_size.x - 28.0)
+	var panel_height := minf(540.0, viewport_size.y - 28.0)
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.offset_left = -panel_width * 0.5
+	panel.offset_right = panel_width * 0.5
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
+	settings_overlay.add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(scroll)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 12)
+	scroll.add_child(layout)
+	var heading := Label.new()
+	heading.text = "CÀI ĐẶT TRÒ CHƠI"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 24)
+	layout.add_child(heading)
+	var quality_label := Label.new()
+	quality_label.text = "CHẤT LƯỢNG ĐỒ HỌA"
+	layout.add_child(quality_label)
+	var quality_picker := OptionButton.new()
+	for preset in ["Tiết kiệm", "Trung bình", "Đẹp", "Cao cấp"]:
+		quality_picker.add_item(preset)
+	var config := ConfigFile.new()
+	config.load("user://game_settings.cfg")
+	var current_quality := str(config.get_value("graphics", "quality", "Trung bình"))
+	quality_picker.select(maxi(0, ["Tiết kiệm", "Trung bình", "Đẹp", "Cao cấp"].find(current_quality)))
+	quality_picker.item_selected.connect(func(index: int) -> void:
+		var selected_quality := quality_picker.get_item_text(index)
+		_apply_graphics_preset(selected_quality)
+		_save_game_setting("graphics", "quality", selected_quality)
+		_show_message("Đã áp dụng cấu hình đồ họa: " + selected_quality)
+	)
+	layout.add_child(quality_picker)
+	var fps_note := Label.new()
+	fps_note.text = "Tiết kiệm: 30 FPS • Trung bình: 45 FPS • Đẹp/Cao cấp: tối đa 60 FPS. Hiệu năng thực tế tùy thiết bị."
+	fps_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	fps_note.add_theme_font_size_override("font_size", 13)
+	layout.add_child(fps_note)
+	var sensitivity_title := Label.new()
+	sensitivity_title.text = "ĐỘ NHẠY XOAY CAMERA"
+	layout.add_child(sensitivity_title)
+	var sensitivity := HSlider.new()
+	sensitivity.min_value = 0.5
+	sensitivity.max_value = 2.0
+	sensitivity.step = 0.1
+	sensitivity.value = float(config.get_value("controls", "camera_sensitivity", 1.0))
+	sensitivity.custom_minimum_size = Vector2(0, 34)
+	var sensitivity_value := Label.new()
+	sensitivity_value.text = "%.1fx" % sensitivity.value
+	sensitivity.value_changed.connect(func(value: float) -> void:
+		sensitivity_value.text = "%.1fx" % value
+		if is_instance_valid(player) and player.has_method("set_camera_sensitivity"):
+			player.set_camera_sensitivity(value)
+		_save_game_setting("controls", "camera_sensitivity", value)
+	)
+	layout.add_child(sensitivity)
+	layout.add_child(sensitivity_value)
+	var volume_title := Label.new()
+	volume_title.text = "ÂM LƯỢNG TỔNG"
+	layout.add_child(volume_title)
+	var volume := HSlider.new()
+	volume.min_value = 0.0
+	volume.max_value = 1.0
+	volume.step = 0.05
+	volume.value = float(config.get_value("audio", "master_volume", 0.8))
+	volume.custom_minimum_size = Vector2(0, 34)
+	var volume_value := Label.new()
+	volume_value.text = "%d%%" % roundi(volume.value * 100.0)
+	volume.value_changed.connect(func(value: float) -> void:
+		volume_value.text = "%d%%" % roundi(value * 100.0)
+		var bus := AudioServer.get_bus_index("Master")
+		if bus >= 0:
+			AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(0.001, value)))
+		_save_game_setting("audio", "master_volume", value)
+	)
+	layout.add_child(volume)
+	layout.add_child(volume_value)
+	var close := Button.new()
+	close.text = "LƯU & ĐÓNG"
+	close.custom_minimum_size = Vector2(0, 50)
+	_style_game_button(close, Color(0.05, 0.32, 0.43, 1.0))
+	close.pressed.connect(_close_game_settings)
+	layout.add_child(close)
+
+func _close_game_settings() -> void:
+	if is_instance_valid(settings_overlay):
+		settings_overlay.queue_free()
+	settings_overlay = null
 
 func _process(_delta: float) -> void:
 	_update_status()
