@@ -78,7 +78,7 @@ var equipped_clothes: Dictionary = {"top":"ao_thun_basic","bottom":"quan_jeans",
 var satiety: int = 100
 var food_history: Array = []
 var owned_specialties: Array = []
-var world_time_seconds: float = 8.0 * 60.0
+var world_time_seconds: float = 8.0 * 10.0
 var family_interaction_log: Dictionary = {}
 var home_cleanliness: int = 50
 var family_cooking_sessions: int = 0
@@ -146,7 +146,7 @@ func start_new_game() -> void:
 	satiety = 100
 	food_history = []
 	owned_specialties = []
-	world_time_seconds = 8.0 * 60.0
+	world_time_seconds = 8.0 * 10.0
 	family_interaction_log = {}
 	home_cleanliness = 50
 	family_cooking_sessions = 0
@@ -204,7 +204,7 @@ func load_game() -> bool:
 	var specialties_value: Variant = data.get("owned_specialties", [])
 	if specialties_value is Array:
 		owned_specialties = specialties_value.duplicate()
-	world_time_seconds = fposmod(float(data.get("world_time_seconds", 8.0 * 60.0)), 240.0)
+	world_time_seconds = fposmod(float(data.get("world_time_seconds", 8.0 * 10.0)), 240.0)
 	var family_log_value: Variant = data.get("family_interaction_log", {})
 	family_interaction_log = family_log_value.duplicate(true) if family_log_value is Dictionary else {}
 	home_cleanliness = clampi(int(data.get("home_cleanliness", 50)), 0, 100)
