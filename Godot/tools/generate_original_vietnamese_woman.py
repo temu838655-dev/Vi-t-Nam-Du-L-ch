@@ -130,7 +130,8 @@ parts.append(uv("Mouth_Cavity",(0,-.176,1.685),(.060,.018,.027),mouth,32,16,"hea
 parts.append(curve_obj("Upper_Lip", [(-.059,-.195,1.696),(-.026,-.207,1.704),(0,-.211,1.695),(.026,-.207,1.704),(.059,-.195,1.696)],.009,lip))
 parts.append(curve_obj("Lower_Lip",[(-.052,-.194,1.681),(0,-.208,1.671),(.052,-.194,1.681)],.010,lip,"jaw"))
 parts.append(uv("Upper_Teeth",(0,-.198,1.692),(.040,.009,.010),teeth,24,12,"head"))
-parts.append(uv("Chin",(0,-.15,1.635),(.085,.055,.045),skin,28,18,"head"))
+parts.append(uv("Lower_Teeth",(0,-.196,1.672),(.034,.008,.008),teeth,24,12,"jaw"))
+parts.append(uv("Chin",(0,-.15,1.635),(.085,.055,.045),skin,28,18,"jaw"))
 # Armature with deforming body hierarchy.
 arm_data=bpy.data.armatures.new("VietnameseWoman_Armature"); arm=bpy.data.objects.new("VietnameseWoman_Rig",arm_data); bpy.context.collection.objects.link(arm)
 bpy.context.view_layer.objects.active=arm; arm.select_set(True); bpy.ops.object.mode_set(mode="EDIT")
@@ -185,6 +186,18 @@ for o in list(bpy.context.scene.objects):
             upper = o.name.startswith("Eyelid_Upper_")
             for vertex in blink.data:
                 vertex.co.z += -0.022 if upper else 0.014
+        elif o.name.startswith(("Upper_Lip", "Lower_Lip")):
+            o.shape_key_add(name="Basis")
+            smile = o.shape_key_add(name="Smile")
+            for vertex in smile.data:
+                if abs(vertex.co.x) > 0.012:
+                    vertex.co.y -= 0.012
+                    vertex.co.z += 0.006
+        elif o.name.startswith("Eyebrow_"):
+            o.shape_key_add(name="Basis")
+            brow_raise = o.shape_key_add(name="Brow_Raise")
+            for vertex in brow_raise.data:
+                vertex.co.z += 0.012
         vg=o.vertex_groups.new(name=bone); vg.add(list(range(len(o.data.vertices))),1.0,"REPLACE")
         mod=o.modifiers.new("Hero_Skeleton","ARMATURE"); mod.object=arm
         o.parent=arm
