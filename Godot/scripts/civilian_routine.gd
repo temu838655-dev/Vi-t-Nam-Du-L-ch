@@ -129,7 +129,10 @@ func _build_resident() -> void:
 func _try_build_production_resident() -> bool:
 	# Deterministically mix the authored male and female resident meshes.
 	# The current library has one base model per presentation; this is not yet age/body diversity.
-	var use_female_model := posmod(resident_name.hash(), 3) == 0
+	var normalized_name := resident_name.strip_edges().to_lower()
+	var has_female_title := normalized_name.begins_with("cô ") or normalized_name.begins_with("chị ") or normalized_name.begins_with("bà ") or normalized_name.begins_with("mẹ ")
+	var has_male_title := normalized_name.begins_with("chú ") or normalized_name.begins_with("anh ") or normalized_name.begins_with("bác trai") or normalized_name.begins_with("ông ")
+	var use_female_model := has_female_title or (not has_male_title and posmod(resident_name.hash(), 3) == 0)
 	var model_path := FEMALE_RESIDENT_MODEL_PATH if use_female_model else MALE_RESIDENT_MODEL_PATH
 	if not ResourceLoader.exists(model_path):
 		return false
@@ -280,8 +283,10 @@ func _apply_resident_visual_variant() -> void:
 	# Deterministic per-NPC variation: clothing tint and subtle stature differences.
 	# This is not a substitute for separate female/elderly/child character meshes.
 	var variant_index := posmod(resident_name.hash(), 7)
-	var hue := fposmod(0.54 + float(variant_index) * 0.115, 1.0)
-	var clothing_tint := Color.from_hsv(hue, 0.42, 0.82)
+	# Respect the authored per-resident wardrobe color supplied by main.gd.
+	# Small deterministic value shifts avoid identical-looking shirts without recoloring skin.
+	var brightness := 0.88 + float(posmod(variant_index, 5)) * 0.035
+	var clothing_tint := Color.from_hsv(shirt_color.h, shirt_color.s, clampf(shirt_color.v * brightness, 0.18, 1.0))
 	var stature := 0.96 + float(posmod(variant_index * 3, 7)) * 0.012
 	production_visual.scale = Vector3.ONE * stature
 	_apply_clothing_tint(production_visual, clothing_tint)
