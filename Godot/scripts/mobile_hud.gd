@@ -231,16 +231,20 @@ func _ready() -> void:
 	profile_name_label.text = GameState.player_name
 	profile_name_label.add_theme_font_size_override("font_size", 21)
 	profile_text.add_child(profile_name_label)
-	var level := Label.new()
-	level.text = "★  Lv.1"
-	level.add_theme_font_size_override("font_size", 17)
-	profile_text.add_child(level)
-	var xp := ProgressBar.new()
-	xp.custom_minimum_size = Vector2(90 if compact_layout else 150, 10)
-	xp.max_value = 100
-	xp.value = 0
-	xp.show_percentage = false
-	profile_text.add_child(xp)
+	var career_label := Label.new()
+	career_label.name = "CareerLabel"
+	career_label.text = "DU KHÁCH  •  %s" % str(GameState.selected_career)
+	career_label.add_theme_font_size_override("font_size", 13 if compact_layout else 15)
+	career_label.add_theme_color_override("font_color", Color(0.66, 0.88, 0.91, 1.0))
+	career_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	profile_text.add_child(career_label)
+	var location_label := Label.new()
+	location_label.name = "LocationLabel"
+	location_label.text = "📍 %s" % str(GameState.current_location)
+	location_label.add_theme_font_size_override("font_size", 12 if compact_layout else 14)
+	location_label.add_theme_color_override("font_color", Color(0.91, 0.94, 0.92, 1.0))
+	location_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	profile_text.add_child(location_label)
 
 	var mission := _make_hud_panel(Vector2(18, 112 if compact_layout else 136), Vector2(mission_width, 116))
 	ui_root.add_child(mission)
