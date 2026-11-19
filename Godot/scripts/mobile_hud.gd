@@ -99,6 +99,48 @@ class LocalMapCanvas:
 			accept_event()
 
 
+class RoundMiniMap:
+	extends Control
+
+	var player_rotation_y := 0.0
+	var has_waypoint := false
+	var waypoint_direction := Vector2.ZERO
+
+	func _ready() -> void:
+		custom_minimum_size = Vector2(132, 132)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func _draw() -> void:
+		var center := size * 0.5
+		var radius := minf(size.x, size.y) * 0.47
+		draw_circle(center, radius, Color(0.035, 0.12, 0.13, 0.94))
+		# A compact stylised street map, clipped visually to the circular boundary.
+		for angle_index in range(0, 360, 30):
+			var angle := deg_to_rad(float(angle_index))
+			var start := center + Vector2(cos(angle), sin(angle)) * (radius * 0.18)
+			var finish := center + Vector2(cos(angle), sin(angle)) * (radius * 0.91)
+			draw_line(start, finish, Color(0.34, 0.43, 0.39, 0.78), 3.0, true)
+		draw_line(center + Vector2(-radius, -radius * 0.18), center + Vector2(radius, radius * 0.24), Color(0.53, 0.57, 0.49, 0.95), 5.0, true)
+		draw_line(center + Vector2(-radius * 0.25, -radius), center + Vector2(radius * 0.18, radius), Color(0.53, 0.57, 0.49, 0.95), 4.0, true)
+		draw_circle(center + Vector2(radius * 0.48, -radius * 0.36), radius * 0.22, Color(0.07, 0.38, 0.52, 0.98))
+		draw_arc(center, radius, 0.0, TAU, 64, Color(0.78, 0.86, 0.79, 0.95), 3.0, true)
+		if has_waypoint:
+			var target := center + waypoint_direction.limit_length(radius * 0.62)
+			draw_line(center, target, Color(1.0, 0.76, 0.18, 0.95), 3.0, true)
+			draw_circle(target, 6.0, Color(1.0, 0.25, 0.19, 1.0))
+		var forward := Vector2(sin(player_rotation_y), -cos(player_rotation_y))
+		var side := Vector2(-forward.y, forward.x)
+		var arrow := PackedVector2Array([center + forward * 14.0, center - forward * 9.0 + side * 7.0, center - forward * 9.0 - side * 7.0])
+		draw_colored_polygon(arrow, Color(0.18, 0.88, 1.0, 1.0))
+		draw_arc(center, 12.0, 0.0, TAU, 32, Color(1.0, 1.0, 1.0, 0.9), 2.0, true)
+		draw_string(ThemeDB.fallback_font, Vector2(center.x - 4.0, 15.0), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1.0, 1.0, 1.0))
+
+	func _gui_input(event: InputEvent) -> void:
+		if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
+			get_viewport().set_input_as_handled()
+			get_parent().call_deferred("_open_local_map")
+
+
 var player: CharacterBody3D
 var status_label: Label
 var clock_label: Label
@@ -128,6 +170,7 @@ var settings_overlay: Control
 var phone_overlay: Control
 var map_overlay: Control
 var map_canvas: LocalMapCanvas
+var minimap_widget: RoundMiniMap
 var active_waypoint := Vector3.ZERO
 var active_waypoint_name := "Điểm đánh dấu"
 var has_active_waypoint := false
@@ -274,17 +317,14 @@ func _ready() -> void:
 			"⚙\nCÀI ĐẶT": action_button.pressed.connect(open_game_settings)
 		top_actions.add_child(action_button)
 
-	# A tappable local map replaces the old decorative placeholder.
-	var map_panel := _make_hud_panel(Vector2(-100 if compact_layout else -178, 78 if compact_layout else 88), Vector2(82 if compact_layout else 156, 68 if compact_layout else 118))
-	map_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	ui_root.add_child(map_panel)
-	var map_button := Button.new()
-	map_button.text = "🧭\nBẢN ĐỒ\nXEM VỊ TRÍ"
-	map_button.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	map_button.add_theme_font_size_override("font_size", 12 if compact_layout else 16)
-	_style_game_button(map_button, Color(0.04, 0.16, 0.25, 0.94))
-	map_button.pressed.connect(_open_local_map)
-	map_panel.add_child(map_button)
+	# Circular minimap with a live player heading, matching the reference HUD.
+	minimap_widget = RoundMiniMap.new()
+	minimap_widget.name = "RoundMiniMap"
+	minimap_widget.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	minimap_widget.position = Vector2(-148 if compact_layout else -176, 78 if compact_layout else 92)
+	minimap_widget.custom_minimum_size = Vector2(112, 112) if compact_layout else Vector2(132, 132)
+	minimap_widget.size = minimap_widget.custom_minimum_size
+	ui_root.add_child(minimap_widget)
 
 	# Fixed bottom-left joystick: the base never follows the finger.
 	joystick_base = Panel.new()
@@ -802,6 +842,13 @@ func _process(delta: float) -> void:
 		map_canvas.player_rotation_y = player.rotation.y
 		map_canvas.map_center = player.global_position
 		map_canvas.queue_redraw()
+	if is_instance_valid(minimap_widget) and is_instance_valid(player):
+		minimap_widget.player_rotation_y = player.rotation.y
+		minimap_widget.has_waypoint = has_active_waypoint
+		if has_active_waypoint:
+			var delta_to_target := active_waypoint - player.global_position
+			minimap_widget.waypoint_direction = Vector2(delta_to_target.x, delta_to_target.z).normalized()
+		minimap_widget.queue_redraw()
 	if is_instance_valid(waypoint_marker):
 		waypoint_animation_time += delta
 		waypoint_marker.rotation.y += delta * 0.55
