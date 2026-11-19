@@ -126,9 +126,9 @@ func _try_build_production_resident() -> bool:
 	if not instance is Node3D:
 		instance.queue_free()
 		return false
-	var report := {"skeleton": false, "animation": false, "eyes": 0, "nose": false, "mouth": false, "brows": false}
+	var report := {"skeleton": false, "animation": false, "eyes": 0, "nose": false, "mouth": false, "brows": false, "ears": 0, "teeth": 0, "blend_shapes": 0}
 	_inspect_resident_model(instance, report)
-	if not report.skeleton or not report.animation or int(report.eyes) < 2 or not report.nose or not report.mouth or not report.brows:
+	if not report.skeleton or not report.animation or int(report.eyes) < 2 or not report.nose or not report.mouth or not report.brows or int(report.ears) < 2 or int(report.teeth) < 1 or int(report.blend_shapes) < 5:
 		instance.queue_free()
 		return false
 	production_visual = instance as Node3D
@@ -155,6 +155,12 @@ func _inspect_resident_model(node: Node, report: Dictionary) -> void:
 			report.mouth = true
 		if "brow" in node_name:
 			report.brows = true
+		if "ear" in node_name:
+			report.ears = int(report.ears) + 1
+		if "teeth" in node_name:
+			report.teeth = int(report.teeth) + 1
+		if node.mesh is ArrayMesh:
+			report.blend_shapes = int(report.blend_shapes) + (node.mesh as ArrayMesh).get_blend_shape_count()
 	for child in node.get_children():
 		_inspect_resident_model(child, report)
 
