@@ -30,6 +30,11 @@ checks = {
     "ears": sum("ear_" in n for n in all_names) >= 2,
     "skeleton_skin": bool(skins) and any(len(s.get("joints", [])) >= 15 for s in skins),
     "facial_morph_targets": any(p.get("targets") for m in meshes for p in m.get("primitives", [])),
+    "eyelid_morph_targets": any(
+        "eyelid" in m.get("name", "").lower()
+        and any(p.get("targets") for p in m.get("primitives", []))
+        for m in meshes
+    ),
     "animation_clips": len(animations) >= 4,
 }
 for key, ok in checks.items():
