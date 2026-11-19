@@ -773,23 +773,23 @@ func _close_game_settings() -> void:
 		settings_overlay.queue_free()
 	settings_overlay = null
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ESCAPE or event.keycode == KEY_BACK):
-		if is_instance_valid(settings_overlay):
-			_close_game_settings()
-			get_viewport().set_input_as_handled()
-		elif is_instance_valid(map_overlay):
-			_close_local_map()
-			get_viewport().set_input_as_handled()
-		elif is_instance_valid(inventory_overlay):
-			_close_inventory()
-			get_viewport().set_input_as_handled()
-		elif is_instance_valid(shop_overlay):
-			_close_shop()
-			get_viewport().set_input_as_handled()
-		elif is_instance_valid(phone_overlay):
-			_close_phone()
-			get_viewport().set_input_as_handled()
+func _handle_overlay_back_key(event: InputEvent) -> bool:
+	if not (event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ESCAPE or event.keycode == KEY_BACK)):
+		return false
+	if is_instance_valid(settings_overlay):
+		_close_game_settings()
+	elif is_instance_valid(map_overlay):
+		_close_local_map()
+	elif is_instance_valid(inventory_overlay):
+		_close_inventory()
+	elif is_instance_valid(shop_overlay):
+		_close_shop()
+	elif is_instance_valid(phone_overlay):
+		_close_phone()
+	else:
+		return false
+	get_viewport().set_input_as_handled()
+	return true
 
 func _process(delta: float) -> void:
 	_update_status()
@@ -1289,6 +1289,8 @@ func _close_inventory() -> void:
 	inventory_overlay = null
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _handle_overlay_back_key(event):
+		return
 	if event is InputEventScreenTouch:
 		if event.pressed:
 			var base_rect := joystick_base.get_global_rect().grow(22.0)
