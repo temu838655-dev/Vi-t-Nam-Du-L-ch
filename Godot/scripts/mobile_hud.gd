@@ -634,15 +634,15 @@ func _save_game_setting(section: String, key: String, value: Variant) -> void:
 
 func _apply_graphics_preset(quality: String) -> void:
 	var target_fps := 45
-	var render_scale := 0.85
+	var render_scale := 1.0
 	var antialiasing := Viewport.MSAA_DISABLED
 	match quality:
 		"Tiết kiệm":
 			target_fps = 30
-			render_scale = 0.70
+			render_scale = 1.0
 		"Trung bình":
 			target_fps = 45
-			render_scale = 0.85
+			render_scale = 1.0
 		"Đẹp":
 			target_fps = 60
 			render_scale = 1.0
@@ -652,7 +652,8 @@ func _apply_graphics_preset(quality: String) -> void:
 			render_scale = 1.0
 			antialiasing = Viewport.MSAA_4X
 	Engine.max_fps = target_fps
-	get_viewport().scaling_3d_scale = render_scale
+	# Keep native 3D render resolution in every preset; quality must never blur the image.
+	get_viewport().scaling_3d_scale = 1.0
 	get_viewport().msaa_3d = antialiasing
 
 func open_game_settings() -> void:
@@ -684,11 +685,21 @@ func open_game_settings() -> void:
 	var layout := VBoxContainer.new()
 	layout.add_theme_constant_override("separation", 12)
 	scroll.add_child(layout)
+	var header := HBoxContainer.new()
+	layout.add_child(header)
 	var heading := Label.new()
 	heading.text = "CÀI ĐẶT TRÒ CHƠI"
-	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heading.add_theme_font_size_override("font_size", 24)
-	layout.add_child(heading)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_theme_font_size_override("font_size", 22)
+	heading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_child(heading)
+	var close_x := Button.new()
+	close_x.text = "✕"
+	close_x.custom_minimum_size = Vector2(48, 46)
+	close_x.add_theme_font_size_override("font_size", 22)
+	_style_game_button(close_x, Color(0.48, 0.12, 0.14, 1.0))
+	close_x.pressed.connect(_close_game_settings)
+	header.add_child(close_x)
 	var quality_label := Label.new()
 	quality_label.text = "CHẤT LƯỢNG ĐỒ HỌA"
 	layout.add_child(quality_label)
@@ -761,6 +772,24 @@ func _close_game_settings() -> void:
 	if is_instance_valid(settings_overlay):
 		settings_overlay.queue_free()
 	settings_overlay = null
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_ESCAPE or event.keycode == KEY_BACK):
+		if is_instance_valid(settings_overlay):
+			_close_game_settings()
+			get_viewport().set_input_as_handled()
+		elif is_instance_valid(map_overlay):
+			_close_local_map()
+			get_viewport().set_input_as_handled()
+		elif is_instance_valid(inventory_overlay):
+			_close_inventory()
+			get_viewport().set_input_as_handled()
+		elif is_instance_valid(shop_overlay):
+			_close_shop()
+			get_viewport().set_input_as_handled()
+		elif is_instance_valid(phone_overlay):
+			_close_phone()
+			get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
 	_update_status()
