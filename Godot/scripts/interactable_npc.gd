@@ -18,6 +18,8 @@ var production_visual: Node3D
 var production_animation_player: AnimationPlayer
 var using_production_visual := false
 var talk_time_remaining := 0.0
+var facial_clock := 0.0
+var facial_meshes: Array[MeshInstance3D] = []
 
 const CAREER_BY_ROLE := {
 	"career_driver": "Tài xế công nghệ",
@@ -35,6 +37,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	talk_time_remaining = maxf(0.0, talk_time_remaining - delta)
+	_update_facial_animation(delta)
 	if role != "mother" and role != "father":
 		return
 	var clock := fposmod(GameState.world_time_seconds, 240.0)
@@ -170,6 +173,7 @@ func _try_build_production_person() -> bool:
 	production_visual.name = "ProductionNPCVisual"
 	add_child(production_visual)
 	production_animation_player = _find_npc_animation_player(production_visual)
+	_collect_facial_meshes(production_visual)
 	using_production_visual = true
 	_play_npc_animation("idle")
 	return true
@@ -198,6 +202,38 @@ func _inspect_npc_model(node: Node, report: Dictionary) -> void:
 			report.blend_shapes = int(report.blend_shapes) + (node.mesh as ArrayMesh).get_blend_shape_count()
 	for child in node.get_children():
 		_inspect_npc_model(child, report)
+
+
+func _collect_facial_meshes(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh is ArrayMesh and (mesh_instance.mesh as ArrayMesh).get_blend_shape_count() > 0:
+			facial_meshes.append(mesh_instance)
+	for child in node.get_children():
+		_collect_facial_meshes(child)
+
+
+func _set_facial_shape(shape_name: String, value: float) -> void:
+	for mesh_instance in facial_meshes:
+		var mesh := mesh_instance.mesh as ArrayMesh
+		for index in range(mesh.get_blend_shape_count()):
+			var current_name := mesh.get_blend_shape_name(index).to_lower().replace("_", "").replace("-", "").replace(" ", "")
+			if current_name == shape_name.to_lower().replace("_", "").replace("-", "").replace(" ", ""):
+				mesh_instance.set_blend_shape_value(index, clampf(value, 0.0, 1.0))
+
+
+func _update_facial_animation(delta: float) -> void:
+	if not using_production_visual or facial_meshes.is_empty():
+		return
+	facial_clock += delta
+	var talking := talk_time_remaining > 0.0
+	var blink_phase := fposmod(facial_clock, 3.8)
+	var blink := 1.0 if blink_phase > 3.62 else 0.0
+	_set_facial_shape("Blink_Left", blink)
+	_set_facial_shape("Blink_Right", blink)
+	_set_facial_shape("Jaw_Open", (0.22 + 0.55 * absf(sin(facial_clock * 13.0))) if talking else 0.0)
+	_set_facial_shape("Smile", 0.16 if talking else 0.0)
+	_set_facial_shape("Brow_Raise", (0.12 + 0.08 * sin(facial_clock * 4.0)) if talking else 0.0)
 
 
 func _find_npc_animation_player(node: Node) -> AnimationPlayer:
