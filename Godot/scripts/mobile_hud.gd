@@ -258,7 +258,7 @@ func _ready() -> void:
 	top_actions.position = Vector2(-utility_width - (390.0 if compact_layout else 650.0), 18)
 	top_actions.add_theme_constant_override("separation", 6)
 	ui_root.add_child(top_actions)
-	var quick_actions := ["🧭\\nBẢN ĐỒ", "📋\\nNHIỆM VỤ", "🎒\\nBA LÔ", "📱\\nĐIỆN THOẠI", "🛒\\nCỬA HÀNG", "⚙\\nCÀI ĐẶT"]
+	var quick_actions := ["🧭\nBẢN ĐỒ", "📋\nNHIỆM VỤ", "🎒\nBA LÔ", "📱\nĐIỆN THOẠI", "🛒\nCỬA HÀNG", "⚙\nCÀI ĐẶT"]
 	for action in quick_actions:
 		var action_button := Button.new()
 		action_button.text = action
@@ -266,12 +266,12 @@ func _ready() -> void:
 		action_button.add_theme_font_size_override("font_size", 11 if compact_layout else 13)
 		_style_game_button(action_button, Color(0.025, 0.075, 0.12, 0.86))
 		match action:
-			"🧭\\nBẢN ĐỒ": action_button.pressed.connect(_open_local_map)
-			"📋\\nNHIỆM VỤ": action_button.pressed.connect(_guide_current_mission)
-			"🎒\\nBA LÔ": action_button.pressed.connect(open_inventory)
-			"📱\\nĐIỆN THOẠI": action_button.pressed.connect(_open_phone)
-			"🛒\\nCỬA HÀNG": action_button.pressed.connect(_phone_open_food_shop)
-			"⚙\\nCÀI ĐẶT": action_button.pressed.connect(open_game_settings)
+			"🧭\nBẢN ĐỒ": action_button.pressed.connect(_open_local_map)
+			"📋\nNHIỆM VỤ": action_button.pressed.connect(_guide_current_mission)
+			"🎒\nBA LÔ": action_button.pressed.connect(open_inventory)
+			"📱\nĐIỆN THOẠI": action_button.pressed.connect(_open_phone)
+			"🛒\nCỬA HÀNG": action_button.pressed.connect(_phone_open_food_shop)
+			"⚙\nCÀI ĐẶT": action_button.pressed.connect(open_game_settings)
 		top_actions.add_child(action_button)
 
 	# A tappable local map replaces the old decorative placeholder.
