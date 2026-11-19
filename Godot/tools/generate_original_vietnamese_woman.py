@@ -17,8 +17,8 @@ def mat(name, color, rough=0.72, metallic=0.0):
         if "Subsurface Weight" in p.inputs: p.inputs["Subsurface Weight"].default_value=0.065
         if "Subsurface Radius" in p.inputs: p.inputs["Subsurface Radius"].default_value=(1.0,0.42,0.22)
     return m
-skin=mat("Skin_Warm_Vietnamese_Woman",(0.57,0.35,0.27),.68)
-skin_lite=mat("Skin_Highlight",(0.68,0.44,0.34),.7)
+skin=mat("Skin_Warm_Vietnamese_Woman",(0.57,0.35,0.27),.84)
+skin_lite=mat("Skin_Highlight",(0.68,0.44,0.34),.82)
 hair=mat("Hair_Black_Brown_Long",(0.018,0.012,0.010),.32)
 eye_white=mat("Eye_White",(0.82,0.78,0.69),.3)
 iris=mat("Iris_Dark_Brown",(0.12,0.055,0.025),.25)
