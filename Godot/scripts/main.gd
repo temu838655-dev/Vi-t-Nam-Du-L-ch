@@ -47,6 +47,7 @@ var menu_camera: Camera3D
 var world_environment: WorldEnvironment
 var sun_light: DirectionalLight3D
 var lighting_update_elapsed := 0.0
+var location_update_elapsed := 0.0
 
 func _ready() -> void:
 	world_environment = get_node_or_null("WorldEnvironment") as WorldEnvironment
@@ -64,6 +65,10 @@ func _process(delta: float) -> void:
 		_update_day_night()
 	if not is_instance_valid(player):
 		return
+	location_update_elapsed += delta
+	if location_update_elapsed >= 0.5:
+		location_update_elapsed = 0.0
+		_update_player_location()
 	if GameState.tutorial_stage == 1:
 		var landmark_distance := Vector2(player.global_position.x - 27.0, player.global_position.z - 5.1).length()
 		if landmark_distance <= 4.5:
@@ -100,6 +105,27 @@ func _update_day_night() -> void:
 		sun_light.light_color = daylight_color.lerp(sunset_color, warm_horizon * 0.78)
 		sun_light.light_energy = lerpf(0.22, 1.35, daylight)
 		sun_light.rotation = Vector3(deg_to_rad(-10.0 - daylight * 68.0), deg_to_rad(hour * 15.0 - 90.0), 0.0)
+
+func _update_player_location() -> void:
+	if not is_instance_valid(player):
+		return
+	var p := Vector2(player.global_position.x, player.global_position.z)
+	var next_location := "Khu phố Hồ Gươm"
+	if p.distance_to(Vector2(0.0, -8.0)) <= 8.0:
+		next_location = "Nhà gia đình"
+	elif p.distance_to(Vector2(27.0, 5.1)) <= 10.0:
+		next_location = "Cầu Thê Húc – Đền Ngọc Sơn"
+	elif p.distance_to(Vector2(0.0, 17.0)) <= 8.0:
+		next_location = "Phố ẩm thực"
+	elif p.distance_to(Vector2(-10.0, 3.0)) <= 7.0 or p.distance_to(Vector2(10.0, 3.0)) <= 7.0:
+		next_location = "Phố cửa hàng"
+	elif p.y < -18.0:
+		next_location = "Khu dân cư phía Bắc"
+	elif p.y > 25.0:
+		next_location = "Đường ven hồ phía Nam"
+	if GameState.current_location != next_location:
+		GameState.current_location = next_location
+		GameState.save_game(player.global_position, player.rotation.y)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
