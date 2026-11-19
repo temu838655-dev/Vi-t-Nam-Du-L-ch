@@ -35,6 +35,16 @@ checks = {
         and any(p.get("targets") for p in m.get("primitives", []))
         for m in meshes
     ),
+    "lip_smile_morph_targets": any(
+        "lip" in m.get("name", "").lower()
+        and any(p.get("targets") for p in m.get("primitives", []))
+        for m in meshes
+    ),
+    "eyebrow_raise_morph_targets": any(
+        "eyebrow" in m.get("name", "").lower()
+        and any(p.get("targets") for p in m.get("primitives", []))
+        for m in meshes
+    ),
     "animation_clips": len(animations) >= 4,
 }
 for key, ok in checks.items():
