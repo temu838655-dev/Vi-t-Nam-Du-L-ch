@@ -102,38 +102,59 @@ class LocalMapCanvas:
 class RoundMiniMap:
 	extends Control
 
+	var player_position := Vector3.ZERO
 	var player_rotation_y := 0.0
 	var has_waypoint := false
-	var waypoint_direction := Vector2.ZERO
+	var waypoint_position := Vector3.ZERO
+	const PIXELS_PER_METER := 1.55
 
 	func _ready() -> void:
 		custom_minimum_size = Vector2(132, 132)
 		mouse_filter = Control.MOUSE_FILTER_STOP
+		clip_contents = true
+
+	func _map_point(world: Vector3) -> Vector2:
+		return size * 0.5 + Vector2(world.x - player_position.x, world.z - player_position.z) * PIXELS_PER_METER
 
 	func _draw() -> void:
 		var center := size * 0.5
 		var radius := minf(size.x, size.y) * 0.47
-		draw_circle(center, radius, Color(0.035, 0.12, 0.13, 0.94))
-		# A compact stylised street map, clipped visually to the circular boundary.
-		for angle_index in range(0, 360, 30):
-			var angle := deg_to_rad(float(angle_index))
-			var start := center + Vector2(cos(angle), sin(angle)) * (radius * 0.18)
-			var finish := center + Vector2(cos(angle), sin(angle)) * (radius * 0.91)
-			draw_line(start, finish, Color(0.34, 0.43, 0.39, 0.78), 3.0, true)
-		draw_line(center + Vector2(-radius, -radius * 0.18), center + Vector2(radius, radius * 0.24), Color(0.53, 0.57, 0.49, 0.95), 5.0, true)
-		draw_line(center + Vector2(-radius * 0.25, -radius), center + Vector2(radius * 0.18, radius), Color(0.53, 0.57, 0.49, 0.95), 4.0, true)
-		draw_circle(center + Vector2(radius * 0.48, -radius * 0.36), radius * 0.22, Color(0.07, 0.38, 0.52, 0.98))
-		draw_arc(center, radius, 0.0, TAU, 64, Color(0.78, 0.86, 0.79, 0.95), 3.0, true)
+		draw_circle(center, radius, Color(0.035, 0.12, 0.13, 0.97))
+		# Roads use the same local world coordinates as the playable Hoan Kiem prototype.
+		var road := Color(0.49, 0.53, 0.48, 0.96)
+		var road_edge := Color(0.19, 0.25, 0.23, 0.98)
+		_draw_world_road(Vector3(0, 0, -32), Vector3(0, 0, 42), 8.0, road_edge)
+		_draw_world_road(Vector3(0, 0, -32), Vector3(0, 0, 42), 5.0, road)
+		_draw_world_road(Vector3(-25, 0, 8), Vector3(45, 0, 8), 7.0, road_edge)
+		_draw_world_road(Vector3(-25, 0, 8), Vector3(45, 0, 8), 4.5, road)
+		_draw_world_road(Vector3(-18, 0, -32), Vector3(-18, 0, 42), 3.0, road)
+		_draw_world_road(Vector3(15, 0, -32), Vector3(15, 0, 42), 3.0, road)
+		# Hoan Kiem Lake position matches the full local map.
+		var lake := _map_point(Vector3(27, 0, -1))
+		draw_circle(lake, 20.0, Color(0.06, 0.36, 0.49, 0.98))
+		draw_arc(lake, 20.0, 0.0, TAU, 48, Color(0.40, 0.79, 0.83, 0.95), 2.0, true)
+		_draw_world_marker(Vector3(30, 0, -1), Color(1.0, 0.77, 0.22))
+		_draw_world_marker(Vector3(10, 0, 3), Color(0.22, 0.78, 1.0))
+		_draw_world_marker(Vector3(-10, 0, 3), Color(0.22, 0.78, 1.0))
 		if has_waypoint:
-			var target := center + waypoint_direction.limit_length(radius * 0.62)
-			draw_line(center, target, Color(1.0, 0.76, 0.18, 0.95), 3.0, true)
-			draw_circle(target, 6.0, Color(1.0, 0.25, 0.19, 1.0))
+			var target := _map_point(waypoint_position)
+			draw_line(center, target, Color(1.0, 0.76, 0.18, 0.98), 2.5, true)
+			draw_circle(target, 5.5, Color(1.0, 0.25, 0.19, 1.0))
 		var forward := Vector2(sin(player_rotation_y), -cos(player_rotation_y))
 		var side := Vector2(-forward.y, forward.x)
-		var arrow := PackedVector2Array([center + forward * 14.0, center - forward * 9.0 + side * 7.0, center - forward * 9.0 - side * 7.0])
-		draw_colored_polygon(arrow, Color(0.18, 0.88, 1.0, 1.0))
-		draw_arc(center, 12.0, 0.0, TAU, 32, Color(1.0, 1.0, 1.0, 0.9), 2.0, true)
-		draw_string(ThemeDB.fallback_font, Vector2(center.x - 4.0, 15.0), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1.0, 1.0, 1.0))
+		var arrow := PackedVector2Array([center + forward * 12.0, center - forward * 8.0 + side * 6.0, center - forward * 8.0 - side * 6.0])
+		draw_colored_polygon(arrow, Color(0.18, 0.91, 1.0, 1.0))
+		draw_arc(center, 10.0, 0.0, TAU, 32, Color(1.0, 1.0, 1.0, 0.9), 1.5, true)
+		draw_arc(center, radius, 0.0, TAU, 64, Color(0.82, 0.89, 0.83, 0.98), 2.5, true)
+		draw_string(ThemeDB.fallback_font, Vector2(center.x - 4.0, 14.0), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1.0, 1.0, 1.0))
+
+	func _draw_world_road(from_world: Vector3, to_world: Vector3, width: float, tint: Color) -> void:
+		draw_line(_map_point(from_world), _map_point(to_world), tint, width, true)
+
+	func _draw_world_marker(world: Vector3, tint: Color) -> void:
+		var point := _map_point(world)
+		draw_circle(point, 3.5, tint)
+		draw_arc(point, 5.0, 0.0, TAU, 20, Color(0.02, 0.08, 0.10, 1.0), 1.2, true)
 
 	func _gui_input(event: InputEvent) -> void:
 		if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
@@ -843,11 +864,10 @@ func _process(delta: float) -> void:
 		map_canvas.map_center = player.global_position
 		map_canvas.queue_redraw()
 	if is_instance_valid(minimap_widget) and is_instance_valid(player):
+		minimap_widget.player_position = player.global_position
 		minimap_widget.player_rotation_y = player.rotation.y
 		minimap_widget.has_waypoint = has_active_waypoint
-		if has_active_waypoint:
-			var delta_to_target := active_waypoint - player.global_position
-			minimap_widget.waypoint_direction = Vector2(delta_to_target.x, delta_to_target.z).normalized()
+		minimap_widget.waypoint_position = active_waypoint
 		minimap_widget.queue_redraw()
 	if is_instance_valid(waypoint_marker):
 		waypoint_animation_time += delta
