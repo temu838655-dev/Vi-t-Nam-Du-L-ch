@@ -217,6 +217,17 @@ func _show_main_menu() -> void:
 	settings_button.pressed.connect(_show_menu_settings)
 	content.add_child(settings_button)
 
+	var exit_button := Button.new()
+	exit_button.text = "⇥   THOÁT"
+	exit_button.custom_minimum_size = Vector2(0, 44)
+	exit_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_menu_button(exit_button, Color(0.22, 0.16, 0.18, 0.98))
+	exit_button.pressed.connect(func() -> void:
+		_save_current_game()
+		get_tree().quit()
+	)
+	content.add_child(exit_button)
+
 	var version := Label.new()
 	version.text = "BẢN THỬ NGHIỆM • GODOT 4.4"
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -333,6 +344,7 @@ func _show_menu_settings() -> void:
 	layout.add_child(reset_note)
 	dialog.confirmed.connect(dialog.queue_free)
 	dialog.canceled.connect(dialog.queue_free)
+	dialog.close_requested.connect(dialog.queue_free)
 	dialog.popup_centered(Vector2i(520, 480))
 
 func _apply_menu_graphics_preset(quality: String) -> void:
