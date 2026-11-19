@@ -342,10 +342,10 @@ func _apply_menu_graphics_preset(quality: String) -> void:
 	match quality:
 		"Tiết kiệm":
 			target_fps = 30
-			render_scale = 0.70
+			render_scale = 1.0
 		"Trung bình":
 			target_fps = 45
-			render_scale = 0.85
+			render_scale = 1.0
 		"Đẹp":
 			target_fps = 60
 			render_scale = 1.0
@@ -355,7 +355,8 @@ func _apply_menu_graphics_preset(quality: String) -> void:
 			render_scale = 1.0
 			antialiasing = Viewport.MSAA_4X
 	Engine.max_fps = target_fps
-	get_viewport().scaling_3d_scale = render_scale
+	# Preserve native render resolution; lower presets reduce effects/FPS, not image sharpness.
+	get_viewport().scaling_3d_scale = 1.0
 	get_viewport().msaa_3d = antialiasing
 
 func _menu_panel_style() -> StyleBoxFlat:
