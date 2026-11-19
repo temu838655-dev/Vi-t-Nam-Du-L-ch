@@ -128,7 +128,7 @@ for side in (-1,1):
 # Mouth cavity, shaped lips, teeth and chin
 parts.append(uv("Mouth_Cavity",(0,-.176,1.685),(.060,.018,.027),mouth,32,16,"head"))
 parts.append(curve_obj("Upper_Lip", [(-.059,-.195,1.696),(-.026,-.207,1.704),(0,-.211,1.695),(.026,-.207,1.704),(.059,-.195,1.696)],.009,lip))
-parts.append(curve_obj("Lower_Lip",[(-.052,-.194,1.681),(0,-.208,1.671),(.052,-.194,1.681)],.010,lip))
+parts.append(curve_obj("Lower_Lip",[(-.052,-.194,1.681),(0,-.208,1.671),(.052,-.194,1.681)],.010,lip,"jaw"))
 parts.append(uv("Upper_Teeth",(0,-.198,1.692),(.040,.009,.010),teeth,24,12,"head"))
 parts.append(uv("Chin",(0,-.15,1.635),(.085,.055,.045),skin,28,18,"head"))
 # Armature with deforming body hierarchy.
@@ -172,6 +172,19 @@ for o in list(bpy.context.scene.objects):
         bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active=o
         bpy.ops.object.convert(target="MESH")
         o=bpy.context.object
+        # Export real eyelid morph targets so blink affects eyelid geometry.
+        if o.name.startswith(("Eyelid_Upper_Left", "Eyelid_Lower_Left")):
+            blink_name = "Blink_Left"
+        elif o.name.startswith(("Eyelid_Upper_Right", "Eyelid_Lower_Right")):
+            blink_name = "Blink_Right"
+        else:
+            blink_name = ""
+        if blink_name:
+            o.shape_key_add(name="Basis")
+            blink = o.shape_key_add(name=blink_name)
+            upper = o.name.startswith("Eyelid_Upper_")
+            for vertex in blink.data:
+                vertex.co.z += -0.022 if upper else 0.014
         vg=o.vertex_groups.new(name=bone); vg.add(list(range(len(o.data.vertices))),1.0,"REPLACE")
         mod=o.modifiers.new("Hero_Skeleton","ARMATURE"); mod.object=arm
         o.parent=arm
