@@ -12,15 +12,19 @@ def mat(name, color, rough=0.72, metallic=0.0):
     m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
     p=m.node_tree.nodes.get("Principled BSDF"); p.inputs["Base Color"].default_value=(*color,1)
     p.inputs["Roughness"].default_value=rough; p.inputs["Metallic"].default_value=metallic
+    if name.startswith("Skin_"):
+        if "Specular IOR Level" in p.inputs: p.inputs["Specular IOR Level"].default_value=0.28
+        if "Subsurface Weight" in p.inputs: p.inputs["Subsurface Weight"].default_value=0.065
+        if "Subsurface Radius" in p.inputs: p.inputs["Subsurface Radius"].default_value=(1.0,0.42,0.22)
     return m
-skin=mat("Skin_Warm_Vietnamese_Tan",(0.53,0.31,0.22),.68)
-skin_lite=mat("Skin_Highlight",(0.64,0.40,0.30),.7)
+skin=mat("Skin_Warm_Vietnamese_Tan",(0.53,0.31,0.22),.84)
+skin_lite=mat("Skin_Highlight",(0.64,0.40,0.30),.82)
 hair=mat("Hair_Black_Brown",(0.025,0.018,0.014),.38)
 eye_white=mat("Eye_White",(0.82,0.78,0.69),.3)
 iris=mat("Iris_Dark_Brown",(0.12,0.055,0.025),.25)
 pupil=mat("Pupil",(0.008,0.006,0.004),.18)
 brow=mat("Eyebrow",(0.045,0.027,0.018),.7)
-lip=mat("Lips",(0.34,0.12,0.10),.55)
+lip=mat("Lips",(0.34,0.12,0.10),.68)
 mouth=mat("Mouth_Cavity",(0.055,0.012,0.014),.9)
 teeth=mat("Teeth",(0.88,0.82,0.68),.25)
 shirt=mat("Polo_Deep_Teal",(0.035,0.19,0.20),.82)
