@@ -17,6 +17,7 @@ var torso: MeshInstance3D
 var production_visual: Node3D
 var production_animation_player: AnimationPlayer
 var using_production_visual := false
+var talk_time_remaining := 0.0
 
 const CAREER_BY_ROLE := {
 	"career_driver": "Tài xế công nghệ",
@@ -33,6 +34,7 @@ func _ready() -> void:
 		_update_family_routine(true)
 
 func _process(delta: float) -> void:
+	talk_time_remaining = maxf(0.0, talk_time_remaining - delta)
 	if role != "mother" and role != "father":
 		return
 	var clock := fposmod(GameState.world_time_seconds, 240.0)
@@ -48,7 +50,7 @@ func _process(delta: float) -> void:
 			rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), minf(1.0, delta * 4.0))
 		position = position.move_toward(routine_target, delta * 1.25)
 		idle_phase += delta * 7.0
-		if using_production_visual:
+		if using_production_visual and talk_time_remaining <= 0.0:
 			_play_npc_animation("walk")
 		else:
 			if is_instance_valid(left_arm):
@@ -56,7 +58,7 @@ func _process(delta: float) -> void:
 			if is_instance_valid(right_arm):
 				right_arm.rotation.x = -sin(idle_phase) * 0.18
 	else:
-		if using_production_visual:
+		if using_production_visual and talk_time_remaining <= 0.0:
 			_play_npc_animation("idle")
 		else:
 			idle_phase += delta
@@ -272,14 +274,20 @@ func _add_sphere(part_name: String, at: Vector3, dimensions: Vector3, material: 
 	add_child(part)
 	return part
 
+func _start_npc_talk() -> void:
+	talk_time_remaining = 2.6
+	_play_npc_animation("talk")
+
 func interact() -> String:
 	match role:
 		"mother":
+			_start_npc_talk()
 			if not GameState.register_family_interaction("mother", "fallback_talk"):
 				return "Mẹ: Hôm nay mẹ con mình đã trò chuyện rồi. Con cứ tự nhiên khám phá nhé!"
 			GameState.family_affection = mini(100, GameState.family_affection + 2)
 			return "Mẹ (%s): %s" % [current_activity, _family_reply("Mẹ")]
 		"father":
+			_start_npc_talk()
 			if not GameState.register_family_interaction("father", "fallback_talk"):
 				return "Bố: Hôm nay bố con mình đã trò chuyện rồi. Khi nào rảnh ta nói tiếp nhé!"
 			GameState.family_affection = mini(100, GameState.family_affection + 2)
