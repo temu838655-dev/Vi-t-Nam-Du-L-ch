@@ -135,6 +135,7 @@ func _try_build_production_resident() -> bool:
 	production_visual.name = "ProductionResidentVisual"
 	add_child(production_visual)
 	production_animation_player = _find_resident_animation_player(production_visual)
+	_apply_resident_visual_variant()
 	using_production_visual = true
 	_play_resident_animation("idle")
 	return true
@@ -225,3 +226,31 @@ func _add_sphere(part_name: String, at: Vector3, dimensions: Vector3, material: 
 	mesh_instance.position = at
 	mesh_instance.material_override = material
 	add_child(mesh_instance)
+
+
+
+func _apply_resident_visual_variant() -> void:
+	# Deterministic per-NPC variation: clothing tint and subtle stature differences.
+	# This is not a substitute for separate female/elderly/child character meshes.
+	var variant_index := posmod(resident_name.hash(), 7)
+	var hue := fposmod(0.54 + float(variant_index) * 0.115, 1.0)
+	var clothing_tint := Color.from_hsv(hue, 0.42, 0.82)
+	var stature := 0.96 + float(posmod(variant_index * 3, 7)) * 0.012
+	production_visual.scale = Vector3.ONE * stature
+	_apply_clothing_tint(production_visual, clothing_tint)
+
+
+func _apply_clothing_tint(node: Node, tint: Color) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		var node_name := mesh_instance.name.to_lower()
+		if "shirt" in node_name or "blouse" in node_name or "torso" in node_name or "polo" in node_name or "chest" in node_name:
+			if mesh_instance.mesh != null:
+				for surface_index in range(mesh_instance.mesh.get_surface_count()):
+					var source_material := mesh_instance.get_active_material(surface_index)
+					if source_material is StandardMaterial3D:
+						var material := (source_material as StandardMaterial3D).duplicate() as StandardMaterial3D
+						material.albedo_color = material.albedo_color * tint
+						mesh_instance.set_surface_override_material(surface_index, material)
+	for child in node.get_children():
+		_apply_clothing_tint(child, tint)
