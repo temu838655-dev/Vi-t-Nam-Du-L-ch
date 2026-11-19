@@ -21,6 +21,7 @@ var current_activity := "Ở nhà"
 var production_visual: Node3D
 var production_animation_player: AnimationPlayer
 var using_production_visual := false
+var talk_time_remaining := 0.0
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -30,6 +31,7 @@ func _ready() -> void:
 	_update_schedule(0.0)
 
 func _process(delta: float) -> void:
+	talk_time_remaining = maxf(0.0, talk_time_remaining - delta)
 	_update_schedule(delta)
 
 func _update_schedule(delta: float) -> void:
@@ -65,13 +67,13 @@ func _update_schedule(delta: float) -> void:
 		var movement := position - previous_position
 		if movement.length_squared() > 0.0001:
 			rotation.y = atan2(movement.x, movement.z)
-		if using_production_visual:
+		if using_production_visual and talk_time_remaining <= 0.0:
 			_play_resident_animation("walk")
 		else:
 			left_leg.rotation.x = swing
 			right_leg.rotation.x = -swing
 	else:
-		if using_production_visual:
+		if using_production_visual and talk_time_remaining <= 0.0:
 			_play_resident_animation("idle")
 		else:
 			left_leg.rotation.x = 0.0
@@ -81,6 +83,8 @@ func _update_schedule(delta: float) -> void:
 
 
 func interact() -> String:
+	talk_time_remaining = 2.6
+	_play_resident_animation("talk")
 	conversation_count += 1
 	var replies: Array[String] = []
 	match current_activity:
