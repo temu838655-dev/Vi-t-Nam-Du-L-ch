@@ -93,12 +93,12 @@ func _update_day_night() -> void:
 	var horizon_sky := Color(0.92, 0.42, 0.24)
 	environment.background_color = night_sky.lerp(day_sky, daylight).lerp(horizon_sky, warm_horizon * 0.62)
 	environment.ambient_light_color = Color(0.12, 0.16, 0.27).lerp(Color(0.78, 0.82, 0.86), daylight)
-	environment.ambient_light_energy = lerpf(0.28, 0.82, daylight)
+	environment.ambient_light_energy = lerpf(0.58, 0.92, daylight)
 	if is_instance_valid(sun_light):
 		var daylight_color := Color(1.0, 0.97, 0.88)
 		var sunset_color := Color(1.0, 0.58, 0.34)
 		sun_light.light_color = daylight_color.lerp(sunset_color, warm_horizon * 0.78)
-		sun_light.light_energy = lerpf(0.025, 1.15, daylight)
+		sun_light.light_energy = lerpf(0.22, 1.35, daylight)
 		sun_light.rotation = Vector3(deg_to_rad(-10.0 - daylight * 68.0), deg_to_rad(hour * 15.0 - 90.0), 0.0)
 
 func _notification(what: int) -> void:
