@@ -116,7 +116,7 @@ for side in (-1,1):
     s="Left" if side<0 else "Right"; x=side*.078
     parts.append(uv("EyeSocket_"+s,(x,-.168,1.855),(.061,.025,.039),skin_lite,28,18,"head"))
     parts.append(uv("Eye_"+s,(x,-.188,1.855),(.047,.025,.027),eye_white,32,20,"head"))
-    parts.append(uv("EyeBall_"+s,(x,-.188,1.855),(.047,.025,.027),eye_white,32,20,"head"))
+    # Eye_ mesh is the single sclera; avoid coincident duplicate geometry.
     parts.append(uv("Eye_Iris_"+s,(x,-.210,1.854),(.020,.009,.021),iris,24,16,"head"))
     parts.append(uv("Eye_Pupil_"+s,(x,-.218,1.854),(.010,.006,.013),pupil,20,12,"head"))
     parts.append(uv("Eye_Catchlight_"+s,(x-.006,-.224,1.863),(.004,.003,.005),teeth,12,8,"head"))
