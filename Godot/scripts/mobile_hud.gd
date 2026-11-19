@@ -165,6 +165,7 @@ class RoundMiniMap:
 var player: CharacterBody3D
 var status_label: Label
 var profile_name_label: Label
+var profile_location_label: Label
 var clock_label: Label
 var compass_label: Label
 var nearby_label: Label
@@ -238,13 +239,13 @@ func _ready() -> void:
 	career_label.add_theme_color_override("font_color", Color(0.66, 0.88, 0.91, 1.0))
 	career_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	profile_text.add_child(career_label)
-	var location_label := Label.new()
-	location_label.name = "LocationLabel"
-	location_label.text = "📍 %s" % str(GameState.current_location)
-	location_label.add_theme_font_size_override("font_size", 12 if compact_layout else 14)
-	location_label.add_theme_color_override("font_color", Color(0.91, 0.94, 0.92, 1.0))
-	location_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	profile_text.add_child(location_label)
+	profile_location_label = Label.new()
+	profile_location_label.name = "LocationLabel"
+	profile_location_label.text = "📍 %s" % str(GameState.current_location)
+	profile_location_label.add_theme_font_size_override("font_size", 12 if compact_layout else 14)
+	profile_location_label.add_theme_color_override("font_color", Color(0.91, 0.94, 0.92, 1.0))
+	profile_location_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	profile_text.add_child(profile_location_label)
 
 	var mission := _make_hud_panel(Vector2(18, 112 if compact_layout else 136), Vector2(mission_width, 116))
 	ui_root.add_child(mission)
@@ -863,6 +864,8 @@ func _handle_overlay_back_key(event: InputEvent) -> bool:
 func _process(delta: float) -> void:
 	_update_status()
 	_update_mission_ui()
+	if is_instance_valid(profile_location_label):
+		profile_location_label.text = "📍 %s" % str(GameState.current_location)
 	if is_instance_valid(map_canvas) and is_instance_valid(player):
 		map_canvas.player_position = player.global_position
 		map_canvas.player_rotation_y = player.rotation.y
