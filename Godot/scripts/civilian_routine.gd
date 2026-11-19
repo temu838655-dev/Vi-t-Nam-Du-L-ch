@@ -1,6 +1,7 @@
 extends Node3D
 
-const RESIDENT_MODEL_PATH := "res://assets/characters/player/player_hero.glb"
+const MALE_RESIDENT_MODEL_PATH := "res://assets/characters/player/player_hero.glb"
+const FEMALE_RESIDENT_MODEL_PATH := "res://assets/characters/npc/vietnamese_woman.glb"
 
 # Mobile-friendly daily routine for a small number of sidewalk residents.
 # Residents share the same accelerated world clock as the player.
@@ -70,14 +71,16 @@ func _update_schedule(delta: float) -> void:
 		var movement := position - previous_position
 		if movement.length_squared() > 0.0001:
 			rotation.y = atan2(movement.x, movement.z)
-		if using_production_visual and talk_time_remaining <= 0.0:
-			_play_resident_animation("walk")
+		if using_production_visual:
+			if talk_time_remaining <= 0.0:
+				_play_resident_animation("walk")
 		else:
 			left_leg.rotation.x = swing
 			right_leg.rotation.x = -swing
 	else:
-		if using_production_visual and talk_time_remaining <= 0.0:
-			_play_resident_animation("idle")
+		if using_production_visual:
+			if talk_time_remaining <= 0.0:
+				_play_resident_animation("idle")
 		else:
 			left_leg.rotation.x = 0.0
 			right_leg.rotation.x = 0.0
@@ -124,9 +127,13 @@ func _build_resident() -> void:
 
 
 func _try_build_production_resident() -> bool:
-	if not ResourceLoader.exists(RESIDENT_MODEL_PATH):
+	# Deterministically mix the authored male and female resident meshes.
+	# The current library has one base model per presentation; this is not yet age/body diversity.
+	var use_female_model := posmod(resident_name.hash(), 3) == 0
+	var model_path := FEMALE_RESIDENT_MODEL_PATH if use_female_model else MALE_RESIDENT_MODEL_PATH
+	if not ResourceLoader.exists(model_path):
 		return false
-	var packed := load(RESIDENT_MODEL_PATH) as PackedScene
+	var packed := load(model_path) as PackedScene
 	if packed == null:
 		return false
 	var instance := packed.instantiate()
