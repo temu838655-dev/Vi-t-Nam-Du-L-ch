@@ -164,6 +164,7 @@ class RoundMiniMap:
 
 var player: CharacterBody3D
 var status_label: Label
+var profile_name_label: Label
 var clock_label: Label
 var compass_label: Label
 var nearby_label: Label
@@ -226,10 +227,10 @@ func _ready() -> void:
 	var profile_text := VBoxContainer.new()
 	profile_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	profile_layout.add_child(profile_text)
-	var player_name := Label.new()
-	player_name.text = "Du Khách"
-	player_name.add_theme_font_size_override("font_size", 21)
-	profile_text.add_child(player_name)
+	profile_name_label = Label.new()
+	profile_name_label.text = GameState.player_name
+	profile_name_label.add_theme_font_size_override("font_size", 21)
+	profile_text.add_child(profile_name_label)
 	var level := Label.new()
 	level.text = "★  Lv.1"
 	level.add_theme_font_size_override("font_size", 17)
@@ -237,7 +238,7 @@ func _ready() -> void:
 	var xp := ProgressBar.new()
 	xp.custom_minimum_size = Vector2(90 if compact_layout else 150, 10)
 	xp.max_value = 100
-	xp.value = 28
+	xp.value = 0
 	xp.show_percentage = false
 	profile_text.add_child(xp)
 
@@ -1026,6 +1027,8 @@ func _clear_waypoint() -> void:
 func _update_status() -> void:
 	if status_label:
 		status_label.text = "🪙 %s VNĐ   💎 0" % _format_money(GameState.wallet_vnd)
+	if is_instance_valid(profile_name_label):
+		profile_name_label.text = GameState.player_name
 	if clock_label:
 		var game_hour := int(floor(fposmod(GameState.world_time_seconds, 240.0) / 10.0))
 		var period := "BAN ĐÊM" if game_hour < 5 or game_hour >= 20 else ("BÌNH MINH" if game_hour < 7 else ("BUỔI SÁNG" if game_hour < 11 else ("BUỔI TRƯA" if game_hour < 14 else ("BUỔI CHIỀU" if game_hour < 18 else "HOÀNG HÔN"))))
